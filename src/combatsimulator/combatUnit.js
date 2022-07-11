@@ -58,6 +58,28 @@ class CombatUnit {
                 (10 + this.defenseLevel) * (1 + this.combatStats[style + "Evasion"]);
         });
     }
+
+    addBuff(buff, currentTime) {
+        buff.startTime = currentTime;
+        this.combatBuffs[buff.sourceHrid] = buff;
+    }
+
+    removeExpiredBuffs(currentTime) {
+        let expiredBuffs = Object.values(this.combatBuffs).filter(
+            (buff) => buff.startTime + buff.duration <= currentTime
+        );
+        expiredBuffs.forEach((buff) => {
+            delete this.combatBuffs[buff.sourceHrid];
+        });
+    }
+
+    reset() {
+        this.combatBuffs = {};
+        this.updateCombatStats();
+
+        this.combatStats.currentHitpoints = this.combatStats.maxHitpoints;
+        this.combatStats.currentManapoints = this.combatStats.currentManapoints;
+    }
 }
 
 export default CombatUnit;

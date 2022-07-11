@@ -2,6 +2,31 @@
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
+/***/ "./src/combatsimulator/buff.js":
+/*!*************************************!*\
+  !*** ./src/combatsimulator/buff.js ***!
+  \*************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+class Buff {
+    constructor(buff, level = 1) {
+        this.sourceHrid = buff.sourceHrid;
+        this.typeHrid = buff.typeHrid;
+        this.ratioBoost = buff.ratioBoost + (level - 1) * buff.ratioBoostLevelBonus;
+        this.flatBoost = buff.flatBoost + (level - 1) * buff.flatBoostLevelBonus;
+        this.duration = buff.duration;
+    }
+}
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Buff);
+
+
+/***/ }),
+
 /***/ "./src/combatsimulator/combatUnit.js":
 /*!*******************************************!*\
   !*** ./src/combatsimulator/combatUnit.js ***!
@@ -20,7 +45,7 @@ class CombatUnit {
     attackLevel = 1;
     powerLevel = 1;
     defenseLevel = 1;
-    
+
     combatStats = {
         combatStyleHrid: "/combat_styles/smash",
         attackInterval: 3000000000,
@@ -64,14 +89,37 @@ class CombatUnit {
         this.combatStats.maxHitpoints = 10 * (10 + this.staminaLevel);
         this.combatStats.maxManapoints = 10 * (10 + this.intelligenceLevel);
 
-        [ "stab", "slash", "smash"].forEach((style) => {
-            this.combatStats[style + "AccuracyRating"] = (10 + this.attackLevel) * (1 + this.combatStats[style + "Accuracy"]);
+        ["stab", "slash", "smash"].forEach((style) => {
+            this.combatStats[style + "AccuracyRating"] =
+                (10 + this.attackLevel) * (1 + this.combatStats[style + "Accuracy"]);
             this.combatStats[style + "MaxDamage"] = (10 + this.powerLevel) * (1 + this.combatStats[style + "Damage"]);
-            this.combatStats[style + "EvasionRating"] = (10 + this.defenseLevel) * (1 + this.combatStats[style + "Evasion"]);
+            this.combatStats[style + "EvasionRating"] =
+                (10 + this.defenseLevel) * (1 + this.combatStats[style + "Evasion"]);
         });
     }
 
+    addBuff(buff, currentTime) {
+        buff.startTime = currentTime;
+        this.combatBuffs[buff.sourceHrid] = buff;
+    }
 
+    removeExpiredBuffs(currentTime) {
+        let expiredBuffs = Object.values(this.combatBuffs).filter(
+            (buff) => buff.startTime + buff.duration <= currentTime
+        );
+        console.log("expiredBuffs", expiredBuffs);
+        expiredBuffs.forEach((buff) => {
+            delete this.combatBuffs[buff.sourceHrid];
+        });
+    }
+
+    reset() {
+        this.combatBuffs = {};
+        this.updateCombatStats();
+
+        this.combatStats.currentHitpoints = this.combatStats.maxHitpoints;
+        this.combatStats.currentManapoints = this.combatStats.currentManapoints;
+    }
 }
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (CombatUnit);
@@ -252,6 +300,16 @@ class Player extends _combatUnit__WEBPACK_IMPORTED_MODULE_0__["default"] {
 
 /***/ }),
 
+/***/ "./src/combatsimulator/data/abilityDetailMap.json":
+/*!********************************************************!*\
+  !*** ./src/combatsimulator/data/abilityDetailMap.json ***!
+  \********************************************************/
+/***/ ((module) => {
+
+module.exports = JSON.parse('{"/abilities/berserk":{"hrid":"/abilities/berserk","name":"Berserk","description":"Greatly increases damages for a short time","manaCost":60,"cooldownDuration":30000000000,"hasSpecialEffects":false,"abilityEffects":[{"targetType":"self","effectType":"/ability_effect_types/buff","combatStyleHrid":"","baseDamageFlat":0,"baseDamageFlatLevelBonus":0,"baseDamageRatio":0,"baseDamageRatioLevelBonus":0,"bonusAccuracyRatio":0,"bonusAccuracyRatioLevelBonus":0,"bleedRatio":0,"duration":0,"buff":{"sourceHrid":"/buff_sources/berserk","typeHrid":"/buff_types/damage","ratioBoost":0.25,"ratioBoostLevelBonus":0.0025,"flatBoost":0,"flatBoostLevelBonus":0,"startTime":"0001-01-01T00:00:00Z","duration":15000000000}}],"defaultCombatTriggers":[{"dependencyHrid":"/combat_trigger_dependencies/self","conditionHrid":"/combat_trigger_conditions/berserk","comparatorHrid":"/combat_trigger_comparators/is_inactive","value":0}],"sortIndex":10},"/abilities/cleave":{"hrid":"/abilities/cleave","name":"Cleave","description":"Cleaves all enemies","manaCost":30,"cooldownDuration":20000000000,"hasSpecialEffects":false,"abilityEffects":[{"targetType":"all enemies","effectType":"/ability_effect_types/damage","combatStyleHrid":"/combat_styles/slash","baseDamageFlat":20,"baseDamageFlatLevelBonus":0.2,"baseDamageRatio":0.3,"baseDamageRatioLevelBonus":0.003,"bonusAccuracyRatio":0,"bonusAccuracyRatioLevelBonus":0,"bleedRatio":0,"duration":0,"buff":{"sourceHrid":"","typeHrid":"","ratioBoost":0,"ratioBoostLevelBonus":0,"flatBoost":0,"flatBoostLevelBonus":0,"startTime":"0001-01-01T00:00:00Z","duration":0}}],"defaultCombatTriggers":[{"dependencyHrid":"/combat_trigger_dependencies/all_enemies","conditionHrid":"/combat_trigger_conditions/number_of_active_units","comparatorHrid":"/combat_trigger_comparators/greater_than_equal","value":1},{"dependencyHrid":"/combat_trigger_dependencies/targeted_enemy","conditionHrid":"/combat_trigger_conditions/current_hp","comparatorHrid":"/combat_trigger_comparators/greater_than_equal","value":1}],"sortIndex":5},"/abilities/frenzy":{"hrid":"/abilities/frenzy","name":"Frenzy","description":"Greatly increases attack speed for a short time","manaCost":60,"cooldownDuration":30000000000,"hasSpecialEffects":false,"abilityEffects":[{"targetType":"self","effectType":"/ability_effect_types/buff","combatStyleHrid":"","baseDamageFlat":0,"baseDamageFlatLevelBonus":0,"baseDamageRatio":0,"baseDamageRatioLevelBonus":0,"bonusAccuracyRatio":0,"bonusAccuracyRatioLevelBonus":0,"bleedRatio":0,"duration":0,"buff":{"sourceHrid":"/buff_sources/frenzy","typeHrid":"/buff_types/attack_speed","ratioBoost":0.25,"ratioBoostLevelBonus":0.0025,"flatBoost":0,"flatBoostLevelBonus":0,"startTime":"0001-01-01T00:00:00Z","duration":15000000000}}],"defaultCombatTriggers":[{"dependencyHrid":"/combat_trigger_dependencies/self","conditionHrid":"/combat_trigger_conditions/frenzy","comparatorHrid":"/combat_trigger_comparators/is_inactive","value":0}],"sortIndex":11},"/abilities/maim":{"hrid":"/abilities/maim","name":"Maim","description":"Maims the targeted enemy and causes bleeding","manaCost":60,"cooldownDuration":20000000000,"hasSpecialEffects":false,"abilityEffects":[{"targetType":"enemy","effectType":"/ability_effect_types/damage","combatStyleHrid":"/combat_styles/slash","baseDamageFlat":20,"baseDamageFlatLevelBonus":0.2,"baseDamageRatio":0.35,"baseDamageRatioLevelBonus":0.0035,"bonusAccuracyRatio":0,"bonusAccuracyRatioLevelBonus":0,"bleedRatio":2,"duration":12000000000,"buff":{"sourceHrid":"","typeHrid":"","ratioBoost":0,"ratioBoostLevelBonus":0,"flatBoost":0,"flatBoostLevelBonus":0,"startTime":"0001-01-01T00:00:00Z","duration":0}}],"defaultCombatTriggers":[{"dependencyHrid":"/combat_trigger_dependencies/targeted_enemy","conditionHrid":"/combat_trigger_conditions/current_hp","comparatorHrid":"/combat_trigger_comparators/greater_than_equal","value":1}],"sortIndex":7},"/abilities/pierce":{"hrid":"/abilities/pierce","name":"Pierce","description":"Pierce the targeted enemy","manaCost":30,"cooldownDuration":20000000000,"hasSpecialEffects":false,"abilityEffects":[{"targetType":"enemy","effectType":"/ability_effect_types/damage","combatStyleHrid":"/combat_styles/stab","baseDamageFlat":20,"baseDamageFlatLevelBonus":0.2,"baseDamageRatio":0.7,"baseDamageRatioLevelBonus":0.007,"bonusAccuracyRatio":0,"bonusAccuracyRatioLevelBonus":0,"bleedRatio":0,"duration":0,"buff":{"sourceHrid":"","typeHrid":"","ratioBoost":0,"ratioBoostLevelBonus":0,"flatBoost":0,"flatBoostLevelBonus":0,"startTime":"0001-01-01T00:00:00Z","duration":0}}],"defaultCombatTriggers":[{"dependencyHrid":"/combat_trigger_dependencies/targeted_enemy","conditionHrid":"/combat_trigger_conditions/current_hp","comparatorHrid":"/combat_trigger_comparators/greater_than_equal","value":1}],"sortIndex":4},"/abilities/poke":{"hrid":"/abilities/poke","name":"Poke","description":"Poke the targeted enemy","manaCost":20,"cooldownDuration":15000000000,"hasSpecialEffects":false,"abilityEffects":[{"targetType":"enemy","effectType":"/ability_effect_types/damage","combatStyleHrid":"/combat_styles/stab","baseDamageFlat":10,"baseDamageFlatLevelBonus":0.1,"baseDamageRatio":0.4,"baseDamageRatioLevelBonus":0.004,"bonusAccuracyRatio":0,"bonusAccuracyRatioLevelBonus":0,"bleedRatio":0,"duration":0,"buff":{"sourceHrid":"","typeHrid":"","ratioBoost":0,"ratioBoostLevelBonus":0,"flatBoost":0,"flatBoostLevelBonus":0,"startTime":"0001-01-01T00:00:00Z","duration":0}}],"defaultCombatTriggers":[{"dependencyHrid":"/combat_trigger_dependencies/targeted_enemy","conditionHrid":"/combat_trigger_conditions/current_hp","comparatorHrid":"/combat_trigger_comparators/greater_than_equal","value":1}],"sortIndex":1},"/abilities/precision":{"hrid":"/abilities/precision","name":"Precision","description":"Greatly increases accuracy for a short time","manaCost":60,"cooldownDuration":30000000000,"hasSpecialEffects":false,"abilityEffects":[{"targetType":"self","effectType":"/ability_effect_types/buff","combatStyleHrid":"","baseDamageFlat":0,"baseDamageFlatLevelBonus":0,"baseDamageRatio":0,"baseDamageRatioLevelBonus":0,"bonusAccuracyRatio":0,"bonusAccuracyRatioLevelBonus":0,"bleedRatio":0,"duration":0,"buff":{"sourceHrid":"/buff_sources/precision","typeHrid":"/buff_types/accuracy","ratioBoost":0.25,"ratioBoostLevelBonus":0.0025,"flatBoost":0,"flatBoostLevelBonus":0,"startTime":"0001-01-01T00:00:00Z","duration":15000000000}}],"defaultCombatTriggers":[{"dependencyHrid":"/combat_trigger_dependencies/self","conditionHrid":"/combat_trigger_conditions/precision","comparatorHrid":"/combat_trigger_comparators/is_inactive","value":0}],"sortIndex":9},"/abilities/scratch":{"hrid":"/abilities/scratch","name":"Scratch","description":"Scratch the targeted enemy","manaCost":20,"cooldownDuration":15000000000,"hasSpecialEffects":false,"abilityEffects":[{"targetType":"enemy","effectType":"/ability_effect_types/damage","combatStyleHrid":"/combat_styles/slash","baseDamageFlat":10,"baseDamageFlatLevelBonus":0.1,"baseDamageRatio":0.4,"baseDamageRatioLevelBonus":0.004,"bonusAccuracyRatio":0,"bonusAccuracyRatioLevelBonus":0,"bleedRatio":0,"duration":0,"buff":{"sourceHrid":"","typeHrid":"","ratioBoost":0,"ratioBoostLevelBonus":0,"flatBoost":0,"flatBoostLevelBonus":0,"startTime":"0001-01-01T00:00:00Z","duration":0}}],"defaultCombatTriggers":[{"dependencyHrid":"/combat_trigger_dependencies/targeted_enemy","conditionHrid":"/combat_trigger_conditions/current_hp","comparatorHrid":"/combat_trigger_comparators/greater_than_equal","value":1}],"sortIndex":2},"/abilities/smack":{"hrid":"/abilities/smack","name":"Smack","description":"Smack the targeted enemy","manaCost":20,"cooldownDuration":15000000000,"hasSpecialEffects":false,"abilityEffects":[{"targetType":"enemy","effectType":"/ability_effect_types/damage","combatStyleHrid":"/combat_styles/smash","baseDamageFlat":10,"baseDamageFlatLevelBonus":0.1,"baseDamageRatio":0.4,"baseDamageRatioLevelBonus":0.004,"bonusAccuracyRatio":0,"bonusAccuracyRatioLevelBonus":0,"bleedRatio":0,"duration":0,"buff":{"sourceHrid":"","typeHrid":"","ratioBoost":0,"ratioBoostLevelBonus":0,"flatBoost":0,"flatBoostLevelBonus":0,"startTime":"0001-01-01T00:00:00Z","duration":0}}],"defaultCombatTriggers":[{"dependencyHrid":"/combat_trigger_dependencies/targeted_enemy","conditionHrid":"/combat_trigger_conditions/current_hp","comparatorHrid":"/combat_trigger_comparators/greater_than_equal","value":1}],"sortIndex":3},"/abilities/sweep":{"hrid":"/abilities/sweep","name":"Sweep","description":"Sweeping attack on all enemies","manaCost":30,"cooldownDuration":20000000000,"hasSpecialEffects":false,"abilityEffects":[{"targetType":"all enemies","effectType":"/ability_effect_types/damage","combatStyleHrid":"/combat_styles/smash","baseDamageFlat":20,"baseDamageFlatLevelBonus":0.2,"baseDamageRatio":0.3,"baseDamageRatioLevelBonus":0.003,"bonusAccuracyRatio":0,"bonusAccuracyRatioLevelBonus":0,"bleedRatio":0,"duration":0,"buff":{"sourceHrid":"","typeHrid":"","ratioBoost":0,"ratioBoostLevelBonus":0,"flatBoost":0,"flatBoostLevelBonus":0,"startTime":"0001-01-01T00:00:00Z","duration":0}}],"defaultCombatTriggers":[{"dependencyHrid":"/combat_trigger_dependencies/all_enemies","conditionHrid":"/combat_trigger_conditions/number_of_active_units","comparatorHrid":"/combat_trigger_comparators/greater_than_equal","value":1},{"dependencyHrid":"/combat_trigger_dependencies/targeted_enemy","conditionHrid":"/combat_trigger_conditions/current_hp","comparatorHrid":"/combat_trigger_comparators/greater_than_equal","value":1}],"sortIndex":6},"/abilities/toughness":{"hrid":"/abilities/toughness","name":"Toughness","description":"Greatly increases armor for a short time","manaCost":60,"cooldownDuration":30000000000,"hasSpecialEffects":false,"abilityEffects":[{"targetType":"self","effectType":"/ability_effect_types/buff","combatStyleHrid":"","baseDamageFlat":0,"baseDamageFlatLevelBonus":0,"baseDamageRatio":0,"baseDamageRatioLevelBonus":0,"bonusAccuracyRatio":0,"bonusAccuracyRatioLevelBonus":0,"bleedRatio":0,"duration":0,"buff":{"sourceHrid":"/buff_sources/toughness","typeHrid":"/buff_types/armor","ratioBoost":0,"ratioBoostLevelBonus":0,"flatBoost":30,"flatBoostLevelBonus":0.3,"startTime":"0001-01-01T00:00:00Z","duration":15000000000}}],"defaultCombatTriggers":[{"dependencyHrid":"/combat_trigger_dependencies/self","conditionHrid":"/combat_trigger_conditions/toughness","comparatorHrid":"/combat_trigger_comparators/is_inactive","value":0}],"sortIndex":8},"/abilities/vampirism":{"hrid":"/abilities/vampirism","name":"Vampirism","description":"Gains lifesteal for a short time","manaCost":60,"cooldownDuration":30000000000,"hasSpecialEffects":false,"abilityEffects":[{"targetType":"self","effectType":"/ability_effect_types/buff","combatStyleHrid":"","baseDamageFlat":0,"baseDamageFlatLevelBonus":0,"baseDamageRatio":0,"baseDamageRatioLevelBonus":0,"bonusAccuracyRatio":0,"bonusAccuracyRatioLevelBonus":0,"bleedRatio":0,"duration":0,"buff":{"sourceHrid":"/buff_sources/vampirism","typeHrid":"/buff_types/life_steal","ratioBoost":0,"ratioBoostLevelBonus":0,"flatBoost":0.1,"flatBoostLevelBonus":0.001,"startTime":"0001-01-01T00:00:00Z","duration":15000000000}}],"defaultCombatTriggers":[{"dependencyHrid":"/combat_trigger_dependencies/self","conditionHrid":"/combat_trigger_conditions/vampirism","comparatorHrid":"/combat_trigger_comparators/is_inactive","value":0}],"sortIndex":12}}');
+
+/***/ }),
+
 /***/ "./src/combatsimulator/data/combatMonsterDetailMap.json":
 /*!**************************************************************!*\
   !*** ./src/combatsimulator/data/combatMonsterDetailMap.json ***!
@@ -418,6 +476,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _combatsimulator_equipment_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./combatsimulator/equipment.js */ "./src/combatsimulator/equipment.js");
 /* harmony import */ var _combatsimulator_monster_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./combatsimulator/monster.js */ "./src/combatsimulator/monster.js");
 /* harmony import */ var _combatsimulator_player_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./combatsimulator/player.js */ "./src/combatsimulator/player.js");
+/* harmony import */ var _combatsimulator_buff_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./combatsimulator/buff.js */ "./src/combatsimulator/buff.js");
+/* harmony import */ var _combatsimulator_data_abilityDetailMap_json__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./combatsimulator/data/abilityDetailMap.json */ "./src/combatsimulator/data/abilityDetailMap.json");
+/* harmony import */ var _combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./combatsimulator/data/itemDetailMap.json */ "./src/combatsimulator/data/itemDetailMap.json");
+
+
+
 
 
 
@@ -451,82 +515,27 @@ player.equipment["/equipment_types/off_hand"] = new _combatsimulator_equipment_j
 player.equipment["/equipment_types/pouch"] = new _combatsimulator_equipment_js__WEBPACK_IMPORTED_MODULE_0__["default"]("/items/large_pouch", 0);
 
 player.updateCombatStats();
-
-[
-    "combatStyleHrid",
-    "attackInterval",
-    "stabAccuracy",
-    "slashAccuracy",
-    "smashAccuracy",
-    "stabDamage",
-    "slashDamage",
-    "smashDamage",
-    "stabEvasion",
-    "slashEvasion",
-    "smashEvasion",
-    "armor",
-    "lifeSteal",
-    "HPRegen",
-    "MPRegen",
-    "dropRate",
-    "foodSlots",
-    "drinkSlots",
-    "maxHitpoints",
-    "currentHitpoints",
-    "maxManapoints",
-    "currentManapoints",
-    "stabAccuracyRating",
-    "slashAccuracyRating",
-    "smashAccuracyRating",
-    "stabMaxDamage",
-    "slashMaxDamage",
-    "smashMaxDamage",
-    "stabEvasionRating",
-    "slashEvasionRating",
-    "smashEvasionRating",
-].forEach((stat) => {
-    console.log("Player:", stat, player.combatStats[stat]);
-});
+console.log("Player:", player);
 
 let monster = new _combatsimulator_monster_js__WEBPACK_IMPORTED_MODULE_1__["default"]("/combat_monsters/alligator");
 monster.updateCombatStats();
-
-[
-    "combatStyleHrid",
-    "attackInterval",
-    "stabAccuracy",
-    "slashAccuracy",
-    "smashAccuracy",
-    "stabDamage",
-    "slashDamage",
-    "smashDamage",
-    "stabEvasion",
-    "slashEvasion",
-    "smashEvasion",
-    "armor",
-    "lifeSteal",
-    "HPRegen",
-    "MPRegen",
-    "dropRate",
-    "foodSlots",
-    "drinkSlots",
-    "maxHitpoints",
-    "currentHitpoints",
-    "maxManapoints",
-    "currentManapoints",
-    "stabAccuracyRating",
-    "slashAccuracyRating",
-    "smashAccuracyRating",
-    "stabMaxDamage",
-    "slashMaxDamage",
-    "smashMaxDamage",
-    "stabEvasionRating",
-    "slashEvasionRating",
-    "smashEvasionRating",
-].forEach((stat) => {
-    console.log("Monster:", stat, monster.combatStats[stat]);
-});
 console.log("Monster:", monster);
+
+let buff1 = new _combatsimulator_buff_js__WEBPACK_IMPORTED_MODULE_3__["default"](_combatsimulator_data_abilityDetailMap_json__WEBPACK_IMPORTED_MODULE_4__["/abilities/berserk"].abilityEffects[0].buff, 9);
+let buff2 = new _combatsimulator_buff_js__WEBPACK_IMPORTED_MODULE_3__["default"](_combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_5__["/items/attack_coffee"].consumableDetail.buffs[0]);
+
+console.log("Buff1:", buff1);
+console.log("Buff2:", buff2);
+
+let currentTime = 1000000000;
+player.addBuff(buff1, currentTime);
+player.addBuff(buff2, currentTime);
+console.table(player.combatBuffs);
+player.removeExpiredBuffs(currentTime + buff1.duration - 1);
+console.table(player.combatBuffs);
+player.removeExpiredBuffs(currentTime + buff1.duration);
+console.table(player.combatBuffs);
+
 })();
 
 /******/ })()

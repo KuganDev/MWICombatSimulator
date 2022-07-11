@@ -1,6 +1,9 @@
 import Equipment from "./combatsimulator/equipment.js";
 import Monster from "./combatsimulator/monster.js";
 import Player from "./combatsimulator/player.js";
+import Buff from "./combatsimulator/buff.js";
+import abilityDetailMap from "./combatsimulator/data/abilityDetailMap.json";
+import itemDetailMap from "./combatsimulator/data/itemDetailMap.json";
 
 let button = document.querySelector("#button1");
 let input = document.querySelector("#input1");
@@ -36,3 +39,18 @@ console.log("Player:", player);
 let monster = new Monster("/combat_monsters/alligator");
 monster.updateCombatStats();
 console.log("Monster:", monster);
+
+let buff1 = new Buff(abilityDetailMap["/abilities/berserk"].abilityEffects[0].buff, 9);
+let buff2 = new Buff(itemDetailMap["/items/attack_coffee"].consumableDetail.buffs[0]);
+
+console.log("Buff1:", buff1);
+console.log("Buff2:", buff2);
+
+let currentTime = 1000000000;
+player.addBuff(buff1, currentTime);
+player.addBuff(buff2, currentTime);
+console.table(player.combatBuffs);
+player.removeExpiredBuffs(currentTime + buff1.duration - 1);
+console.table(player.combatBuffs);
+player.removeExpiredBuffs(currentTime + buff1.duration);
+console.table(player.combatBuffs);
