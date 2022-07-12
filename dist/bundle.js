@@ -107,7 +107,6 @@ class CombatUnit {
         let expiredBuffs = Object.values(this.combatBuffs).filter(
             (buff) => buff.startTime + buff.duration <= currentTime
         );
-        console.log("expiredBuffs", expiredBuffs);
         expiredBuffs.forEach((buff) => {
             delete this.combatBuffs[buff.sourceHrid];
         });
