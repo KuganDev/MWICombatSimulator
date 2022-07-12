@@ -60,6 +60,10 @@ class Player extends CombatUnit {
             this.combatStats.drinkSlots = 0;
         }
 
+        this.combatStats.HPRegen = 0.005;
+        this.combatStats.MPRegen = 0.01;
+        this.combatStats.dropRate = 0;
+
         super.updateCombatStats();
     }
 }

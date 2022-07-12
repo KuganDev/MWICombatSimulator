@@ -40,12 +40,14 @@ __webpack_require__.r(__webpack_exports__);
 class CombatUnit {
     player = true;
 
+    // Base levels which don't change after initialization
     staminaLevel = 1;
     intelligenceLevel = 1;
     attackLevel = 1;
     powerLevel = 1;
     defenseLevel = 1;
 
+    // Calculated combat stats including temporary buffs
     combatStats = {
         combatStyleHrid: "/combat_styles/smash",
         attackInterval: 3000000000,
@@ -65,6 +67,11 @@ class CombatUnit {
         dropRate: 0,
         foodSlots: 1,
         drinkSlots: 0,
+        staminaLevel: 1,
+        intelligenceLevel: 1,
+        attackLevel: 1,
+        powerLevel: 1,
+        defenseLevel: 1,
         maxHitpoints: 110,
         currentHitpoints: 110,
         maxManapoints: 110,
@@ -84,23 +91,68 @@ class CombatUnit {
     constructor() {}
 
     updateCombatStats() {
-        // TODO: Include buffs
+        ["stamina", "intelligence", "attack", "power", "defense"].forEach((stat) => {
+            this.combatStats[stat + "Level"] = this[stat + "Level"];
+            let boosts = this.getBuffBoosts("/buff_types/" + stat + "_level");
+            boosts.forEach((buff) => {
+                this.combatStats[stat + "Level"] += Math.floor(this[stat + "Level"] * buff.ratioBoost);
+                this.combatStats[stat + "Level"] += buff.flatBoost;
+            });
+        });
 
-        this.combatStats.maxHitpoints = 10 * (10 + this.staminaLevel);
-        this.combatStats.maxManapoints = 10 * (10 + this.intelligenceLevel);
+        this.combatStats.maxHitpoints = 10 * (10 + this.combatStats.staminaLevel);
+        this.combatStats.maxManapoints = 10 * (10 + this.combatStats.intelligenceLevel);
+
+        let accuracyBoosts = this.getBuffBoosts("/buff_types/accuracy");
+        let accuracyRatioBoost = accuracyBoosts[0]?.ratioBoost ?? 0;
+
+        let damageBoosts = this.getBuffBoosts("/buff_types/damage");
+        let damageRatioBoost = damageBoosts[0]?.ratioBoost ?? 0;
 
         ["stab", "slash", "smash"].forEach((style) => {
             this.combatStats[style + "AccuracyRating"] =
-                (10 + this.attackLevel) * (1 + this.combatStats[style + "Accuracy"]);
-            this.combatStats[style + "MaxDamage"] = (10 + this.powerLevel) * (1 + this.combatStats[style + "Damage"]);
+                (10 + this.combatStats.attackLevel) *
+                (1 + this.combatStats[style + "Accuracy"]) *
+                (1 + accuracyRatioBoost);
+            this.combatStats[style + "MaxDamage"] =
+                (10 + this.combatStats.powerLevel) * (1 + this.combatStats[style + "Damage"]) * (1 + damageRatioBoost);
             this.combatStats[style + "EvasionRating"] =
-                (10 + this.defenseLevel) * (1 + this.combatStats[style + "Evasion"]);
+                (10 + this.combatStats.defenseLevel) * (1 + this.combatStats[style + "Evasion"]);
         });
+
+        // TODO: Test how frenzy and swiftness coffee stack
+        let attackIntervalBoosts = this.getBuffBoosts("/buff_types/attack_speed");
+        let attackIntervalRatioBoost = attackIntervalBoosts
+            .map((boost) => boost.ratioBoost)
+            .reduce((prev, cur) => prev + cur, 0);
+        this.combatStats.attackInterval = this.combatStats.attackInterval * (1 / (1 + attackIntervalRatioBoost));
+
+        let armorBoosts = this.getBuffBoosts("/buff_types/armor");
+        let armorFlatBoost = armorBoosts[0]?.flatBoost ?? 0;
+        this.combatStats.armor += armorFlatBoost;
+
+        let lifeStealBoosts = this.getBuffBoosts("/buff_types/life_steal");
+        let lifeStealFlatBoost = lifeStealBoosts[0]?.flatBoost ?? 0;
+        this.combatStats.lifeSteal += lifeStealFlatBoost;
+
+        let HPRegenBoosts = this.getBuffBoosts("/buff_types/hp_regen");
+        let HPRegenFlatBoost = HPRegenBoosts[0]?.flatBoost ?? 0;
+        this.combatStats.HPRegen += HPRegenFlatBoost;
+
+        let MPRegenBoosts = this.getBuffBoosts("/buff_types/mp_regen");
+        let MPRegenFlatBoost = MPRegenBoosts[0]?.flatBoost ?? 0;
+        this.combatStats.MPRegen += MPRegenFlatBoost;
+
+        let dropRateBoosts = this.getBuffBoosts("/buff_types/combat_drop_rate");
+        let dropRateRatioBoost = dropRateBoosts[0]?.ratioBoost ?? 0;
+        this.combatStats.dropRate += dropRateRatioBoost;
     }
 
     addBuff(buff, currentTime) {
         buff.startTime = currentTime;
         this.combatBuffs[buff.sourceHrid] = buff;
+
+        this.updateCombatStats();
     }
 
     removeExpiredBuffs(currentTime) {
@@ -110,6 +162,19 @@ class CombatUnit {
         expiredBuffs.forEach((buff) => {
             delete this.combatBuffs[buff.sourceHrid];
         });
+
+        this.updateCombatStats();
+    }
+
+    getBuffBoosts(type) {
+        let boosts = [];
+        Object.values(this.combatBuffs)
+            .filter((buff) => buff.typeHrid == type)
+            .forEach((buff) => {
+                boosts.push({ ratioBoost: buff.ratioBoost, flatBoost: buff.flatBoost });
+            });
+
+        return boosts;
     }
 
     reset() {
@@ -289,6 +354,10 @@ class Player extends _combatUnit__WEBPACK_IMPORTED_MODULE_0__["default"] {
             this.combatStats.foodSlots = 1;
             this.combatStats.drinkSlots = 0;
         }
+
+        this.combatStats.HPRegen = 0.005;
+        this.combatStats.MPRegen = 0.01;
+        this.combatStats.dropRate = 0;
 
         super.updateCombatStats();
     }
@@ -520,20 +589,29 @@ let monster = new _combatsimulator_monster_js__WEBPACK_IMPORTED_MODULE_1__["defa
 monster.updateCombatStats();
 console.log("Monster:", monster);
 
-let buff1 = new _combatsimulator_buff_js__WEBPACK_IMPORTED_MODULE_3__["default"](_combatsimulator_data_abilityDetailMap_json__WEBPACK_IMPORTED_MODULE_4__["/abilities/berserk"].abilityEffects[0].buff, 9);
-let buff2 = new _combatsimulator_buff_js__WEBPACK_IMPORTED_MODULE_3__["default"](_combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_5__["/items/attack_coffee"].consumableDetail.buffs[0]);
+// let buff = new Buff(abilityDetailMap["/abilities/vampirism"].abilityEffects[0].buff, 9);
+let buff = new _combatsimulator_buff_js__WEBPACK_IMPORTED_MODULE_3__["default"](_combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_5__["/items/super_power_coffee"].consumableDetail.buffs[0]);
 
-console.log("Buff1:", buff1);
-console.log("Buff2:", buff2);
+console.log("Buff:", buff);
 
 let currentTime = 1000000000;
-player.addBuff(buff1, currentTime);
-player.addBuff(buff2, currentTime);
-console.table(player.combatBuffs);
-player.removeExpiredBuffs(currentTime + buff1.duration - 1);
-console.table(player.combatBuffs);
-player.removeExpiredBuffs(currentTime + buff1.duration);
-console.table(player.combatBuffs);
+let stats = {};
+
+Object.entries(player.combatStats).forEach(([key, value]) => {
+    stats[key] = [value];
+});
+
+player.addBuff(buff, currentTime);
+Object.entries(player.combatStats).forEach(([key, value]) => {
+    stats[key].push(value);
+});
+
+player.removeExpiredBuffs(currentTime + buff.duration);
+Object.entries(player.combatStats).forEach(([key, value]) => {
+    stats[key].push(value);
+});
+
+console.table(stats);
 
 })();
 

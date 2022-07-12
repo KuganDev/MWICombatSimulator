@@ -40,17 +40,26 @@ let monster = new Monster("/combat_monsters/alligator");
 monster.updateCombatStats();
 console.log("Monster:", monster);
 
-let buff1 = new Buff(abilityDetailMap["/abilities/berserk"].abilityEffects[0].buff, 9);
-let buff2 = new Buff(itemDetailMap["/items/attack_coffee"].consumableDetail.buffs[0]);
+// let buff = new Buff(abilityDetailMap["/abilities/vampirism"].abilityEffects[0].buff, 9);
+let buff = new Buff(itemDetailMap["/items/super_power_coffee"].consumableDetail.buffs[0]);
 
-console.log("Buff1:", buff1);
-console.log("Buff2:", buff2);
+console.log("Buff:", buff);
 
 let currentTime = 1000000000;
-player.addBuff(buff1, currentTime);
-player.addBuff(buff2, currentTime);
-console.table(player.combatBuffs);
-player.removeExpiredBuffs(currentTime + buff1.duration - 1);
-console.table(player.combatBuffs);
-player.removeExpiredBuffs(currentTime + buff1.duration);
-console.table(player.combatBuffs);
+let stats = {};
+
+Object.entries(player.combatStats).forEach(([key, value]) => {
+    stats[key] = [value];
+});
+
+player.addBuff(buff, currentTime);
+Object.entries(player.combatStats).forEach(([key, value]) => {
+    stats[key].push(value);
+});
+
+player.removeExpiredBuffs(currentTime + buff.duration);
+Object.entries(player.combatStats).forEach(([key, value]) => {
+    stats[key].push(value);
+});
+
+console.table(stats);
