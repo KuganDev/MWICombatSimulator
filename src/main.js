@@ -5,6 +5,7 @@ import Buff from "./combatsimulator/buff.js";
 import abilityDetailMap from "./combatsimulator/data/abilityDetailMap.json";
 import itemDetailMap from "./combatsimulator/data/itemDetailMap.json";
 import Trigger from "./combatsimulator/trigger.js";
+import Ability from "./combatsimulator/ability.js";
 
 let button = document.querySelector("#button1");
 let input = document.querySelector("#input1");
@@ -83,3 +84,8 @@ let trigger = new Trigger(
     200
 );
 console.log(trigger.isActive(player, monster, [player], [monster, monster2, monster3]));
+
+let ability1 = new Ability("/abilities/poke", 13);
+let ability2 = new Ability("/abilities/berserk", 7, [trigger]);
+console.log(ability1);
+console.log(ability2);

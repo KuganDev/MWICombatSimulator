@@ -1,4 +1,6 @@
 class Buff {
+    startTime;
+
     constructor(buff, level = 1) {
         this.sourceHrid = buff.sourceHrid;
         this.typeHrid = buff.typeHrid;

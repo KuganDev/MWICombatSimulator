@@ -2,6 +2,71 @@
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
+/***/ "./src/combatsimulator/ability.js":
+/*!****************************************!*\
+  !*** ./src/combatsimulator/ability.js ***!
+  \****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _buff__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./buff */ "./src/combatsimulator/buff.js");
+/* harmony import */ var _data_abilityDetailMap_json__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./data/abilityDetailMap.json */ "./src/combatsimulator/data/abilityDetailMap.json");
+/* harmony import */ var _trigger__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./trigger */ "./src/combatsimulator/trigger.js");
+
+
+
+
+class Ability {
+    constructor(hrid, level, triggers = null) {
+        this.hrid = hrid;
+        this.level = level;
+
+        let gameAbility = _data_abilityDetailMap_json__WEBPACK_IMPORTED_MODULE_1__[hrid];
+
+        this.manaCost = gameAbility.manaCost;
+        this.cooldownDuration = gameAbility.cooldownDuration;
+
+        this.abilityEffects = [];
+
+        for (const effect of gameAbility.abilityEffects) {
+            let abilityEffect = {
+                targetType: effect.targetType,
+                effectType: effect.effectType,
+                combatStyleHrid: effect.combatStyleHrid,
+                damageFlat: effect.baseDamageFlat + (this.level - 1) * effect.baseDamageFlatLevelBonus,
+                damageRation: effect.baseDamageRatio + (this.level - 1) * effect.baseDamageRatioLevelBonus,
+                bleedRatio: effect.bleedRatio,
+                duration: effect.duration,
+                buff: new _buff__WEBPACK_IMPORTED_MODULE_0__["default"](effect.buff, this.level),
+            };
+            this.abilityEffects.push(abilityEffect);
+        }
+
+        if (triggers) {
+            this.triggers = triggers;
+        } else {
+            this.triggers = [];
+            for (const defaultTrigger of gameAbility.defaultCombatTriggers) {
+                let trigger = new _trigger__WEBPACK_IMPORTED_MODULE_2__["default"](
+                    defaultTrigger.dependencyHrid,
+                    defaultTrigger.conditionHrid,
+                    defaultTrigger.comparatorHrid,
+                    defaultTrigger.value
+                );
+                this.triggers.push(trigger);
+            }
+        }
+    }
+}
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Ability);
+
+
+/***/ }),
+
 /***/ "./src/combatsimulator/buff.js":
 /*!*************************************!*\
   !*** ./src/combatsimulator/buff.js ***!
@@ -13,6 +78,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
 class Buff {
+    startTime;
+
     constructor(buff, level = 1) {
         this.sourceHrid = buff.sourceHrid;
         this.typeHrid = buff.typeHrid;
@@ -38,7 +105,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
 class CombatUnit {
-    player = true;
+    player;
 
     // Base levels which don't change after initialization
     staminaLevel = 1;
@@ -46,6 +113,10 @@ class CombatUnit {
     attackLevel = 1;
     powerLevel = 1;
     defenseLevel = 1;
+
+    abilities = [null, null, null, null];
+    food = [null, null, null];
+    drinks = [null, null, null];
 
     // Calculated combat stats including temporary buffs
     combatStats = {
@@ -679,6 +750,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _combatsimulator_data_abilityDetailMap_json__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./combatsimulator/data/abilityDetailMap.json */ "./src/combatsimulator/data/abilityDetailMap.json");
 /* harmony import */ var _combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./combatsimulator/data/itemDetailMap.json */ "./src/combatsimulator/data/itemDetailMap.json");
 /* harmony import */ var _combatsimulator_trigger_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./combatsimulator/trigger.js */ "./src/combatsimulator/trigger.js");
+/* harmony import */ var _combatsimulator_ability_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./combatsimulator/ability.js */ "./src/combatsimulator/ability.js");
+
 
 
 
@@ -764,6 +837,11 @@ let trigger = new _combatsimulator_trigger_js__WEBPACK_IMPORTED_MODULE_6__["defa
     200
 );
 console.log(trigger.isActive(player, monster, [player], [monster, monster2, monster3]));
+
+let ability1 = new _combatsimulator_ability_js__WEBPACK_IMPORTED_MODULE_7__["default"]("/abilities/poke", 13);
+let ability2 = new _combatsimulator_ability_js__WEBPACK_IMPORTED_MODULE_7__["default"]("/abilities/berserk", 7, [trigger]);
+console.log(ability1);
+console.log(ability2);
 
 })();
 

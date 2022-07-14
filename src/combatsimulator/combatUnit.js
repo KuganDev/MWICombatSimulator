@@ -1,5 +1,5 @@
 class CombatUnit {
-    player = true;
+    player;
 
     // Base levels which don't change after initialization
     staminaLevel = 1;
@@ -7,6 +7,10 @@ class CombatUnit {
     attackLevel = 1;
     powerLevel = 1;
     defenseLevel = 1;
+
+    abilities = [null, null, null, null];
+    food = [null, null, null];
+    drinks = [null, null, null];
 
     // Calculated combat stats including temporary buffs
     combatStats = {
