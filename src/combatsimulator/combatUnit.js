@@ -143,7 +143,7 @@ class CombatUnit {
         this.updateCombatStats();
 
         this.combatStats.currentHitpoints = this.combatStats.maxHitpoints;
-        this.combatStats.currentManapoints = this.combatStats.currentManapoints;
+        this.combatStats.currentManapoints = this.combatStats.maxManapoints;
     }
 }
 

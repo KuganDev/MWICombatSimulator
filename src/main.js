@@ -4,6 +4,7 @@ import Player from "./combatsimulator/player.js";
 import Buff from "./combatsimulator/buff.js";
 import abilityDetailMap from "./combatsimulator/data/abilityDetailMap.json";
 import itemDetailMap from "./combatsimulator/data/itemDetailMap.json";
+import Trigger from "./combatsimulator/trigger.js";
 
 let button = document.querySelector("#button1");
 let input = document.querySelector("#input1");
@@ -40,8 +41,8 @@ let monster = new Monster("/combat_monsters/alligator");
 monster.updateCombatStats();
 console.log("Monster:", monster);
 
-// let buff = new Buff(abilityDetailMap["/abilities/vampirism"].abilityEffects[0].buff, 9);
-let buff = new Buff(itemDetailMap["/items/super_power_coffee"].consumableDetail.buffs[0]);
+let buff = new Buff(abilityDetailMap["/abilities/vampirism"].abilityEffects[0].buff, 9);
+// let buff = new Buff(itemDetailMap["/items/super_power_coffee"].consumableDetail.buffs[0]);
 
 console.log("Buff:", buff);
 
@@ -63,3 +64,22 @@ Object.entries(player.combatStats).forEach(([key, value]) => {
 });
 
 console.table(stats);
+
+player.reset();
+player.addBuff(buff, currentTime);
+
+let monster2 = new Monster("/combat_monsters/swampy");
+let monster3 = new Monster("/combat_monsters/snake");
+monster.reset();
+monster2.reset();
+monster3.reset();
+monster2.combatStats.currentHitpoints -= 100;
+monster3.combatStats.currentHitpoints -= 100;
+
+let trigger = new Trigger(
+    "/combat_trigger_dependencies/all_enemies",
+    "/combat_trigger_conditions/missing_hp",
+    "/combat_trigger_comparators/greater_than_equal",
+    200
+);
+console.log(trigger.isActive(player, monster, [player], [monster, monster2, monster3]));
