@@ -262,6 +262,64 @@ class CombatUnit {
 
 /***/ }),
 
+/***/ "./src/combatsimulator/consumable.js":
+/*!*******************************************!*\
+  !*** ./src/combatsimulator/consumable.js ***!
+  \*******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _buff__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./buff */ "./src/combatsimulator/buff.js");
+/* harmony import */ var _data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./data/itemDetailMap.json */ "./src/combatsimulator/data/itemDetailMap.json");
+/* harmony import */ var _trigger__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./trigger */ "./src/combatsimulator/trigger.js");
+
+
+
+
+class Consumable {
+    constructor(hrid, triggers = null) {
+        this.hrid = hrid;
+
+        let gameConsumable = _data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_1__[this.hrid];
+
+        this.cooldownDuration = gameConsumable.consumableDetail.cooldownDuration;
+        this.hitpointRestore = gameConsumable.consumableDetail.hitpointRestore;
+        this.manapointRestore = gameConsumable.consumableDetail.manapointRestore;
+        this.recoveryDuration = gameConsumable.consumableDetail.recoveryDuration;
+
+        this.buffs = [];
+        if (gameConsumable.consumableDetail.buffs) {
+            for (const consumableBuff of gameConsumable.consumableDetail.buffs) {
+                let buff = new _buff__WEBPACK_IMPORTED_MODULE_0__["default"](consumableBuff);
+                this.buffs.push(buff);
+            }
+        }
+
+        if (triggers) {
+            this.triggers = triggers;
+        } else {
+            this.triggers = [];
+            for (const defaultTrigger of gameConsumable.consumableDetail.defaultCombatTriggers) {
+                let trigger = new _trigger__WEBPACK_IMPORTED_MODULE_2__["default"](
+                    defaultTrigger.dependencyHrid,
+                    defaultTrigger.conditionHrid,
+                    defaultTrigger.comparatorHrid,
+                    defaultTrigger.value
+                );
+                this.triggers.push(trigger);
+            }
+        }
+    }
+}
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Consumable);
+
+
+/***/ }),
+
 /***/ "./src/combatsimulator/equipment.js":
 /*!******************************************!*\
   !*** ./src/combatsimulator/equipment.js ***!
@@ -751,6 +809,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./combatsimulator/data/itemDetailMap.json */ "./src/combatsimulator/data/itemDetailMap.json");
 /* harmony import */ var _combatsimulator_trigger_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./combatsimulator/trigger.js */ "./src/combatsimulator/trigger.js");
 /* harmony import */ var _combatsimulator_ability_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./combatsimulator/ability.js */ "./src/combatsimulator/ability.js");
+/* harmony import */ var _combatsimulator_consumable_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./combatsimulator/consumable.js */ "./src/combatsimulator/consumable.js");
+
 
 
 
@@ -842,6 +902,14 @@ let ability1 = new _combatsimulator_ability_js__WEBPACK_IMPORTED_MODULE_7__["def
 let ability2 = new _combatsimulator_ability_js__WEBPACK_IMPORTED_MODULE_7__["default"]("/abilities/berserk", 7, [trigger]);
 console.log(ability1);
 console.log(ability2);
+
+let consumable1 = new _combatsimulator_consumable_js__WEBPACK_IMPORTED_MODULE_8__["default"]("/items/stamina_coffee");
+let consumable2 = new _combatsimulator_consumable_js__WEBPACK_IMPORTED_MODULE_8__["default"]("/items/marsberry_cake", [trigger]);
+let consumable3 = new _combatsimulator_consumable_js__WEBPACK_IMPORTED_MODULE_8__["default"]("/items/plum_yogurt");
+
+console.log(consumable1);
+console.log(consumable2);
+console.log(consumable3);
 
 })();
 

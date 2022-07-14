@@ -6,6 +6,7 @@ import abilityDetailMap from "./combatsimulator/data/abilityDetailMap.json";
 import itemDetailMap from "./combatsimulator/data/itemDetailMap.json";
 import Trigger from "./combatsimulator/trigger.js";
 import Ability from "./combatsimulator/ability.js";
+import Consumable from "./combatsimulator/consumable.js";
 
 let button = document.querySelector("#button1");
 let input = document.querySelector("#input1");
@@ -89,3 +90,11 @@ let ability1 = new Ability("/abilities/poke", 13);
 let ability2 = new Ability("/abilities/berserk", 7, [trigger]);
 console.log(ability1);
 console.log(ability2);
+
+let consumable1 = new Consumable("/items/stamina_coffee");
+let consumable2 = new Consumable("/items/marsberry_cake", [trigger]);
+let consumable3 = new Consumable("/items/plum_yogurt");
+
+console.log(consumable1);
+console.log(consumable2);
+console.log(consumable3);
