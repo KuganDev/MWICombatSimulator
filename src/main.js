@@ -7,6 +7,7 @@ import itemDetailMap from "./combatsimulator/data/itemDetailMap.json";
 import Trigger from "./combatsimulator/trigger.js";
 import Ability from "./combatsimulator/ability.js";
 import Consumable from "./combatsimulator/consumable.js";
+import Zone from "./combatsimulator/zone.js";
 
 let button = document.querySelector("#button1");
 let input = document.querySelector("#input1");
@@ -98,3 +99,23 @@ let consumable3 = new Consumable("/items/plum_yogurt");
 console.log(consumable1);
 console.log(consumable2);
 console.log(consumable3);
+
+let zone = new Zone("/actions/combat/planet_of_the_eyes");
+console.log(zone);
+
+let counts = {};
+let iterations = 1000000;
+for (let i = 0; i < iterations; i++) {
+    let encounter = zone.getRandomEncounter();
+    let encounterString = encounter.map(monster => monster.hrid).join(" ");
+
+    if (!counts[encounterString]) {
+        counts[encounterString] = 0;
+    }
+
+    counts[encounterString] += 1;
+}
+
+for (const [key, value] of Object.entries(counts)) {
+    console.log(key, value / iterations);
+}

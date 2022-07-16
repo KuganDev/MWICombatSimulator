@@ -2,15 +2,15 @@ import CombatUnit from "./combatUnit";
 import combatMonsterDetailMap from "./data/combatMonsterDetailMap.json";
 
 class Monster extends CombatUnit {
-    constructor(monsterID) {
+    constructor(hrid) {
         super();
 
         this.player = false;
-        this.monsterID = monsterID;
+        this.hrid = hrid;
     }
 
     updateCombatStats() {
-        let gameMonster = combatMonsterDetailMap[this.monsterID];
+        let gameMonster = combatMonsterDetailMap[this.hrid];
 
         this.staminaLevel = gameMonster.combatDetails.staminaLevel;
         this.intelligenceLevel = gameMonster.combatDetails.intelligenceLevel;
