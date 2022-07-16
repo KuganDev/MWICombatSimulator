@@ -5,7 +5,7 @@ class Monster extends CombatUnit {
     constructor(hrid) {
         super();
 
-        this.player = false;
+        this.isPlayer = false;
         this.hrid = hrid;
     }
 

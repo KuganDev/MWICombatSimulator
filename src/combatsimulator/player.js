@@ -16,7 +16,8 @@ class Player extends CombatUnit {
     constructor() {
         super();
 
-        this.player = true;
+        this.isPlayer = true;
+        this.hrid = "player";
     }
 
     updateCombatStats() {

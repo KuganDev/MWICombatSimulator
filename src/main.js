@@ -8,6 +8,7 @@ import Trigger from "./combatsimulator/trigger.js";
 import Ability from "./combatsimulator/ability.js";
 import Consumable from "./combatsimulator/consumable.js";
 import Zone from "./combatsimulator/zone.js";
+import CombatSimulator from "./combatsimulator/combatSimulator.js";
 
 let button = document.querySelector("#button1");
 let input = document.querySelector("#input1");
@@ -104,7 +105,7 @@ let zone = new Zone("/actions/combat/planet_of_the_eyes");
 console.log(zone);
 
 let counts = {};
-let iterations = 1000000;
+let iterations = 100000;
 for (let i = 0; i < iterations; i++) {
     let encounter = zone.getRandomEncounter();
     let encounterString = encounter.map(monster => monster.hrid).join(" ");
@@ -119,3 +120,6 @@ for (let i = 0; i < iterations; i++) {
 for (const [key, value] of Object.entries(counts)) {
     console.log(key, value / iterations);
 }
+
+let simulator = new CombatSimulator(player, zone);
+simulator.simulate(20 * 1e9);

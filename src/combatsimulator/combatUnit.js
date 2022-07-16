@@ -1,5 +1,5 @@
 class CombatUnit {
-    player;
+    isPlayer;
 
     // Base levels which don't change after initialization
     staminaLevel = 1;
