@@ -1,7 +1,8 @@
 import CombatEvent from "./combatEvent";
 
 class AutoAttackEvent extends CombatEvent {
-    static type = "autoAttack"
+    static type = "autoAttack";
+
     constructor(time, source, target) {
         super(AutoAttackEvent.type, time);
 

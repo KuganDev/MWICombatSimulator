@@ -30,7 +30,7 @@ class Player extends CombatUnit {
             this.combatStats.attackInterval =
                 this.equipment["/equipment_types/two_hand"].getCombatStat("attackInterval");
         } else {
-            this.combatStats.combatStyleHrid = "/combat_styles/smash";
+            this.combatStats.combatStyleHrid = "smash";
             this.combatStats.attackInterval = 3000000000;
         }
 

@@ -17,6 +17,22 @@ class EventQueue {
     clear() {
         this.queue = [];
     }
+
+    clearEventsForUnit(unit) {
+        let clearedQueue = [];
+
+        for (let i = 0; i < this.queue.length; i++) {
+            let event = this.queue[i];
+
+            if (event.source == unit || event.target == unit) {
+                continue;
+            }
+
+            clearedQueue.push(event);
+        }
+
+        this.queue = clearedQueue;
+    }
 }
 
 export default EventQueue;

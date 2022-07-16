@@ -101,7 +101,7 @@ console.log(consumable1);
 console.log(consumable2);
 console.log(consumable3);
 
-let zone = new Zone("/actions/combat/planet_of_the_eyes");
+let zone = new Zone("/actions/combat/gobo_planet");
 console.log(zone);
 
 let counts = {};
@@ -122,4 +122,4 @@ for (const [key, value] of Object.entries(counts)) {
 }
 
 let simulator = new CombatSimulator(player, zone);
-simulator.simulate(20 * 1e9);
+simulator.simulate(600 * 1e9);

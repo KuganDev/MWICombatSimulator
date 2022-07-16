@@ -14,7 +14,7 @@ class CombatUnit {
 
     // Calculated combat stats including temporary buffs
     combatStats = {
-        combatStyleHrid: "/combat_styles/smash",
+        combatStyleHrid: "smash",
         attackInterval: 3000000000,
         stabAccuracy: 0,
         slashAccuracy: 0,
