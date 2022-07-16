@@ -2,13 +2,15 @@ import itemDetailMap from "./data/itemDetailMap.json";
 import enhancementLevelTotalMultiplierTable from "./data/enhancementLevelTotalMultiplierTable.json";
 
 class Equipment {
-    constructor(id, enhancementLevel) {
-        this.id = id;
+    constructor(hrid, enhancementLevel) {
+        this.hrid = hrid;
         this.enhancementLevel = enhancementLevel;
     }
 
     getCombatStat(combatStat) {
-        let gameItem = itemDetailMap[this.id];
+        let gameItem = itemDetailMap[this.hrid];
+        console.assert(gameItem, "No equipment found for hrid:" + this.hrid);
+
         let multiplier = enhancementLevelTotalMultiplierTable[this.enhancementLevel];
 
         let stat =
@@ -19,7 +21,8 @@ class Equipment {
     }
 
     getCombatStyle() {
-        let gameItem = itemDetailMap[this.id];
+        let gameItem = itemDetailMap[this.hrid];
+        console.assert(gameItem, "No equipment found for hrid:" + this.hrid);
 
         return gameItem.equipmentDetail.combatStyleHrids[0];
     }

@@ -48,9 +48,9 @@ class Player extends CombatUnit {
             "lifeSteal",
         ].forEach((stat) => {
             this.combatStats[stat] = Object.values(this.equipment)
-                .filter((e) => e != null)
-                .map((e) => e.getCombatStat(stat))
-                .reduce((prev, cur) => prev + cur);
+                .filter((equipment) => equipment != null)
+                .map((equipment) => equipment.getCombatStat(stat))
+                .reduce((prev, cur) => prev + cur, 0);
         });
 
         if (this.equipment["/equipment_types/pouch"]) {

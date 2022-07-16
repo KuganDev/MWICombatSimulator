@@ -11,6 +11,7 @@ class Monster extends CombatUnit {
 
     updateCombatStats() {
         let gameMonster = combatMonsterDetailMap[this.hrid];
+        console.assert(gameMonster, "No monster found for hrid:" + this.hrid);
 
         this.staminaLevel = gameMonster.combatDetails.staminaLevel;
         this.intelligenceLevel = gameMonster.combatDetails.intelligenceLevel;

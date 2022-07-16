@@ -1,6 +1,9 @@
 class CombatUtilities {
     static getTarget(enemies) {
-        return enemies.find((enemy) => enemy.combatStats.currentHitpoints > 0);
+        let target = enemies.find((enemy) => enemy.combatStats.currentHitpoints > 0);
+        console.assert(target, "No valid target found in enemy list");
+
+        return target;
     }
 
     static randomInt(min, max) {

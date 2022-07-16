@@ -25,6 +25,9 @@ class Trigger {
             case "/combat_trigger_dependencies/targeted_enemy":
                 dependencyValue = this.getDependencyValue(target);
                 break;
+            default:
+                console.error("Unknown dependencyHrid:", this.dependencyHrid);
+                break;
         }
 
         return this.compareValue(dependencyValue);
@@ -38,6 +41,9 @@ class Trigger {
                 break;
             case "/combat_trigger_dependencies/all_enemies":
                 dependency = enemies;
+                break;
+            default:
+                console.error("Unknown dependencyHrid:", this.dependencyHrid);
                 break;
         }
 
@@ -86,6 +92,9 @@ class Trigger {
                 return source.combatStats.maxHitpoints - source.combatStats.currentHitpoints;
             case "/combat_trigger_conditions/missing_mp":
                 return source.combatStats.maxManapoints - source.combatStats.currentManapoints;
+            default:
+                console.error("Unknown conditionHrid:", this.conditionHrid);
+                break;
         }
     }
 
@@ -99,6 +108,9 @@ class Trigger {
                 return !!dependencyValue;
             case "/combat_trigger_comparators/is_inactive":
                 return !dependencyValue;
+            default:
+                console.error("Unknown comparatorHrid");
+                break;
         }
     }
 }
