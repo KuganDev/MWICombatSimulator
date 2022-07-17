@@ -6,6 +6,7 @@ import ConsumableTickEvent from "./events/consumableTickEvent";
 import EnemyRespawnEvent from "./events/enemyRespawnEvent";
 import EventQueue from "./events/eventQueue";
 import PlayerRespawnEvent from "./events/playerRespawnEvent";
+import RegenTickEvent from "./events/regenTickEvent";
 import UseConsumableEvent from "./events/useConsumableEvent";
 
 class CombatSimulator {
@@ -58,6 +59,9 @@ class CombatSimulator {
             case CheckBuffExpirationEvent.type:
                 this.processCheckBuffExpirationEvent(event);
                 break;
+            case RegenTickEvent.type:
+                this.processRegenTickEvent(event);
+                break;
         }
 
         this.checkTriggers();
@@ -68,6 +72,9 @@ class CombatSimulator {
 
         this.players[0].reset();
 
+        let regenTickEvent = new RegenTickEvent(this.simulationTime + 10 * 1e9, this.players[0]);
+        this.eventQueue.addEvent(regenTickEvent);
+
         this.startNewEncounter();
     }
 
@@ -75,7 +82,9 @@ class CombatSimulator {
         console.log(this.simulationTime / 1e9, event.type, event);
 
         this.players[0].combatStats.currentHitpoints = this.players[0].combatStats.maxHitpoints / 2;
-        this.players[0].combatStats.currentManapoints = this.players[0].combatStats.maxManapoints / 2;
+
+        let regenTickEvent = new RegenTickEvent(this.simulationTime + 10 * 1e9, this.players[0]);
+        this.eventQueue.addEvent(regenTickEvent);
 
         this.startNewEncounter();
     }
@@ -129,7 +138,8 @@ class CombatSimulator {
             this.eventQueue.addEvent(enemyRespawnEvent);
             this.enemies = null;
         } else if (!event.source.isPlayer && !this.players.find((player) => player.combatStats.currentHitpoints > 0)) {
-            let playerRespawnEvent = new PlayerRespawnEvent(this.simulationTime + 180 * 1e9);
+            // 120 seconds respawn and 30 seconds traveling to battle
+            let playerRespawnEvent = new PlayerRespawnEvent(this.simulationTime + 150 * 1e9);
             this.eventQueue.addEvent(playerRespawnEvent);
         } else {
             this.addNextAutoAttackEvent(event.source);
@@ -250,6 +260,21 @@ class CombatSimulator {
             );
             this.eventQueue.addEvent(consumableTickEvent);
         }
+    }
+
+    processRegenTickEvent(event) {
+        console.log(this.simulationTime / 1e9, event.type, event);
+
+        let hitpointRegen = Math.floor(event.source.combatStats.maxHitpoints * event.source.combatStats.HPRegen);
+        let hitpointsAdded = event.source.addHitpoints(hitpointRegen);
+        console.log("Added hitpoints:", hitpointsAdded);
+
+        let manapointRegen = Math.floor(event.source.combatStats.maxManapoints * event.source.combatStats.MPRegen);
+        let manapointsAdded = event.source.addManapoints(manapointRegen);
+        console.log("Added manapoints:", manapointsAdded);
+
+        let regenTickEvent = new RegenTickEvent(this.simulationTime + 10 * 1e9, event.source);
+        this.eventQueue.addEvent(regenTickEvent);
     }
 
     processCheckBuffExpirationEvent(event) {

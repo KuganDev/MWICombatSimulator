@@ -134,7 +134,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _events_enemyRespawnEvent__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./events/enemyRespawnEvent */ "./src/combatsimulator/events/enemyRespawnEvent.js");
 /* harmony import */ var _events_eventQueue__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./events/eventQueue */ "./src/combatsimulator/events/eventQueue.js");
 /* harmony import */ var _events_playerRespawnEvent__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./events/playerRespawnEvent */ "./src/combatsimulator/events/playerRespawnEvent.js");
-/* harmony import */ var _events_useConsumableEvent__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./events/useConsumableEvent */ "./src/combatsimulator/events/useConsumableEvent.js");
+/* harmony import */ var _events_regenTickEvent__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./events/regenTickEvent */ "./src/combatsimulator/events/regenTickEvent.js");
+/* harmony import */ var _events_useConsumableEvent__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./events/useConsumableEvent */ "./src/combatsimulator/events/useConsumableEvent.js");
+
 
 
 
@@ -186,7 +188,7 @@ class CombatSimulator {
             case _events_autoAttackEvent__WEBPACK_IMPORTED_MODULE_1__["default"].type:
                 this.processAutoAttackEvent(event);
                 break;
-            case _events_useConsumableEvent__WEBPACK_IMPORTED_MODULE_8__["default"].type:
+            case _events_useConsumableEvent__WEBPACK_IMPORTED_MODULE_9__["default"].type:
                 this.processUseConsumableEvent(event);
                 break;
             case _events_consumableTickEvent__WEBPACK_IMPORTED_MODULE_4__["default"].type:
@@ -194,6 +196,9 @@ class CombatSimulator {
                 break;
             case _events_checkBuffExpirationEvent__WEBPACK_IMPORTED_MODULE_2__["default"].type:
                 this.processCheckBuffExpirationEvent(event);
+                break;
+            case _events_regenTickEvent__WEBPACK_IMPORTED_MODULE_8__["default"].type:
+                this.processRegenTickEvent(event);
                 break;
         }
 
@@ -205,6 +210,9 @@ class CombatSimulator {
 
         this.players[0].reset();
 
+        let regenTickEvent = new _events_regenTickEvent__WEBPACK_IMPORTED_MODULE_8__["default"](this.simulationTime + 10 * 1e9, this.players[0]);
+        this.eventQueue.addEvent(regenTickEvent);
+
         this.startNewEncounter();
     }
 
@@ -212,7 +220,9 @@ class CombatSimulator {
         console.log(this.simulationTime / 1e9, event.type, event);
 
         this.players[0].combatStats.currentHitpoints = this.players[0].combatStats.maxHitpoints / 2;
-        this.players[0].combatStats.currentManapoints = this.players[0].combatStats.maxManapoints / 2;
+
+        let regenTickEvent = new _events_regenTickEvent__WEBPACK_IMPORTED_MODULE_8__["default"](this.simulationTime + 10 * 1e9, this.players[0]);
+        this.eventQueue.addEvent(regenTickEvent);
 
         this.startNewEncounter();
     }
@@ -266,7 +276,8 @@ class CombatSimulator {
             this.eventQueue.addEvent(enemyRespawnEvent);
             this.enemies = null;
         } else if (!event.source.isPlayer && !this.players.find((player) => player.combatStats.currentHitpoints > 0)) {
-            let playerRespawnEvent = new _events_playerRespawnEvent__WEBPACK_IMPORTED_MODULE_7__["default"](this.simulationTime + 180 * 1e9);
+            // 120 seconds respawn and 30 seconds traveling to battle
+            let playerRespawnEvent = new _events_playerRespawnEvent__WEBPACK_IMPORTED_MODULE_7__["default"](this.simulationTime + 150 * 1e9);
             this.eventQueue.addEvent(playerRespawnEvent);
         } else {
             this.addNextAutoAttackEvent(event.source);
@@ -389,6 +400,21 @@ class CombatSimulator {
         }
     }
 
+    processRegenTickEvent(event) {
+        console.log(this.simulationTime / 1e9, event.type, event);
+
+        let hitpointRegen = Math.floor(event.source.combatStats.maxHitpoints * event.source.combatStats.HPRegen);
+        let hitpointsAdded = event.source.addHitpoints(hitpointRegen);
+        console.log("Added hitpoints:", hitpointsAdded);
+
+        let manapointRegen = Math.floor(event.source.combatStats.maxManapoints * event.source.combatStats.MPRegen);
+        let manapointsAdded = event.source.addManapoints(manapointRegen);
+        console.log("Added manapoints:", manapointsAdded);
+
+        let regenTickEvent = new _events_regenTickEvent__WEBPACK_IMPORTED_MODULE_8__["default"](this.simulationTime + 10 * 1e9, event.source);
+        this.eventQueue.addEvent(regenTickEvent);
+    }
+
     processCheckBuffExpirationEvent(event) {
         console.log(this.simulationTime / 1e9, event.type, event);
 
@@ -414,7 +440,7 @@ class CombatSimulator {
 
         for (const food of unit.food) {
             if (food && food.shouldTrigger(this.simulationTime, unit, target, friendlies, enemies)) {
-                let useConsumableEvent = new _events_useConsumableEvent__WEBPACK_IMPORTED_MODULE_8__["default"](this.simulationTime, unit, food);
+                let useConsumableEvent = new _events_useConsumableEvent__WEBPACK_IMPORTED_MODULE_9__["default"](this.simulationTime, unit, food);
                 if (!this.eventQueue.containsEvent(useConsumableEvent)) {
                     this.eventQueue.addEvent(useConsumableEvent);
                     console.log("adding food event:", useConsumableEvent);
@@ -424,7 +450,7 @@ class CombatSimulator {
 
         for (const drink of unit.drinks) {
             if (drink && drink.shouldTrigger(this.simulationTime, unit, target, friendlies, enemies)) {
-                let useConsumableEvent = new _events_useConsumableEvent__WEBPACK_IMPORTED_MODULE_8__["default"](this.simulationTime, unit, drink);
+                let useConsumableEvent = new _events_useConsumableEvent__WEBPACK_IMPORTED_MODULE_9__["default"](this.simulationTime, unit, drink);
                 if (!this.eventQueue.containsEvent(useConsumableEvent)) {
                     this.eventQueue.addEvent(useConsumableEvent);
                     console.log("adding drink event:", useConsumableEvent);
@@ -1077,6 +1103,34 @@ class PlayerRespawnEvent extends _combatEvent__WEBPACK_IMPORTED_MODULE_0__["defa
 }
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (PlayerRespawnEvent);
+
+
+/***/ }),
+
+/***/ "./src/combatsimulator/events/regenTickEvent.js":
+/*!******************************************************!*\
+  !*** ./src/combatsimulator/events/regenTickEvent.js ***!
+  \******************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _combatEvent__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./combatEvent */ "./src/combatsimulator/events/combatEvent.js");
+
+
+class RegenTickEvent extends _combatEvent__WEBPACK_IMPORTED_MODULE_0__["default"] {
+    static type = "regenTick";
+
+    constructor(time, source) {
+        super(RegenTickEvent.type, time);
+
+        this.source = source;
+    }
+}
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (RegenTickEvent);
 
 
 /***/ }),
