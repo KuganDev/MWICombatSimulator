@@ -120,6 +120,12 @@ class CombatSimulator {
             damage = CombatUtilities.randomInt(mitigatedDamage, mitigatedDamage);
             event.target.combatStats.currentHitpoints -= damage;
 
+            if (event.source.combatStats.lifeSteal > 0) {
+                let lifeStealHeal = Math.floor(damage * event.source.combatStats.lifeSteal);
+                let hitpointsAdded = event.source.addHitpoints(lifeStealHeal);
+                console.log("Added hitpoints from life steal:", hitpointsAdded);
+            }
+
             if (event.target.combatStats.currentHitpoints == 0) {
                 this.eventQueue.clearEventsForUnit(event.target);
             }
