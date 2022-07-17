@@ -33,6 +33,23 @@ class EventQueue {
 
         this.queue = clearedQueue;
     }
+
+    containsEvent(event) {
+        for (const queueEvent of this.queue.filter((e) => e.type == event.type)) {
+            let equal = true;
+            for (const key in queueEvent) {
+                if (event[key] != queueEvent[key]) {
+                    equal = false;
+                }
+            }
+
+            if (equal) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
 
 export default EventQueue;

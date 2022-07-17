@@ -81,7 +81,7 @@ monster2.combatStats.currentHitpoints -= 100;
 monster3.combatStats.currentHitpoints -= 100;
 
 let trigger = new Trigger(
-    "/combat_trigger_dependencies/all_enemies",
+    "/combat_trigger_dependencies/self",
     "/combat_trigger_conditions/missing_hp",
     "/combat_trigger_comparators/greater_than_equal",
     200
@@ -96,19 +96,20 @@ console.log(ability2);
 let consumable1 = new Consumable("/items/stamina_coffee");
 let consumable2 = new Consumable("/items/marsberry_cake", [trigger]);
 let consumable3 = new Consumable("/items/plum_yogurt");
+let consumable4 = new Consumable("/items/attack_coffee");
 
 console.log(consumable1);
 console.log(consumable2);
 console.log(consumable3);
 
-let zone = new Zone("/actions/combat/gobo_planet");
+let zone = new Zone("/actions/combat/bear_with_it");
 console.log(zone);
 
 let counts = {};
 let iterations = 100000;
 for (let i = 0; i < iterations; i++) {
     let encounter = zone.getRandomEncounter();
-    let encounterString = encounter.map(monster => monster.hrid).join(" ");
+    let encounterString = encounter.map((monster) => monster.hrid).join(" ");
 
     if (!counts[encounterString]) {
         counts[encounterString] = 0;
@@ -120,6 +121,11 @@ for (let i = 0; i < iterations; i++) {
 for (const [key, value] of Object.entries(counts)) {
     console.log(key, value / iterations);
 }
+
+player.food[0] = consumable2;
+player.food[1] = consumable3;
+player.drinks[0] = consumable1;
+player.drinks[1] = consumable4;
 
 let simulator = new CombatSimulator(player, zone);
 simulator.simulate(600 * 1e9);

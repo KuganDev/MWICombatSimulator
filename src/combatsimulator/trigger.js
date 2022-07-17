@@ -23,6 +23,9 @@ class Trigger {
                 dependencyValue = this.getDependencyValue(source);
                 break;
             case "/combat_trigger_dependencies/targeted_enemy":
+                if (!target) {
+                    return false;
+                }
                 dependencyValue = this.getDependencyValue(target);
                 break;
             default:
@@ -40,6 +43,9 @@ class Trigger {
                 dependency = friendlies;
                 break;
             case "/combat_trigger_dependencies/all_enemies":
+                if (!enemies) {
+                    return false;
+                }
                 dependency = enemies;
                 break;
             default:

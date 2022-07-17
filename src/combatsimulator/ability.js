@@ -43,6 +43,27 @@ class Ability {
                 this.triggers.push(trigger);
             }
         }
+
+        this.lastUsed = Number.MIN_SAFE_INTEGER;
+    }
+
+    shouldTrigger(currentTime, source, target, friendlies, enemies) {
+        if (this.lastUsed + this.cooldownDuration > currentTime) {
+            return false;
+        }
+
+        if (this.triggers.length == 0) {
+            return true;
+        }
+
+        let shouldTrigger = true;
+        for (const trigger of this.triggers) {
+            if (!trigger.isActive(source, target, friendlies, enemies)) {
+                shouldTrigger = false;
+            }
+        }
+
+        return shouldTrigger;
     }
 }
 

@@ -156,6 +156,34 @@ class CombatUnit {
         this.combatStats.currentHitpoints = this.combatStats.maxHitpoints;
         this.combatStats.currentManapoints = this.combatStats.maxManapoints;
     }
+
+    addHitpoints(hitpoints) {
+        let hitpointsAdded = 0;
+
+        if (this.combatStats.currentHitpoints >= this.combatStats.maxHitpoints) {
+            return hitpointsAdded;
+        }
+
+        let newHitpoints = Math.min(this.combatStats.currentHitpoints + hitpoints, this.combatStats.maxHitpoints);
+        hitpointsAdded = newHitpoints - this.combatStats.currentHitpoints;
+        this.combatStats.currentHitpoints = newHitpoints;
+
+        return hitpointsAdded;
+    }
+
+    addManapoints(manapoints) {
+        let manapointsAdded = 0;
+
+        if (this.combatStats.currentManapoints >= this.combatStats.maxManapoints) {
+            return manapointsAdded;
+        }
+
+        let newManapoints = Math.min(this.combatStats.currentManapoints + manapoints, this.combatStats.maxManapoints);
+        manapointsAdded = newManapoints - this.combatStats.currentManapoints;
+        this.combatStats.currentManapoints = newManapoints;
+
+        return manapointsAdded;
+    }
 }
 
 export default CombatUnit;

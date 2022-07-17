@@ -60,6 +60,27 @@ class Ability {
                 this.triggers.push(trigger);
             }
         }
+
+        this.lastUsed = Number.MIN_SAFE_INTEGER;
+    }
+
+    shouldTrigger(currentTime, source, target, friendlies, enemies) {
+        if (this.lastUsed + this.cooldownDuration > currentTime) {
+            return false;
+        }
+
+        if (this.triggers.length == 0) {
+            return true;
+        }
+
+        let shouldTrigger = true;
+        for (const trigger of this.triggers) {
+            if (!trigger.isActive(source, target, friendlies, enemies)) {
+                shouldTrigger = false;
+            }
+        }
+
+        return shouldTrigger;
     }
 }
 
@@ -107,10 +128,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _combatUtilities__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./combatUtilities */ "./src/combatsimulator/combatUtilities.js");
 /* harmony import */ var _events_autoAttackEvent__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./events/autoAttackEvent */ "./src/combatsimulator/events/autoAttackEvent.js");
-/* harmony import */ var _events_combatStartEvent__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./events/combatStartEvent */ "./src/combatsimulator/events/combatStartEvent.js");
-/* harmony import */ var _events_enemyRespawnEvent__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./events/enemyRespawnEvent */ "./src/combatsimulator/events/enemyRespawnEvent.js");
-/* harmony import */ var _events_eventQueue__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./events/eventQueue */ "./src/combatsimulator/events/eventQueue.js");
-/* harmony import */ var _events_playerRespawnEvent__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./events/playerRespawnEvent */ "./src/combatsimulator/events/playerRespawnEvent.js");
+/* harmony import */ var _events_checkBuffExpirationEvent__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./events/checkBuffExpirationEvent */ "./src/combatsimulator/events/checkBuffExpirationEvent.js");
+/* harmony import */ var _events_combatStartEvent__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./events/combatStartEvent */ "./src/combatsimulator/events/combatStartEvent.js");
+/* harmony import */ var _events_consumableTickEvent__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./events/consumableTickEvent */ "./src/combatsimulator/events/consumableTickEvent.js");
+/* harmony import */ var _events_enemyRespawnEvent__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./events/enemyRespawnEvent */ "./src/combatsimulator/events/enemyRespawnEvent.js");
+/* harmony import */ var _events_eventQueue__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./events/eventQueue */ "./src/combatsimulator/events/eventQueue.js");
+/* harmony import */ var _events_playerRespawnEvent__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./events/playerRespawnEvent */ "./src/combatsimulator/events/playerRespawnEvent.js");
+/* harmony import */ var _events_useConsumableEvent__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./events/useConsumableEvent */ "./src/combatsimulator/events/useConsumableEvent.js");
+
+
+
 
 
 
@@ -123,13 +150,13 @@ class CombatSimulator {
         this.players = [player];
         this.zone = zone;
 
-        this.eventQueue = new _events_eventQueue__WEBPACK_IMPORTED_MODULE_4__["default"]();
+        this.eventQueue = new _events_eventQueue__WEBPACK_IMPORTED_MODULE_6__["default"]();
     }
 
     simulate(simulationTimeLimit) {
         this.reset();
 
-        let combatStartEvent = new _events_combatStartEvent__WEBPACK_IMPORTED_MODULE_2__["default"](0);
+        let combatStartEvent = new _events_combatStartEvent__WEBPACK_IMPORTED_MODULE_3__["default"](0);
         this.eventQueue.addEvent(combatStartEvent);
 
         while (this.simulationTime < simulationTimeLimit) {
@@ -147,19 +174,30 @@ class CombatSimulator {
         this.simulationTime = event.time;
 
         switch (event.type) {
-            case _events_combatStartEvent__WEBPACK_IMPORTED_MODULE_2__["default"].type:
+            case _events_combatStartEvent__WEBPACK_IMPORTED_MODULE_3__["default"].type:
                 this.processCombatStartEvent(event);
                 break;
-            case _events_playerRespawnEvent__WEBPACK_IMPORTED_MODULE_5__["default"].type:
+            case _events_playerRespawnEvent__WEBPACK_IMPORTED_MODULE_7__["default"].type:
                 this.processPlayerRespawnEvent(event);
                 break;
-            case _events_enemyRespawnEvent__WEBPACK_IMPORTED_MODULE_3__["default"].type:
+            case _events_enemyRespawnEvent__WEBPACK_IMPORTED_MODULE_5__["default"].type:
                 this.processEnemyRespawnEvent(event);
                 break;
             case _events_autoAttackEvent__WEBPACK_IMPORTED_MODULE_1__["default"].type:
                 this.processAutoAttackEvent(event);
                 break;
+            case _events_useConsumableEvent__WEBPACK_IMPORTED_MODULE_8__["default"].type:
+                this.processUseConsumableEvent(event);
+                break;
+            case _events_consumableTickEvent__WEBPACK_IMPORTED_MODULE_4__["default"].type:
+                this.processConsumableTickEvent(event);
+                break;
+            case _events_checkBuffExpirationEvent__WEBPACK_IMPORTED_MODULE_2__["default"].type:
+                this.processCheckBuffExpirationEvent(event);
+                break;
         }
+
+        this.checkTriggers();
     }
 
     processCombatStartEvent(event) {
@@ -224,11 +262,12 @@ class CombatSimulator {
         let damagePrevented = premitigatedDamage - damage;
 
         if (event.source.isPlayer && !this.enemies.find((enemy) => enemy.combatStats.currentHitpoints > 0)) {
-            let respawnEvent = new _events_enemyRespawnEvent__WEBPACK_IMPORTED_MODULE_3__["default"](this.simulationTime + 3 * 1e9);
-            this.eventQueue.addEvent(respawnEvent);
+            let enemyRespawnEvent = new _events_enemyRespawnEvent__WEBPACK_IMPORTED_MODULE_5__["default"](this.simulationTime + 3 * 1e9);
+            this.eventQueue.addEvent(enemyRespawnEvent);
+            this.enemies = null;
         } else if (!event.source.isPlayer && !this.players.find((player) => player.combatStats.currentHitpoints > 0)) {
-            let respawnEvent = new _events_playerRespawnEvent__WEBPACK_IMPORTED_MODULE_5__["default"](this.simulationTime + 180 * 1e9);
-            this.eventQueue.addEvent(respawnEvent);
+            let playerRespawnEvent = new _events_playerRespawnEvent__WEBPACK_IMPORTED_MODULE_7__["default"](this.simulationTime + 180 * 1e9);
+            this.eventQueue.addEvent(playerRespawnEvent);
         } else {
             this.addNextAutoAttackEvent(event.source);
         }
@@ -242,8 +281,162 @@ class CombatSimulator {
             target = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].getTarget(this.players);
         }
 
-        let attack = new _events_autoAttackEvent__WEBPACK_IMPORTED_MODULE_1__["default"](this.simulationTime + source.combatStats.attackInterval, source, target);
-        this.eventQueue.addEvent(attack);
+        let autoAttackEvent = new _events_autoAttackEvent__WEBPACK_IMPORTED_MODULE_1__["default"](
+            this.simulationTime + source.combatStats.attackInterval,
+            source,
+            target
+        );
+        this.eventQueue.addEvent(autoAttackEvent);
+    }
+
+    processUseConsumableEvent(event) {
+        console.log(this.simulationTime / 1e9, event.type, event);
+
+        console.assert(event.source.combatStats.currentHitpoints > 0, "Dead unit is trying to use a consumable");
+
+        let source = event.source;
+        let consumable = event.consumable;
+
+        let triggerActive;
+        if (source.isPlayer) {
+            triggerActive = consumable.shouldTrigger(
+                this.simulationTime,
+                source,
+                _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].getTarget(this.enemies),
+                this.players,
+                this.enemies
+            );
+        } else {
+            triggerActive = consumable.shouldTrigger(
+                this.simulationTime,
+                source,
+                _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].getTarget(this.players),
+                this.enemies,
+                this.players
+            );
+        }
+
+        if (!triggerActive) {
+            return;
+        }
+
+        consumable.lastUsed = this.simulationTime;
+
+        if (consumable.recoveryDuration == 0) {
+            if (consumable.hitpointRestore > 0) {
+                let hitpointsAdded = source.addHitpoints(consumable.hitpointRestore);
+                console.log("Added hitpoints:", hitpointsAdded);
+            }
+
+            if (consumable.manapointRestore > 0) {
+                let manapointsAdded = source.addManapoints(consumable.manapointRestore);
+                console.log("Added manapoints:", manapointsAdded);
+            }
+        } else {
+            let consumableTickEvent = new _events_consumableTickEvent__WEBPACK_IMPORTED_MODULE_4__["default"](
+                this.simulationTime + 2 * 1e9,
+                source,
+                consumable,
+                consumable.recoveryDuration / (2 * 1e9),
+                1
+            );
+            this.eventQueue.addEvent(consumableTickEvent);
+        }
+
+        for (const buff of consumable.buffs) {
+            source.addBuff(buff, this.simulationTime);
+            console.log("Added buff:", buff);
+            let checkBuffExpirationEvent = new _events_checkBuffExpirationEvent__WEBPACK_IMPORTED_MODULE_2__["default"](
+                this.simulationTime + buff.duration,
+                event.source
+            );
+            this.eventQueue.addEvent(checkBuffExpirationEvent);
+        }
+    }
+
+    processConsumableTickEvent(event) {
+        console.log(this.simulationTime / 1e9, event.type, event);
+
+        if (event.consumable.hitpointRestore > 0) {
+            let tickValue = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].calculateTickValue(
+                event.consumable.hitpointRestore,
+                event.totalTicks,
+                event.currentTick
+            );
+            let hitpointsAdded = event.source.addHitpoints(tickValue);
+            console.log("Added hitpoints:", hitpointsAdded);
+        }
+
+        if (event.consumable.manapointRestore > 0) {
+            let tickValue = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].calculateTickValue(
+                event.consumable.manapointRestore,
+                event.totalTicks,
+                event.currentTick
+            );
+            let manapointsAdded = event.source.addManapoints(tickValue);
+            console.log("Added manapoints:", manapointsAdded);
+        }
+
+        if (event.currentTick < event.totalTicks) {
+            let consumableTickEvent = new _events_consumableTickEvent__WEBPACK_IMPORTED_MODULE_4__["default"](
+                this.simulationTime + 2 * 1e9,
+                event.source,
+                event.consumable,
+                event.totalTicks,
+                event.currentTick + 1
+            );
+            this.eventQueue.addEvent(consumableTickEvent);
+        }
+    }
+
+    processCheckBuffExpirationEvent(event) {
+        console.log(this.simulationTime / 1e9, event.type, event);
+
+        event.source.removeExpiredBuffs(this.simulationTime);
+    }
+
+    checkTriggers() {
+        this.players
+            .filter((player) => player.combatStats.currentHitpoints > 0)
+            .forEach((player) => this.checkTriggersForUnit(player, this.players, this.enemies));
+
+        if (this.enemies) {
+            this.enemies
+                .filter((enemy) => enemy.combatStats.currentHitpoints > 0)
+                .forEach((enemy) => this.checkTriggersForUnit(enemy, this.enemies, this.players));
+        }
+    }
+
+    checkTriggersForUnit(unit, friendlies, enemies) {
+        console.assert(unit.combatStats.currentHitpoints > 0, "Checking triggers for a dead unit");
+
+        let target = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].getTarget(enemies);
+
+        for (const food of unit.food) {
+            if (food && food.shouldTrigger(this.simulationTime, unit, target, friendlies, enemies)) {
+                let useConsumableEvent = new _events_useConsumableEvent__WEBPACK_IMPORTED_MODULE_8__["default"](this.simulationTime, unit, food);
+                if (!this.eventQueue.containsEvent(useConsumableEvent)) {
+                    this.eventQueue.addEvent(useConsumableEvent);
+                    console.log("adding food event:", useConsumableEvent);
+                }
+            }
+        }
+
+        for (const drink of unit.drinks) {
+            if (drink && drink.shouldTrigger(this.simulationTime, unit, target, friendlies, enemies)) {
+                let useConsumableEvent = new _events_useConsumableEvent__WEBPACK_IMPORTED_MODULE_8__["default"](this.simulationTime, unit, drink);
+                if (!this.eventQueue.containsEvent(useConsumableEvent)) {
+                    this.eventQueue.addEvent(useConsumableEvent);
+                    console.log("adding drink event:", useConsumableEvent);
+                }
+            }
+        }
+
+        for (const ability of unit.abilities) {
+            if (ability && ability.shouldTrigger(this.simulationTime, unit, target, friendlies, enemies)) {
+                // Add event
+            }
+        }
     }
 }
 
@@ -420,6 +613,34 @@ class CombatUnit {
         this.combatStats.currentHitpoints = this.combatStats.maxHitpoints;
         this.combatStats.currentManapoints = this.combatStats.maxManapoints;
     }
+
+    addHitpoints(hitpoints) {
+        let hitpointsAdded = 0;
+
+        if (this.combatStats.currentHitpoints >= this.combatStats.maxHitpoints) {
+            return hitpointsAdded;
+        }
+
+        let newHitpoints = Math.min(this.combatStats.currentHitpoints + hitpoints, this.combatStats.maxHitpoints);
+        hitpointsAdded = newHitpoints - this.combatStats.currentHitpoints;
+        this.combatStats.currentHitpoints = newHitpoints;
+
+        return hitpointsAdded;
+    }
+
+    addManapoints(manapoints) {
+        let manapointsAdded = 0;
+
+        if (this.combatStats.currentManapoints >= this.combatStats.maxManapoints) {
+            return manapointsAdded;
+        }
+
+        let newManapoints = Math.min(this.combatStats.currentManapoints + manapoints, this.combatStats.maxManapoints);
+        manapointsAdded = newManapoints - this.combatStats.currentManapoints;
+        this.combatStats.currentManapoints = newManapoints;
+
+        return manapointsAdded;
+    }
 }
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (CombatUnit);
@@ -439,10 +660,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 class CombatUtilities {
     static getTarget(enemies) {
+        if (!enemies) {
+            return null;
+        }
         let target = enemies.find((enemy) => enemy.combatStats.currentHitpoints > 0);
-        console.assert(target, "No valid target found in enemy list");
 
-        return target;
+        return target ?? null;
     }
 
     static randomInt(min, max) {
@@ -456,6 +679,13 @@ class CombatUtilities {
         let hitChance = Math.pow(sourceAccuracy, 1.4) / (Math.pow(sourceAccuracy, 1.4) + Math.pow(targetEvasion, 1.4));
 
         return hitChance;
+    }
+
+    static calculateTickValue(totalValue, totalTicks, currentTick) {
+        let currentSum = Math.floor((currentTick * totalValue) / totalTicks);
+        let previousSum = Math.floor(((currentTick - 1) * totalValue) / totalTicks);
+
+        return currentSum - previousSum;
     }
 }
 
@@ -515,6 +745,27 @@ class Consumable {
                 this.triggers.push(trigger);
             }
         }
+
+        this.lastUsed = Number.MIN_SAFE_INTEGER;
+    }
+
+    shouldTrigger(currentTime, source, target, friendlies, enemies) {
+        if (this.lastUsed + this.cooldownDuration > currentTime) {
+            return false;
+        }
+
+        if (this.triggers.length == 0) {
+            return true;
+        }
+
+        let shouldTrigger = true;
+        for (const trigger of this.triggers) {
+            if (!trigger.isActive(source, target, friendlies, enemies)) {
+                shouldTrigger = false;
+            }
+        }
+
+        return shouldTrigger;
     }
 }
 
@@ -602,6 +853,34 @@ class AutoAttackEvent extends _combatEvent__WEBPACK_IMPORTED_MODULE_0__["default
 
 /***/ }),
 
+/***/ "./src/combatsimulator/events/checkBuffExpirationEvent.js":
+/*!****************************************************************!*\
+  !*** ./src/combatsimulator/events/checkBuffExpirationEvent.js ***!
+  \****************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _combatEvent__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./combatEvent */ "./src/combatsimulator/events/combatEvent.js");
+
+
+class CheckBuffExpirationEvent extends _combatEvent__WEBPACK_IMPORTED_MODULE_0__["default"] {
+    static type = "checkBuffExpiration";
+
+    constructor(time, source) {
+        super(CheckBuffExpirationEvent.type, time);
+
+        this.source = source;
+    }
+}
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (CheckBuffExpirationEvent);
+
+
+/***/ }),
+
 /***/ "./src/combatsimulator/events/combatEvent.js":
 /*!***************************************************!*\
   !*** ./src/combatsimulator/events/combatEvent.js ***!
@@ -646,6 +925,37 @@ class CombatStartEvent extends _combatEvent__WEBPACK_IMPORTED_MODULE_0__["defaul
 }
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (CombatStartEvent);
+
+
+/***/ }),
+
+/***/ "./src/combatsimulator/events/consumableTickEvent.js":
+/*!***********************************************************!*\
+  !*** ./src/combatsimulator/events/consumableTickEvent.js ***!
+  \***********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _combatEvent__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./combatEvent */ "./src/combatsimulator/events/combatEvent.js");
+
+
+class ConsumableTickEvent extends _combatEvent__WEBPACK_IMPORTED_MODULE_0__["default"] {
+    static type = "consumableTick";
+
+    constructor(time, source, consumable, totalTicks, currentTick) {
+        super(ConsumableTickEvent.type, time);
+
+        this.source = source;
+        this.consumable = consumable;
+        this.totalTicks = totalTicks;
+        this.currentTick = currentTick;
+    }
+}
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (ConsumableTickEvent);
 
 
 /***/ }),
@@ -721,6 +1031,23 @@ class EventQueue {
 
         this.queue = clearedQueue;
     }
+
+    containsEvent(event) {
+        for (const queueEvent of this.queue.filter((e) => e.type == event.type)) {
+            let equal = true;
+            for (const key in queueEvent) {
+                if (event[key] != queueEvent[key]) {
+                    equal = false;
+                }
+            }
+
+            if (equal) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (EventQueue);
@@ -750,6 +1077,35 @@ class PlayerRespawnEvent extends _combatEvent__WEBPACK_IMPORTED_MODULE_0__["defa
 }
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (PlayerRespawnEvent);
+
+
+/***/ }),
+
+/***/ "./src/combatsimulator/events/useConsumableEvent.js":
+/*!**********************************************************!*\
+  !*** ./src/combatsimulator/events/useConsumableEvent.js ***!
+  \**********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _combatEvent__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./combatEvent */ "./src/combatsimulator/events/combatEvent.js");
+
+
+class UseConsumableEvent extends _combatEvent__WEBPACK_IMPORTED_MODULE_0__["default"] {
+    static type = "useConsumable";
+
+    constructor(time, source, consumable) {
+        super(UseConsumableEvent.type, time);
+
+        this.source = source;
+        this.consumable = consumable;
+    }
+}
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (UseConsumableEvent);
 
 
 /***/ }),
@@ -926,6 +1282,9 @@ class Trigger {
                 dependencyValue = this.getDependencyValue(source);
                 break;
             case "/combat_trigger_dependencies/targeted_enemy":
+                if (!target) {
+                    return false;
+                }
                 dependencyValue = this.getDependencyValue(target);
                 break;
             default:
@@ -943,6 +1302,9 @@ class Trigger {
                 dependency = friendlies;
                 break;
             case "/combat_trigger_dependencies/all_enemies":
+                if (!enemies) {
+                    return false;
+                }
                 dependency = enemies;
                 break;
             default:
@@ -1368,7 +1730,7 @@ monster2.combatStats.currentHitpoints -= 100;
 monster3.combatStats.currentHitpoints -= 100;
 
 let trigger = new _combatsimulator_trigger_js__WEBPACK_IMPORTED_MODULE_6__["default"](
-    "/combat_trigger_dependencies/all_enemies",
+    "/combat_trigger_dependencies/self",
     "/combat_trigger_conditions/missing_hp",
     "/combat_trigger_comparators/greater_than_equal",
     200
@@ -1383,19 +1745,20 @@ console.log(ability2);
 let consumable1 = new _combatsimulator_consumable_js__WEBPACK_IMPORTED_MODULE_8__["default"]("/items/stamina_coffee");
 let consumable2 = new _combatsimulator_consumable_js__WEBPACK_IMPORTED_MODULE_8__["default"]("/items/marsberry_cake", [trigger]);
 let consumable3 = new _combatsimulator_consumable_js__WEBPACK_IMPORTED_MODULE_8__["default"]("/items/plum_yogurt");
+let consumable4 = new _combatsimulator_consumable_js__WEBPACK_IMPORTED_MODULE_8__["default"]("/items/attack_coffee");
 
 console.log(consumable1);
 console.log(consumable2);
 console.log(consumable3);
 
-let zone = new _combatsimulator_zone_js__WEBPACK_IMPORTED_MODULE_9__["default"]("/actions/combat/gobo_planet");
+let zone = new _combatsimulator_zone_js__WEBPACK_IMPORTED_MODULE_9__["default"]("/actions/combat/bear_with_it");
 console.log(zone);
 
 let counts = {};
 let iterations = 100000;
 for (let i = 0; i < iterations; i++) {
     let encounter = zone.getRandomEncounter();
-    let encounterString = encounter.map(monster => monster.hrid).join(" ");
+    let encounterString = encounter.map((monster) => monster.hrid).join(" ");
 
     if (!counts[encounterString]) {
         counts[encounterString] = 0;
@@ -1407,6 +1770,11 @@ for (let i = 0; i < iterations; i++) {
 for (const [key, value] of Object.entries(counts)) {
     console.log(key, value / iterations);
 }
+
+player.food[0] = consumable2;
+player.food[1] = consumable3;
+player.drinks[0] = consumable1;
+player.drinks[1] = consumable4;
 
 let simulator = new _combatsimulator_combatSimulator_js__WEBPACK_IMPORTED_MODULE_10__["default"](player, zone);
 simulator.simulate(600 * 1e9);
