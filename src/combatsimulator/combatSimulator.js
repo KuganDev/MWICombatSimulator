@@ -274,29 +274,6 @@ class CombatSimulator {
 
         console.assert(source.combatStats.currentHitpoints > 0, "Dead unit is trying to use a consumable");
 
-        let triggerActive;
-        if (source.isPlayer) {
-            triggerActive = consumable.shouldTrigger(
-                this.simulationTime,
-                source,
-                CombatUtilities.getTarget(this.enemies),
-                this.players,
-                this.enemies
-            );
-        } else {
-            triggerActive = consumable.shouldTrigger(
-                this.simulationTime,
-                source,
-                CombatUtilities.getTarget(this.players),
-                this.enemies,
-                this.players
-            );
-        }
-
-        if (!triggerActive) {
-            return;
-        }
-
         consumable.lastUsed = this.simulationTime;
 
         if (consumable.recoveryDuration == 0) {
