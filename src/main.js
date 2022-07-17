@@ -93,7 +93,13 @@ let ability2 = new Ability("/abilities/berserk", 7, [trigger]);
 console.log(ability1);
 console.log(ability2);
 
-let consumable1 = new Consumable("/items/stamina_coffee");
+let trigger2 = new Trigger(
+    "/combat_trigger_dependencies/self",
+    "/combat_trigger_conditions/attack_coffee",
+    "/combat_trigger_comparators/is_active"
+);
+
+let consumable1 = new Consumable("/items/stamina_coffee", [trigger2]);
 let consumable2 = new Consumable("/items/marsberry_cake", [trigger]);
 let consumable3 = new Consumable("/items/plum_yogurt");
 let consumable4 = new Consumable("/items/attack_coffee");
@@ -102,7 +108,7 @@ console.log(consumable1);
 console.log(consumable2);
 console.log(consumable3);
 
-let zone = new Zone("/actions/combat/bear_with_it");
+let zone = new Zone("/actions/combat/gobo_planet");
 console.log(zone);
 
 let counts = {};
@@ -128,4 +134,4 @@ player.drinks[0] = consumable1;
 player.drinks[1] = consumable4;
 
 let simulator = new CombatSimulator(player, zone);
-simulator.simulate(600 * 1e9);
+simulator.simulate(320 * 1e9);

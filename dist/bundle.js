@@ -135,8 +135,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _events_eventQueue__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./events/eventQueue */ "./src/combatsimulator/events/eventQueue.js");
 /* harmony import */ var _events_playerRespawnEvent__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./events/playerRespawnEvent */ "./src/combatsimulator/events/playerRespawnEvent.js");
 /* harmony import */ var _events_regenTickEvent__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./events/regenTickEvent */ "./src/combatsimulator/events/regenTickEvent.js");
-/* harmony import */ var _events_useConsumableEvent__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./events/useConsumableEvent */ "./src/combatsimulator/events/useConsumableEvent.js");
-
 
 
 
@@ -187,9 +185,6 @@ class CombatSimulator {
                 break;
             case _events_autoAttackEvent__WEBPACK_IMPORTED_MODULE_1__["default"].type:
                 this.processAutoAttackEvent(event);
-                break;
-            case _events_useConsumableEvent__WEBPACK_IMPORTED_MODULE_9__["default"].type:
-                this.processUseConsumableEvent(event);
                 break;
             case _events_consumableTickEvent__WEBPACK_IMPORTED_MODULE_4__["default"].type:
                 this.processConsumableTickEvent(event);
@@ -300,71 +295,6 @@ class CombatSimulator {
         this.eventQueue.addEvent(autoAttackEvent);
     }
 
-    processUseConsumableEvent(event) {
-        console.log(this.simulationTime / 1e9, event.type, event);
-
-        console.assert(event.source.combatStats.currentHitpoints > 0, "Dead unit is trying to use a consumable");
-
-        let source = event.source;
-        let consumable = event.consumable;
-
-        let triggerActive;
-        if (source.isPlayer) {
-            triggerActive = consumable.shouldTrigger(
-                this.simulationTime,
-                source,
-                _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].getTarget(this.enemies),
-                this.players,
-                this.enemies
-            );
-        } else {
-            triggerActive = consumable.shouldTrigger(
-                this.simulationTime,
-                source,
-                _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].getTarget(this.players),
-                this.enemies,
-                this.players
-            );
-        }
-
-        if (!triggerActive) {
-            return;
-        }
-
-        consumable.lastUsed = this.simulationTime;
-
-        if (consumable.recoveryDuration == 0) {
-            if (consumable.hitpointRestore > 0) {
-                let hitpointsAdded = source.addHitpoints(consumable.hitpointRestore);
-                console.log("Added hitpoints:", hitpointsAdded);
-            }
-
-            if (consumable.manapointRestore > 0) {
-                let manapointsAdded = source.addManapoints(consumable.manapointRestore);
-                console.log("Added manapoints:", manapointsAdded);
-            }
-        } else {
-            let consumableTickEvent = new _events_consumableTickEvent__WEBPACK_IMPORTED_MODULE_4__["default"](
-                this.simulationTime + 2 * 1e9,
-                source,
-                consumable,
-                consumable.recoveryDuration / (2 * 1e9),
-                1
-            );
-            this.eventQueue.addEvent(consumableTickEvent);
-        }
-
-        for (const buff of consumable.buffs) {
-            source.addBuff(buff, this.simulationTime);
-            console.log("Added buff:", buff);
-            let checkBuffExpirationEvent = new _events_checkBuffExpirationEvent__WEBPACK_IMPORTED_MODULE_2__["default"](
-                this.simulationTime + buff.duration,
-                event.source
-            );
-            this.eventQueue.addEvent(checkBuffExpirationEvent);
-        }
-    }
-
     processConsumableTickEvent(event) {
         console.log(this.simulationTime / 1e9, event.type, event);
 
@@ -422,39 +352,48 @@ class CombatSimulator {
     }
 
     checkTriggers() {
-        this.players
-            .filter((player) => player.combatStats.currentHitpoints > 0)
-            .forEach((player) => this.checkTriggersForUnit(player, this.players, this.enemies));
+        let triggeredSomething;
 
-        if (this.enemies) {
-            this.enemies
-                .filter((enemy) => enemy.combatStats.currentHitpoints > 0)
-                .forEach((enemy) => this.checkTriggersForUnit(enemy, this.enemies, this.players));
-        }
+        do {
+            triggeredSomething = false;
+
+            this.players
+                .filter((player) => player.combatStats.currentHitpoints > 0)
+                .forEach((player) => {
+                    if (this.checkTriggersForUnit(player, this.players, this.enemies)) {
+                        triggeredSomething = true;
+                    }
+                });
+
+            if (this.enemies) {
+                this.enemies
+                    .filter((enemy) => enemy.combatStats.currentHitpoints > 0)
+                    .forEach((enemy) => {
+                        if (this.checkTriggersForUnit(enemy, this.enemies, this.players)) {
+                            triggeredSomething = true;
+                        }
+                    });
+            }
+        } while (triggeredSomething);
     }
 
     checkTriggersForUnit(unit, friendlies, enemies) {
         console.assert(unit.combatStats.currentHitpoints > 0, "Checking triggers for a dead unit");
 
+        let triggeredSomething = false;
         let target = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].getTarget(enemies);
 
         for (const food of unit.food) {
             if (food && food.shouldTrigger(this.simulationTime, unit, target, friendlies, enemies)) {
-                let useConsumableEvent = new _events_useConsumableEvent__WEBPACK_IMPORTED_MODULE_9__["default"](this.simulationTime, unit, food);
-                if (!this.eventQueue.containsEvent(useConsumableEvent)) {
-                    this.eventQueue.addEvent(useConsumableEvent);
-                    console.log("adding food event:", useConsumableEvent);
-                }
+                this.useConsumable(unit, food);
+                triggeredSomething = true;
             }
         }
 
         for (const drink of unit.drinks) {
             if (drink && drink.shouldTrigger(this.simulationTime, unit, target, friendlies, enemies)) {
-                let useConsumableEvent = new _events_useConsumableEvent__WEBPACK_IMPORTED_MODULE_9__["default"](this.simulationTime, unit, drink);
-                if (!this.eventQueue.containsEvent(useConsumableEvent)) {
-                    this.eventQueue.addEvent(useConsumableEvent);
-                    console.log("adding drink event:", useConsumableEvent);
-                }
+                this.useConsumable(unit, drink);
+                triggeredSomething = true;
             }
         }
 
@@ -462,6 +401,67 @@ class CombatSimulator {
             if (ability && ability.shouldTrigger(this.simulationTime, unit, target, friendlies, enemies)) {
                 // Add event
             }
+        }
+
+        return triggeredSomething;
+    }
+
+    useConsumable(source, consumable) {
+        console.log("Consuming:", consumable);
+
+        console.assert(source.combatStats.currentHitpoints > 0, "Dead unit is trying to use a consumable");
+
+        let triggerActive;
+        if (source.isPlayer) {
+            triggerActive = consumable.shouldTrigger(
+                this.simulationTime,
+                source,
+                _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].getTarget(this.enemies),
+                this.players,
+                this.enemies
+            );
+        } else {
+            triggerActive = consumable.shouldTrigger(
+                this.simulationTime,
+                source,
+                _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].getTarget(this.players),
+                this.enemies,
+                this.players
+            );
+        }
+
+        if (!triggerActive) {
+            return;
+        }
+
+        consumable.lastUsed = this.simulationTime;
+
+        if (consumable.recoveryDuration == 0) {
+            if (consumable.hitpointRestore > 0) {
+                let hitpointsAdded = source.addHitpoints(consumable.hitpointRestore);
+                console.log("Added hitpoints:", hitpointsAdded);
+            }
+
+            if (consumable.manapointRestore > 0) {
+                let manapointsAdded = source.addManapoints(consumable.manapointRestore);
+                console.log("Added manapoints:", manapointsAdded);
+            }
+        } else {
+            let consumableTickEvent = new _events_consumableTickEvent__WEBPACK_IMPORTED_MODULE_4__["default"](
+                this.simulationTime + 2 * 1e9,
+                source,
+                consumable,
+                consumable.recoveryDuration / (2 * 1e9),
+                1
+            );
+            this.eventQueue.addEvent(consumableTickEvent);
+        }
+
+        for (const buff of consumable.buffs) {
+            source.addBuff(buff, this.simulationTime);
+            console.log("Added buff:", buff);
+            let checkBuffExpirationEvent = new _events_checkBuffExpirationEvent__WEBPACK_IMPORTED_MODULE_2__["default"](this.simulationTime + buff.duration, source);
+            this.eventQueue.addEvent(checkBuffExpirationEvent);
         }
     }
 }
@@ -1135,35 +1135,6 @@ class RegenTickEvent extends _combatEvent__WEBPACK_IMPORTED_MODULE_0__["default"
 
 /***/ }),
 
-/***/ "./src/combatsimulator/events/useConsumableEvent.js":
-/*!**********************************************************!*\
-  !*** ./src/combatsimulator/events/useConsumableEvent.js ***!
-  \**********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-/* harmony import */ var _combatEvent__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./combatEvent */ "./src/combatsimulator/events/combatEvent.js");
-
-
-class UseConsumableEvent extends _combatEvent__WEBPACK_IMPORTED_MODULE_0__["default"] {
-    static type = "useConsumable";
-
-    constructor(time, source, consumable) {
-        super(UseConsumableEvent.type, time);
-
-        this.source = source;
-        this.consumable = consumable;
-    }
-}
-
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (UseConsumableEvent);
-
-
-/***/ }),
-
 /***/ "./src/combatsimulator/monster.js":
 /*!****************************************!*\
   !*** ./src/combatsimulator/monster.js ***!
@@ -1796,7 +1767,13 @@ let ability2 = new _combatsimulator_ability_js__WEBPACK_IMPORTED_MODULE_7__["def
 console.log(ability1);
 console.log(ability2);
 
-let consumable1 = new _combatsimulator_consumable_js__WEBPACK_IMPORTED_MODULE_8__["default"]("/items/stamina_coffee");
+let trigger2 = new _combatsimulator_trigger_js__WEBPACK_IMPORTED_MODULE_6__["default"](
+    "/combat_trigger_dependencies/self",
+    "/combat_trigger_conditions/attack_coffee",
+    "/combat_trigger_comparators/is_active"
+);
+
+let consumable1 = new _combatsimulator_consumable_js__WEBPACK_IMPORTED_MODULE_8__["default"]("/items/stamina_coffee", [trigger2]);
 let consumable2 = new _combatsimulator_consumable_js__WEBPACK_IMPORTED_MODULE_8__["default"]("/items/marsberry_cake", [trigger]);
 let consumable3 = new _combatsimulator_consumable_js__WEBPACK_IMPORTED_MODULE_8__["default"]("/items/plum_yogurt");
 let consumable4 = new _combatsimulator_consumable_js__WEBPACK_IMPORTED_MODULE_8__["default"]("/items/attack_coffee");
@@ -1805,7 +1782,7 @@ console.log(consumable1);
 console.log(consumable2);
 console.log(consumable3);
 
-let zone = new _combatsimulator_zone_js__WEBPACK_IMPORTED_MODULE_9__["default"]("/actions/combat/bear_with_it");
+let zone = new _combatsimulator_zone_js__WEBPACK_IMPORTED_MODULE_9__["default"]("/actions/combat/gobo_planet");
 console.log(zone);
 
 let counts = {};
@@ -1831,7 +1808,7 @@ player.drinks[0] = consumable1;
 player.drinks[1] = consumable4;
 
 let simulator = new _combatsimulator_combatSimulator_js__WEBPACK_IMPORTED_MODULE_10__["default"](player, zone);
-simulator.simulate(600 * 1e9);
+simulator.simulate(320 * 1e9);
 
 })();
 

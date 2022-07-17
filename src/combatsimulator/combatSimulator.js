@@ -7,7 +7,6 @@ import EnemyRespawnEvent from "./events/enemyRespawnEvent";
 import EventQueue from "./events/eventQueue";
 import PlayerRespawnEvent from "./events/playerRespawnEvent";
 import RegenTickEvent from "./events/regenTickEvent";
-import UseConsumableEvent from "./events/useConsumableEvent";
 
 class CombatSimulator {
     constructor(player, zone) {
@@ -49,9 +48,6 @@ class CombatSimulator {
                 break;
             case AutoAttackEvent.type:
                 this.processAutoAttackEvent(event);
-                break;
-            case UseConsumableEvent.type:
-                this.processUseConsumableEvent(event);
                 break;
             case ConsumableTickEvent.type:
                 this.processConsumableTickEvent(event);
@@ -162,71 +158,6 @@ class CombatSimulator {
         this.eventQueue.addEvent(autoAttackEvent);
     }
 
-    processUseConsumableEvent(event) {
-        console.log(this.simulationTime / 1e9, event.type, event);
-
-        console.assert(event.source.combatStats.currentHitpoints > 0, "Dead unit is trying to use a consumable");
-
-        let source = event.source;
-        let consumable = event.consumable;
-
-        let triggerActive;
-        if (source.isPlayer) {
-            triggerActive = consumable.shouldTrigger(
-                this.simulationTime,
-                source,
-                CombatUtilities.getTarget(this.enemies),
-                this.players,
-                this.enemies
-            );
-        } else {
-            triggerActive = consumable.shouldTrigger(
-                this.simulationTime,
-                source,
-                CombatUtilities.getTarget(this.players),
-                this.enemies,
-                this.players
-            );
-        }
-
-        if (!triggerActive) {
-            return;
-        }
-
-        consumable.lastUsed = this.simulationTime;
-
-        if (consumable.recoveryDuration == 0) {
-            if (consumable.hitpointRestore > 0) {
-                let hitpointsAdded = source.addHitpoints(consumable.hitpointRestore);
-                console.log("Added hitpoints:", hitpointsAdded);
-            }
-
-            if (consumable.manapointRestore > 0) {
-                let manapointsAdded = source.addManapoints(consumable.manapointRestore);
-                console.log("Added manapoints:", manapointsAdded);
-            }
-        } else {
-            let consumableTickEvent = new ConsumableTickEvent(
-                this.simulationTime + 2 * 1e9,
-                source,
-                consumable,
-                consumable.recoveryDuration / (2 * 1e9),
-                1
-            );
-            this.eventQueue.addEvent(consumableTickEvent);
-        }
-
-        for (const buff of consumable.buffs) {
-            source.addBuff(buff, this.simulationTime);
-            console.log("Added buff:", buff);
-            let checkBuffExpirationEvent = new CheckBuffExpirationEvent(
-                this.simulationTime + buff.duration,
-                event.source
-            );
-            this.eventQueue.addEvent(checkBuffExpirationEvent);
-        }
-    }
-
     processConsumableTickEvent(event) {
         console.log(this.simulationTime / 1e9, event.type, event);
 
@@ -284,39 +215,48 @@ class CombatSimulator {
     }
 
     checkTriggers() {
-        this.players
-            .filter((player) => player.combatStats.currentHitpoints > 0)
-            .forEach((player) => this.checkTriggersForUnit(player, this.players, this.enemies));
+        let triggeredSomething;
 
-        if (this.enemies) {
-            this.enemies
-                .filter((enemy) => enemy.combatStats.currentHitpoints > 0)
-                .forEach((enemy) => this.checkTriggersForUnit(enemy, this.enemies, this.players));
-        }
+        do {
+            triggeredSomething = false;
+
+            this.players
+                .filter((player) => player.combatStats.currentHitpoints > 0)
+                .forEach((player) => {
+                    if (this.checkTriggersForUnit(player, this.players, this.enemies)) {
+                        triggeredSomething = true;
+                    }
+                });
+
+            if (this.enemies) {
+                this.enemies
+                    .filter((enemy) => enemy.combatStats.currentHitpoints > 0)
+                    .forEach((enemy) => {
+                        if (this.checkTriggersForUnit(enemy, this.enemies, this.players)) {
+                            triggeredSomething = true;
+                        }
+                    });
+            }
+        } while (triggeredSomething);
     }
 
     checkTriggersForUnit(unit, friendlies, enemies) {
         console.assert(unit.combatStats.currentHitpoints > 0, "Checking triggers for a dead unit");
 
+        let triggeredSomething = false;
         let target = CombatUtilities.getTarget(enemies);
 
         for (const food of unit.food) {
             if (food && food.shouldTrigger(this.simulationTime, unit, target, friendlies, enemies)) {
-                let useConsumableEvent = new UseConsumableEvent(this.simulationTime, unit, food);
-                if (!this.eventQueue.containsEvent(useConsumableEvent)) {
-                    this.eventQueue.addEvent(useConsumableEvent);
-                    console.log("adding food event:", useConsumableEvent);
-                }
+                this.useConsumable(unit, food);
+                triggeredSomething = true;
             }
         }
 
         for (const drink of unit.drinks) {
             if (drink && drink.shouldTrigger(this.simulationTime, unit, target, friendlies, enemies)) {
-                let useConsumableEvent = new UseConsumableEvent(this.simulationTime, unit, drink);
-                if (!this.eventQueue.containsEvent(useConsumableEvent)) {
-                    this.eventQueue.addEvent(useConsumableEvent);
-                    console.log("adding drink event:", useConsumableEvent);
-                }
+                this.useConsumable(unit, drink);
+                triggeredSomething = true;
             }
         }
 
@@ -324,6 +264,67 @@ class CombatSimulator {
             if (ability && ability.shouldTrigger(this.simulationTime, unit, target, friendlies, enemies)) {
                 // Add event
             }
+        }
+
+        return triggeredSomething;
+    }
+
+    useConsumable(source, consumable) {
+        console.log("Consuming:", consumable);
+
+        console.assert(source.combatStats.currentHitpoints > 0, "Dead unit is trying to use a consumable");
+
+        let triggerActive;
+        if (source.isPlayer) {
+            triggerActive = consumable.shouldTrigger(
+                this.simulationTime,
+                source,
+                CombatUtilities.getTarget(this.enemies),
+                this.players,
+                this.enemies
+            );
+        } else {
+            triggerActive = consumable.shouldTrigger(
+                this.simulationTime,
+                source,
+                CombatUtilities.getTarget(this.players),
+                this.enemies,
+                this.players
+            );
+        }
+
+        if (!triggerActive) {
+            return;
+        }
+
+        consumable.lastUsed = this.simulationTime;
+
+        if (consumable.recoveryDuration == 0) {
+            if (consumable.hitpointRestore > 0) {
+                let hitpointsAdded = source.addHitpoints(consumable.hitpointRestore);
+                console.log("Added hitpoints:", hitpointsAdded);
+            }
+
+            if (consumable.manapointRestore > 0) {
+                let manapointsAdded = source.addManapoints(consumable.manapointRestore);
+                console.log("Added manapoints:", manapointsAdded);
+            }
+        } else {
+            let consumableTickEvent = new ConsumableTickEvent(
+                this.simulationTime + 2 * 1e9,
+                source,
+                consumable,
+                consumable.recoveryDuration / (2 * 1e9),
+                1
+            );
+            this.eventQueue.addEvent(consumableTickEvent);
+        }
+
+        for (const buff of consumable.buffs) {
+            source.addBuff(buff, this.simulationTime);
+            console.log("Added buff:", buff);
+            let checkBuffExpirationEvent = new CheckBuffExpirationEvent(this.simulationTime + buff.duration, source);
+            this.eventQueue.addEvent(checkBuffExpirationEvent);
         }
     }
 }
