@@ -153,12 +153,26 @@ class CombatUnit {
         return boosts;
     }
 
-    reset() {
+    reset(currentTime = 0) {
         this.clearBuffs();
         this.updateCombatStats();
+        this.resetCooldowns(currentTime);
 
         this.combatStats.currentHitpoints = this.combatStats.maxHitpoints;
         this.combatStats.currentManapoints = this.combatStats.maxManapoints;
+    }
+
+    resetCooldowns(currentTime = 0) {
+        this.food.filter((food) => food != null).forEach((food) => food.lastUsed = Number.MIN_SAFE_INTEGER);
+        this.drinks.filter((drink) => drink != null).forEach((drink) => drink.lastUsed = Number.MIN_SAFE_INTEGER);
+
+        this.abilities.filter((ability) => ability != null).forEach((ability) => {
+            if (this.isPlayer) {
+                ability.lastUsed = currentTime;
+            } else {
+                ability.lastUsed = currentTime - Math.floor(Math.random() * ability.cooldownDuration);
+            }
+        })
     }
 
     addHitpoints(hitpoints) {

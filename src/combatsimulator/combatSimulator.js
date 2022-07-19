@@ -70,7 +70,7 @@ class CombatSimulator {
     }
 
     processCombatStartEvent(event) {
-        this.players[0].reset();
+        this.players[0].reset(this.simulationTime);
 
         let regenTickEvent = new RegenTickEvent(this.simulationTime + 10 * 1e9, this.players[0]);
         this.eventQueue.addEvent(regenTickEvent);
@@ -81,6 +81,7 @@ class CombatSimulator {
     processPlayerRespawnEvent(event) {
         this.players[0].combatStats.currentHitpoints = this.players[0].combatStats.maxHitpoints / 2;
         this.players[0].clearBuffs();
+        this.players[0].resetCooldowns(this.simulationTime);
 
         let regenTickEvent = new RegenTickEvent(this.simulationTime + 10 * 1e9, this.players[0]);
         this.eventQueue.addEvent(regenTickEvent);
@@ -95,7 +96,7 @@ class CombatSimulator {
     startNewEncounter() {
         this.enemies = this.zone.getRandomEncounter();
         this.enemies.forEach((enemy) => {
-            enemy.reset();
+            enemy.reset(this.simulationTime);
         });
 
         this.addNextAutoAttackEvent(this.players[0]);

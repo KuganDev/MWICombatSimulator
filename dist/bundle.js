@@ -208,7 +208,7 @@ class CombatSimulator {
     }
 
     processCombatStartEvent(event) {
-        this.players[0].reset();
+        this.players[0].reset(this.simulationTime);
 
         let regenTickEvent = new _events_regenTickEvent__WEBPACK_IMPORTED_MODULE_9__["default"](this.simulationTime + 10 * 1e9, this.players[0]);
         this.eventQueue.addEvent(regenTickEvent);
@@ -219,6 +219,7 @@ class CombatSimulator {
     processPlayerRespawnEvent(event) {
         this.players[0].combatStats.currentHitpoints = this.players[0].combatStats.maxHitpoints / 2;
         this.players[0].clearBuffs();
+        this.players[0].resetCooldowns(this.simulationTime);
 
         let regenTickEvent = new _events_regenTickEvent__WEBPACK_IMPORTED_MODULE_9__["default"](this.simulationTime + 10 * 1e9, this.players[0]);
         this.eventQueue.addEvent(regenTickEvent);
@@ -233,7 +234,7 @@ class CombatSimulator {
     startNewEncounter() {
         this.enemies = this.zone.getRandomEncounter();
         this.enemies.forEach((enemy) => {
-            enemy.reset();
+            enemy.reset(this.simulationTime);
         });
 
         this.addNextAutoAttackEvent(this.players[0]);
@@ -616,12 +617,26 @@ class CombatUnit {
         return boosts;
     }
 
-    reset() {
+    reset(currentTime = 0) {
         this.clearBuffs();
         this.updateCombatStats();
+        this.resetCooldowns(currentTime);
 
         this.combatStats.currentHitpoints = this.combatStats.maxHitpoints;
         this.combatStats.currentManapoints = this.combatStats.maxManapoints;
+    }
+
+    resetCooldowns(currentTime = 0) {
+        this.food.filter((food) => food != null).forEach((food) => food.lastUsed = Number.MIN_SAFE_INTEGER);
+        this.drinks.filter((drink) => drink != null).forEach((drink) => drink.lastUsed = Number.MIN_SAFE_INTEGER);
+
+        this.abilities.filter((ability) => ability != null).forEach((ability) => {
+            if (this.isPlayer) {
+                ability.lastUsed = currentTime;
+            } else {
+                ability.lastUsed = currentTime - Math.floor(Math.random() * ability.cooldownDuration);
+            }
+        })
     }
 
     addHitpoints(hitpoints) {
@@ -1155,12 +1170,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _combatUnit__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./combatUnit */ "./src/combatsimulator/combatUnit.js");
-/* harmony import */ var _data_combatMonsterDetailMap_json__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./data/combatMonsterDetailMap.json */ "./src/combatsimulator/data/combatMonsterDetailMap.json");
+/* harmony import */ var _ability__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ability */ "./src/combatsimulator/ability.js");
+/* harmony import */ var _combatUnit__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./combatUnit */ "./src/combatsimulator/combatUnit.js");
+/* harmony import */ var _data_combatMonsterDetailMap_json__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./data/combatMonsterDetailMap.json */ "./src/combatsimulator/data/combatMonsterDetailMap.json");
 
 
 
-class Monster extends _combatUnit__WEBPACK_IMPORTED_MODULE_0__["default"] {
+
+class Monster extends _combatUnit__WEBPACK_IMPORTED_MODULE_1__["default"] {
     constructor(hrid) {
         super();
 
@@ -1169,7 +1186,7 @@ class Monster extends _combatUnit__WEBPACK_IMPORTED_MODULE_0__["default"] {
     }
 
     updateCombatStats() {
-        let gameMonster = _data_combatMonsterDetailMap_json__WEBPACK_IMPORTED_MODULE_1__[this.hrid];
+        let gameMonster = _data_combatMonsterDetailMap_json__WEBPACK_IMPORTED_MODULE_2__[this.hrid];
         console.assert(gameMonster, "No monster found for hrid:" + this.hrid);
 
         this.staminaLevel = gameMonster.combatDetails.staminaLevel;
@@ -1183,6 +1200,10 @@ class Monster extends _combatUnit__WEBPACK_IMPORTED_MODULE_0__["default"] {
 
         for (const [key, value] of Object.entries(gameMonster.combatDetails.combatStats)) {
             this.combatStats[key] = value;
+        }
+
+        for (let i = 0; i < gameMonster.abilities.length; i++) {
+            this.abilities[i] = new _ability__WEBPACK_IMPORTED_MODULE_0__["default"](gameMonster.abilities[i].abilityHrid, gameMonster.abilities[i].level);
         }
 
         super.updateCombatStats();
@@ -1773,7 +1794,7 @@ let trigger = new _combatsimulator_trigger_js__WEBPACK_IMPORTED_MODULE_6__["defa
 console.log(trigger.isActive(player, monster, [player], [monster, monster2, monster3]));
 
 let ability1 = new _combatsimulator_ability_js__WEBPACK_IMPORTED_MODULE_7__["default"]("/abilities/poke", 13);
-let ability2 = new _combatsimulator_ability_js__WEBPACK_IMPORTED_MODULE_7__["default"]("/abilities/berserk", 7, [trigger]);
+let ability2 = new _combatsimulator_ability_js__WEBPACK_IMPORTED_MODULE_7__["default"]("/abilities/berserk", 7);
 console.log(ability1);
 console.log(ability2);
 
@@ -1792,7 +1813,7 @@ console.log(consumable1);
 console.log(consumable2);
 console.log(consumable3);
 
-let zone = new _combatsimulator_zone_js__WEBPACK_IMPORTED_MODULE_9__["default"]("/actions/combat/bear_with_it");
+let zone = new _combatsimulator_zone_js__WEBPACK_IMPORTED_MODULE_9__["default"]("/actions/combat/gobo_planet");
 console.log(zone);
 
 let counts = {};
@@ -1816,6 +1837,8 @@ player.food[0] = consumable2;
 player.food[1] = consumable3;
 player.drinks[0] = consumable1;
 player.drinks[1] = consumable4;
+player.abilities[0] = ability1;
+player.abilities[1] = ability2;
 
 let simulator = new _combatsimulator_combatSimulator_js__WEBPACK_IMPORTED_MODULE_10__["default"](player, zone);
 simulator.simulate(320 * 1e9);

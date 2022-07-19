@@ -89,7 +89,7 @@ let trigger = new Trigger(
 console.log(trigger.isActive(player, monster, [player], [monster, monster2, monster3]));
 
 let ability1 = new Ability("/abilities/poke", 13);
-let ability2 = new Ability("/abilities/berserk", 7, [trigger]);
+let ability2 = new Ability("/abilities/berserk", 7);
 console.log(ability1);
 console.log(ability2);
 
@@ -108,7 +108,7 @@ console.log(consumable1);
 console.log(consumable2);
 console.log(consumable3);
 
-let zone = new Zone("/actions/combat/bear_with_it");
+let zone = new Zone("/actions/combat/gobo_planet");
 console.log(zone);
 
 let counts = {};
@@ -132,6 +132,8 @@ player.food[0] = consumable2;
 player.food[1] = consumable3;
 player.drinks[0] = consumable1;
 player.drinks[1] = consumable4;
+player.abilities[0] = ability1;
+player.abilities[1] = ability2;
 
 let simulator = new CombatSimulator(player, zone);
 simulator.simulate(320 * 1e9);

@@ -1,3 +1,4 @@
+import Ability from "./ability";
 import CombatUnit from "./combatUnit";
 import combatMonsterDetailMap from "./data/combatMonsterDetailMap.json";
 
@@ -24,6 +25,10 @@ class Monster extends CombatUnit {
 
         for (const [key, value] of Object.entries(gameMonster.combatDetails.combatStats)) {
             this.combatStats[key] = value;
+        }
+
+        for (let i = 0; i < gameMonster.abilities.length; i++) {
+            this.abilities[i] = new Ability(gameMonster.abilities[i].abilityHrid, gameMonster.abilities[i].level);
         }
 
         super.updateCombatStats();
