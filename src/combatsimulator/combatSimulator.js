@@ -3,6 +3,7 @@ import AutoAttackEvent from "./events/autoAttackEvent";
 import CheckBuffExpirationEvent from "./events/checkBuffExpirationEvent";
 import CombatStartEvent from "./events/combatStartEvent";
 import ConsumableTickEvent from "./events/consumableTickEvent";
+import CooldownReadyEvent from "./events/cooldownReadyEvent";
 import EnemyRespawnEvent from "./events/enemyRespawnEvent";
 import EventQueue from "./events/eventQueue";
 import PlayerRespawnEvent from "./events/playerRespawnEvent";
@@ -36,6 +37,8 @@ class CombatSimulator {
     processEvent(event) {
         this.simulationTime = event.time;
 
+        console.log(this.simulationTime / 1e9, event.type, event);
+
         switch (event.type) {
             case CombatStartEvent.type:
                 this.processCombatStartEvent(event);
@@ -58,14 +61,15 @@ class CombatSimulator {
             case RegenTickEvent.type:
                 this.processRegenTickEvent(event);
                 break;
+            case CooldownReadyEvent.type:
+                // Only used to check triggers
+                break;
         }
 
         this.checkTriggers();
     }
 
     processCombatStartEvent(event) {
-        console.log(this.simulationTime / 1e9, event.type, event);
-
         this.players[0].reset();
 
         let regenTickEvent = new RegenTickEvent(this.simulationTime + 10 * 1e9, this.players[0]);
@@ -75,9 +79,8 @@ class CombatSimulator {
     }
 
     processPlayerRespawnEvent(event) {
-        console.log(this.simulationTime / 1e9, event.type, event);
-
         this.players[0].combatStats.currentHitpoints = this.players[0].combatStats.maxHitpoints / 2;
+        this.players[0].clearBuffs();
 
         let regenTickEvent = new RegenTickEvent(this.simulationTime + 10 * 1e9, this.players[0]);
         this.eventQueue.addEvent(regenTickEvent);
@@ -86,8 +89,6 @@ class CombatSimulator {
     }
 
     processEnemyRespawnEvent(event) {
-        console.log(this.simulationTime / 1e9, event.type, event);
-
         this.startNewEncounter();
     }
 
@@ -103,7 +104,6 @@ class CombatSimulator {
     }
 
     processAutoAttackEvent(event) {
-        console.log(this.simulationTime / 1e9, event.type, event);
         console.log("source:", event.source.hrid, "target:", event.target.hrid);
 
         let combatStyle = event.source.combatStats.combatStyleHrid;
@@ -165,8 +165,6 @@ class CombatSimulator {
     }
 
     processConsumableTickEvent(event) {
-        console.log(this.simulationTime / 1e9, event.type, event);
-
         if (event.consumable.hitpointRestore > 0) {
             let tickValue = CombatUtilities.calculateTickValue(
                 event.consumable.hitpointRestore,
@@ -200,8 +198,6 @@ class CombatSimulator {
     }
 
     processRegenTickEvent(event) {
-        console.log(this.simulationTime / 1e9, event.type, event);
-
         let hitpointRegen = Math.floor(event.source.combatStats.maxHitpoints * event.source.combatStats.HPRegen);
         let hitpointsAdded = event.source.addHitpoints(hitpointRegen);
         console.log("Added hitpoints:", hitpointsAdded);
@@ -215,8 +211,6 @@ class CombatSimulator {
     }
 
     processCheckBuffExpirationEvent(event) {
-        console.log(this.simulationTime / 1e9, event.type, event);
-
         event.source.removeExpiredBuffs(this.simulationTime);
     }
 
@@ -281,6 +275,8 @@ class CombatSimulator {
         console.assert(source.combatStats.currentHitpoints > 0, "Dead unit is trying to use a consumable");
 
         consumable.lastUsed = this.simulationTime;
+        let cooldownReadyEvent = new CooldownReadyEvent(this.simulationTime + consumable.cooldownDuration);
+        this.eventQueue.addEvent(cooldownReadyEvent);
 
         if (consumable.recoveryDuration == 0) {
             if (consumable.hitpointRestore > 0) {

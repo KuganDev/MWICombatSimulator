@@ -108,7 +108,7 @@ console.log(consumable1);
 console.log(consumable2);
 console.log(consumable3);
 
-let zone = new Zone("/actions/combat/gobo_planet");
+let zone = new Zone("/actions/combat/bear_with_it");
 console.log(zone);
 
 let counts = {};

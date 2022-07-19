@@ -131,10 +131,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _events_checkBuffExpirationEvent__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./events/checkBuffExpirationEvent */ "./src/combatsimulator/events/checkBuffExpirationEvent.js");
 /* harmony import */ var _events_combatStartEvent__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./events/combatStartEvent */ "./src/combatsimulator/events/combatStartEvent.js");
 /* harmony import */ var _events_consumableTickEvent__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./events/consumableTickEvent */ "./src/combatsimulator/events/consumableTickEvent.js");
-/* harmony import */ var _events_enemyRespawnEvent__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./events/enemyRespawnEvent */ "./src/combatsimulator/events/enemyRespawnEvent.js");
-/* harmony import */ var _events_eventQueue__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./events/eventQueue */ "./src/combatsimulator/events/eventQueue.js");
-/* harmony import */ var _events_playerRespawnEvent__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./events/playerRespawnEvent */ "./src/combatsimulator/events/playerRespawnEvent.js");
-/* harmony import */ var _events_regenTickEvent__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./events/regenTickEvent */ "./src/combatsimulator/events/regenTickEvent.js");
+/* harmony import */ var _events_cooldownReadyEvent__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./events/cooldownReadyEvent */ "./src/combatsimulator/events/cooldownReadyEvent.js");
+/* harmony import */ var _events_enemyRespawnEvent__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./events/enemyRespawnEvent */ "./src/combatsimulator/events/enemyRespawnEvent.js");
+/* harmony import */ var _events_eventQueue__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./events/eventQueue */ "./src/combatsimulator/events/eventQueue.js");
+/* harmony import */ var _events_playerRespawnEvent__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./events/playerRespawnEvent */ "./src/combatsimulator/events/playerRespawnEvent.js");
+/* harmony import */ var _events_regenTickEvent__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./events/regenTickEvent */ "./src/combatsimulator/events/regenTickEvent.js");
+
 
 
 
@@ -150,7 +152,7 @@ class CombatSimulator {
         this.players = [player];
         this.zone = zone;
 
-        this.eventQueue = new _events_eventQueue__WEBPACK_IMPORTED_MODULE_6__["default"]();
+        this.eventQueue = new _events_eventQueue__WEBPACK_IMPORTED_MODULE_7__["default"]();
     }
 
     simulate(simulationTimeLimit) {
@@ -173,14 +175,16 @@ class CombatSimulator {
     processEvent(event) {
         this.simulationTime = event.time;
 
+        console.log(this.simulationTime / 1e9, event.type, event);
+
         switch (event.type) {
             case _events_combatStartEvent__WEBPACK_IMPORTED_MODULE_3__["default"].type:
                 this.processCombatStartEvent(event);
                 break;
-            case _events_playerRespawnEvent__WEBPACK_IMPORTED_MODULE_7__["default"].type:
+            case _events_playerRespawnEvent__WEBPACK_IMPORTED_MODULE_8__["default"].type:
                 this.processPlayerRespawnEvent(event);
                 break;
-            case _events_enemyRespawnEvent__WEBPACK_IMPORTED_MODULE_5__["default"].type:
+            case _events_enemyRespawnEvent__WEBPACK_IMPORTED_MODULE_6__["default"].type:
                 this.processEnemyRespawnEvent(event);
                 break;
             case _events_autoAttackEvent__WEBPACK_IMPORTED_MODULE_1__["default"].type:
@@ -192,8 +196,11 @@ class CombatSimulator {
             case _events_checkBuffExpirationEvent__WEBPACK_IMPORTED_MODULE_2__["default"].type:
                 this.processCheckBuffExpirationEvent(event);
                 break;
-            case _events_regenTickEvent__WEBPACK_IMPORTED_MODULE_8__["default"].type:
+            case _events_regenTickEvent__WEBPACK_IMPORTED_MODULE_9__["default"].type:
                 this.processRegenTickEvent(event);
+                break;
+            case _events_cooldownReadyEvent__WEBPACK_IMPORTED_MODULE_5__["default"].type:
+                // Only used to check triggers
                 break;
         }
 
@@ -201,30 +208,25 @@ class CombatSimulator {
     }
 
     processCombatStartEvent(event) {
-        console.log(this.simulationTime / 1e9, event.type, event);
-
         this.players[0].reset();
 
-        let regenTickEvent = new _events_regenTickEvent__WEBPACK_IMPORTED_MODULE_8__["default"](this.simulationTime + 10 * 1e9, this.players[0]);
+        let regenTickEvent = new _events_regenTickEvent__WEBPACK_IMPORTED_MODULE_9__["default"](this.simulationTime + 10 * 1e9, this.players[0]);
         this.eventQueue.addEvent(regenTickEvent);
 
         this.startNewEncounter();
     }
 
     processPlayerRespawnEvent(event) {
-        console.log(this.simulationTime / 1e9, event.type, event);
-
         this.players[0].combatStats.currentHitpoints = this.players[0].combatStats.maxHitpoints / 2;
+        this.players[0].clearBuffs();
 
-        let regenTickEvent = new _events_regenTickEvent__WEBPACK_IMPORTED_MODULE_8__["default"](this.simulationTime + 10 * 1e9, this.players[0]);
+        let regenTickEvent = new _events_regenTickEvent__WEBPACK_IMPORTED_MODULE_9__["default"](this.simulationTime + 10 * 1e9, this.players[0]);
         this.eventQueue.addEvent(regenTickEvent);
 
         this.startNewEncounter();
     }
 
     processEnemyRespawnEvent(event) {
-        console.log(this.simulationTime / 1e9, event.type, event);
-
         this.startNewEncounter();
     }
 
@@ -240,7 +242,6 @@ class CombatSimulator {
     }
 
     processAutoAttackEvent(event) {
-        console.log(this.simulationTime / 1e9, event.type, event);
         console.log("source:", event.source.hrid, "target:", event.target.hrid);
 
         let combatStyle = event.source.combatStats.combatStyleHrid;
@@ -273,12 +274,12 @@ class CombatSimulator {
         let damagePrevented = premitigatedDamage - damage;
 
         if (event.source.isPlayer && !this.enemies.find((enemy) => enemy.combatStats.currentHitpoints > 0)) {
-            let enemyRespawnEvent = new _events_enemyRespawnEvent__WEBPACK_IMPORTED_MODULE_5__["default"](this.simulationTime + 3 * 1e9);
+            let enemyRespawnEvent = new _events_enemyRespawnEvent__WEBPACK_IMPORTED_MODULE_6__["default"](this.simulationTime + 3 * 1e9);
             this.eventQueue.addEvent(enemyRespawnEvent);
             this.enemies = null;
         } else if (!event.source.isPlayer && !this.players.find((player) => player.combatStats.currentHitpoints > 0)) {
             // 120 seconds respawn and 30 seconds traveling to battle
-            let playerRespawnEvent = new _events_playerRespawnEvent__WEBPACK_IMPORTED_MODULE_7__["default"](this.simulationTime + 150 * 1e9);
+            let playerRespawnEvent = new _events_playerRespawnEvent__WEBPACK_IMPORTED_MODULE_8__["default"](this.simulationTime + 150 * 1e9);
             this.eventQueue.addEvent(playerRespawnEvent);
         } else {
             this.addNextAutoAttackEvent(event.source);
@@ -302,8 +303,6 @@ class CombatSimulator {
     }
 
     processConsumableTickEvent(event) {
-        console.log(this.simulationTime / 1e9, event.type, event);
-
         if (event.consumable.hitpointRestore > 0) {
             let tickValue = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].calculateTickValue(
                 event.consumable.hitpointRestore,
@@ -337,8 +336,6 @@ class CombatSimulator {
     }
 
     processRegenTickEvent(event) {
-        console.log(this.simulationTime / 1e9, event.type, event);
-
         let hitpointRegen = Math.floor(event.source.combatStats.maxHitpoints * event.source.combatStats.HPRegen);
         let hitpointsAdded = event.source.addHitpoints(hitpointRegen);
         console.log("Added hitpoints:", hitpointsAdded);
@@ -347,13 +344,11 @@ class CombatSimulator {
         let manapointsAdded = event.source.addManapoints(manapointRegen);
         console.log("Added manapoints:", manapointsAdded);
 
-        let regenTickEvent = new _events_regenTickEvent__WEBPACK_IMPORTED_MODULE_8__["default"](this.simulationTime + 10 * 1e9, event.source);
+        let regenTickEvent = new _events_regenTickEvent__WEBPACK_IMPORTED_MODULE_9__["default"](this.simulationTime + 10 * 1e9, event.source);
         this.eventQueue.addEvent(regenTickEvent);
     }
 
     processCheckBuffExpirationEvent(event) {
-        console.log(this.simulationTime / 1e9, event.type, event);
-
         event.source.removeExpiredBuffs(this.simulationTime);
     }
 
@@ -418,6 +413,8 @@ class CombatSimulator {
         console.assert(source.combatStats.currentHitpoints > 0, "Dead unit is trying to use a consumable");
 
         consumable.lastUsed = this.simulationTime;
+        let cooldownReadyEvent = new _events_cooldownReadyEvent__WEBPACK_IMPORTED_MODULE_5__["default"](this.simulationTime + consumable.cooldownDuration);
+        this.eventQueue.addEvent(cooldownReadyEvent);
 
         if (consumable.recoveryDuration == 0) {
             if (consumable.hitpointRestore > 0) {
@@ -604,6 +601,10 @@ class CombatUnit {
         this.updateCombatStats();
     }
 
+    clearBuffs() {
+        this.combatBuffs = {};
+    }
+
     getBuffBoosts(type) {
         let boosts = [];
         Object.values(this.combatBuffs)
@@ -616,7 +617,7 @@ class CombatUnit {
     }
 
     reset() {
-        this.combatBuffs = {};
+        this.clearBuffs();
         this.updateCombatStats();
 
         this.combatStats.currentHitpoints = this.combatStats.maxHitpoints;
@@ -965,6 +966,32 @@ class ConsumableTickEvent extends _combatEvent__WEBPACK_IMPORTED_MODULE_0__["def
 }
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (ConsumableTickEvent);
+
+
+/***/ }),
+
+/***/ "./src/combatsimulator/events/cooldownReadyEvent.js":
+/*!**********************************************************!*\
+  !*** ./src/combatsimulator/events/cooldownReadyEvent.js ***!
+  \**********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _combatEvent__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./combatEvent */ "./src/combatsimulator/events/combatEvent.js");
+
+
+class CooldownReadyEvent extends _combatEvent__WEBPACK_IMPORTED_MODULE_0__["default"] {
+    static type = "cooldownReady";
+
+    constructor(time) {
+        super(CooldownReadyEvent.type, time);
+    }
+}
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (CooldownReadyEvent);
 
 
 /***/ }),
@@ -1765,7 +1792,7 @@ console.log(consumable1);
 console.log(consumable2);
 console.log(consumable3);
 
-let zone = new _combatsimulator_zone_js__WEBPACK_IMPORTED_MODULE_9__["default"]("/actions/combat/gobo_planet");
+let zone = new _combatsimulator_zone_js__WEBPACK_IMPORTED_MODULE_9__["default"]("/actions/combat/bear_with_it");
 console.log(zone);
 
 let counts = {};

@@ -138,6 +138,10 @@ class CombatUnit {
         this.updateCombatStats();
     }
 
+    clearBuffs() {
+        this.combatBuffs = {};
+    }
+
     getBuffBoosts(type) {
         let boosts = [];
         Object.values(this.combatBuffs)
@@ -150,7 +154,7 @@ class CombatUnit {
     }
 
     reset() {
-        this.combatBuffs = {};
+        this.clearBuffs();
         this.updateCombatStats();
 
         this.combatStats.currentHitpoints = this.combatStats.maxHitpoints;
