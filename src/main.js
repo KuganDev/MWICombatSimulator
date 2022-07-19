@@ -88,8 +88,8 @@ let trigger = new Trigger(
 );
 console.log(trigger.isActive(player, monster, [player], [monster, monster2, monster3]));
 
-let ability1 = new Ability("/abilities/poke", 13);
-let ability2 = new Ability("/abilities/berserk", 7);
+let ability1 = new Ability("/abilities/maim", 13);
+let ability2 = new Ability("/abilities/cleave", 7);
 console.log(ability1);
 console.log(ability2);
 

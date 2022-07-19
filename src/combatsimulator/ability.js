@@ -19,12 +19,12 @@ class Ability {
             let abilityEffect = {
                 targetType: effect.targetType,
                 effectType: effect.effectType,
-                combatStyleHrid: effect.combatStyleHrid,
+                combatStyleHrid: effect.combatStyleHrid.slice(effect.combatStyleHrid.lastIndexOf("/") + 1),
                 damageFlat: effect.baseDamageFlat + (this.level - 1) * effect.baseDamageFlatLevelBonus,
-                damageRation: effect.baseDamageRatio + (this.level - 1) * effect.baseDamageRatioLevelBonus,
+                damageRatio: effect.baseDamageRatio + (this.level - 1) * effect.baseDamageRatioLevelBonus,
                 bleedRatio: effect.bleedRatio,
                 duration: effect.duration,
-                buff: new Buff(effect.buff, this.level),
+                buff: effect.buff.duration > 0 ? new Buff(effect.buff, this.level) : null,
             };
             this.abilityEffects.push(abilityEffect);
         }
