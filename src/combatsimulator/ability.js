@@ -52,6 +52,10 @@ class Ability {
             return false;
         }
 
+        if (source.combatStats.currentManapoints < this.manaCost) {
+            return false;
+        }
+
         if (this.triggers.length == 0) {
             return true;
         }
