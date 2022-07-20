@@ -173,11 +173,15 @@ class CombatSimulator {
             let enemyRespawnEvent = new EnemyRespawnEvent(this.simulationTime + 3 * 1e9);
             this.eventQueue.addEvent(enemyRespawnEvent);
             this.enemies = null;
+
             return true;
         } else if (!this.players.find((player) => player.combatStats.currentHitpoints > 0)) {
+            this.eventQueue.clear();
             // 120 seconds respawn and 30 seconds traveling to battle
             let playerRespawnEvent = new PlayerRespawnEvent(this.simulationTime + 150 * 1e9);
             this.eventQueue.addEvent(playerRespawnEvent);
+            this.enemies = null;
+
             return true;
         }
 
