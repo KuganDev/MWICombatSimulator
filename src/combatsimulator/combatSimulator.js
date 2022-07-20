@@ -169,7 +169,7 @@ class CombatSimulator {
     }
 
     checkEncounterEnd() {
-        if (!this.enemies.find((enemy) => enemy.combatStats.currentHitpoints > 0)) {
+        if (this.enemies && !this.enemies.find((enemy) => enemy.combatStats.currentHitpoints > 0)) {
             let enemyRespawnEvent = new EnemyRespawnEvent(this.simulationTime + 3 * 1e9);
             this.eventQueue.addEvent(enemyRespawnEvent);
             this.enemies = null;

@@ -1234,7 +1234,7 @@ class CombatSimulator {
     }
 
     checkEncounterEnd() {
-        if (!this.enemies.find((enemy) => enemy.combatStats.currentHitpoints > 0)) {
+        if (this.enemies && !this.enemies.find((enemy) => enemy.combatStats.currentHitpoints > 0)) {
             let enemyRespawnEvent = new _events_enemyRespawnEvent__WEBPACK_IMPORTED_MODULE_7__["default"](this.simulationTime + 3 * 1e9);
             this.eventQueue.addEvent(enemyRespawnEvent);
             this.enemies = null;
@@ -2910,18 +2910,18 @@ worker.onmessage = function (event) {
 };
 
 let player = new _combatsimulator_player_js__WEBPACK_IMPORTED_MODULE_2__["default"]();
-player.staminaLevel = 72;
-player.intelligenceLevel = 69;
-player.attackLevel = 69;
-player.powerLevel = 71;
-player.defenseLevel = 71;
-player.equipment["/equipment_types/helm"] = new _combatsimulator_equipment_js__WEBPACK_IMPORTED_MODULE_0__["default"]("/items/vision_helmet", 5);
-player.equipment["/equipment_types/body"] = new _combatsimulator_equipment_js__WEBPACK_IMPORTED_MODULE_0__["default"]("/items/rainbow_plate_body", 0);
-player.equipment["/equipment_types/legs"] = new _combatsimulator_equipment_js__WEBPACK_IMPORTED_MODULE_0__["default"]("/items/rainbow_plate_legs", 0);
-player.equipment["/equipment_types/feet"] = new _combatsimulator_equipment_js__WEBPACK_IMPORTED_MODULE_0__["default"]("/items/rainbow_boots", 0);
-player.equipment["/equipment_types/hands"] = new _combatsimulator_equipment_js__WEBPACK_IMPORTED_MODULE_0__["default"]("/items/rainbow_gauntlets", 0);
-player.equipment["/equipment_types/main_hand"] = new _combatsimulator_equipment_js__WEBPACK_IMPORTED_MODULE_0__["default"]("/items/gobo_smasher", 6);
-// player.equipment["/equipment_types/off_hand"] = new Equipment("/items/azure_buckler", 0);
+player.staminaLevel = 43;
+player.intelligenceLevel = 41;
+player.attackLevel = 46;
+player.powerLevel = 46;
+player.defenseLevel = 45;
+player.equipment["/equipment_types/helm"] = new _combatsimulator_equipment_js__WEBPACK_IMPORTED_MODULE_0__["default"]("/items/burble_helmet", 0);
+player.equipment["/equipment_types/body"] = new _combatsimulator_equipment_js__WEBPACK_IMPORTED_MODULE_0__["default"]("/items/burble_plate_body", 0);
+player.equipment["/equipment_types/legs"] = new _combatsimulator_equipment_js__WEBPACK_IMPORTED_MODULE_0__["default"]("/items/burble_plate_legs", 0);
+player.equipment["/equipment_types/feet"] = new _combatsimulator_equipment_js__WEBPACK_IMPORTED_MODULE_0__["default"]("/items/burble_boots", 0);
+player.equipment["/equipment_types/hands"] = new _combatsimulator_equipment_js__WEBPACK_IMPORTED_MODULE_0__["default"]("/items/crab_pincer", 5);
+player.equipment["/equipment_types/main_hand"] = new _combatsimulator_equipment_js__WEBPACK_IMPORTED_MODULE_0__["default"]("/items/burble_sword", 0);
+player.equipment["/equipment_types/off_hand"] = new _combatsimulator_equipment_js__WEBPACK_IMPORTED_MODULE_0__["default"]("/items/snake_fang_dirk", 5);
 player.equipment["/equipment_types/pouch"] = new _combatsimulator_equipment_js__WEBPACK_IMPORTED_MODULE_0__["default"]("/items/large_pouch", 0);
 
 player.updateCombatStats();
@@ -2976,7 +2976,7 @@ console.log(trigger.isActive(player, monster, [player], [monster, monster2, mons
 
 
 
-let zone = new _combatsimulator_zone_js__WEBPACK_IMPORTED_MODULE_9__["default"]("/actions/combat/gummy_bear");
+let zone = new _combatsimulator_zone_js__WEBPACK_IMPORTED_MODULE_9__["default"]("/actions/combat/nom_nom");
 console.log(zone);
 
 let counts = {};
@@ -2996,8 +2996,8 @@ for (const [key, value] of Object.entries(counts)) {
     console.log(key, value / iterations);
 }
 
-let ability1 = new _combatsimulator_ability_js__WEBPACK_IMPORTED_MODULE_7__["default"]("/abilities/frenzy", 3);
-let ability2 = new _combatsimulator_ability_js__WEBPACK_IMPORTED_MODULE_7__["default"]("/abilities/precision", 12);
+let ability1 = new _combatsimulator_ability_js__WEBPACK_IMPORTED_MODULE_7__["default"]("/abilities/scratch", 6);
+let ability2 = new _combatsimulator_ability_js__WEBPACK_IMPORTED_MODULE_7__["default"]("/abilities/smack", 5);
 let ability3 = new _combatsimulator_ability_js__WEBPACK_IMPORTED_MODULE_7__["default"]("/abilities/berserk", 14);
 
 let trigger1 = new _combatsimulator_trigger_js__WEBPACK_IMPORTED_MODULE_6__["default"](
@@ -3007,25 +3007,27 @@ let trigger1 = new _combatsimulator_trigger_js__WEBPACK_IMPORTED_MODULE_6__["def
     400
 );
 
-let consumable1 = new _combatsimulator_consumable_js__WEBPACK_IMPORTED_MODULE_8__["default"]("/items/mooberry_cake", [trigger1]);
-let consumable2 = new _combatsimulator_consumable_js__WEBPACK_IMPORTED_MODULE_8__["default"]("/items/mooberry_cake", [trigger1]);
+let consumable1 = new _combatsimulator_consumable_js__WEBPACK_IMPORTED_MODULE_8__["default"]("/items/mooberry_donut");
+let consumable2 = new _combatsimulator_consumable_js__WEBPACK_IMPORTED_MODULE_8__["default"]("/items/orange_yogurt");
 let consumable3 = new _combatsimulator_consumable_js__WEBPACK_IMPORTED_MODULE_8__["default"]("/items/dragon_fruit_yogurt");
 let consumable4 = new _combatsimulator_consumable_js__WEBPACK_IMPORTED_MODULE_8__["default"]("/items/power_coffee");
 let consumable5 = new _combatsimulator_consumable_js__WEBPACK_IMPORTED_MODULE_8__["default"]("/items/super_intelligence_coffee");
 
 player.food[0] = consumable1;
 player.food[1] = consumable2;
-player.food[2] = consumable3;
-player.drinks[0] = consumable4;
-player.drinks[1] = consumable5;
+// player.food[2] = consumable3;
+// player.drinks[0] = consumable4;
+// player.drinks[1] = consumable5;
 player.abilities[0] = ability1;
 player.abilities[1] = ability2;
-player.abilities[2] = ability3;
+// player.abilities[2] = ability3;
 
 let simulator = new _combatsimulator_combatSimulator_js__WEBPACK_IMPORTED_MODULE_10__["default"](player, zone);
-let simResult = simulator.simulate(100 * 60 * 60 * 1e9);
+let simResult = simulator.simulate(200 * 60 * 60 * 1e9);
 
 console.log(simResult);
+
+console.log("Simulated hours:", simResult.simulatedTime / (60 * 60 * 1e9));
 
 console.log("Deaths per hour:");
 for (const [key, value] of Object.entries(simResult.deaths)) {
