@@ -1,54 +1,30 @@
+import Heap from "heap-js";
+
 class EventQueue {
     constructor() {
-        // TODO: Replace with heap and check performance
-        this.queue = [];
+        this.minHeap = new Heap((a, b) => a.time - b.time);
     }
 
     addEvent(event) {
-        this.queue.push(event);
+        this.minHeap.push(event);
     }
 
     getNextEvent() {
-        this.queue.sort((a, b) => a.time - b.time);
-
-        return this.queue.shift();
+        return this.minHeap.pop();
     }
 
     clear() {
-        this.queue = [];
+        this.minHeap = new Heap((a, b) => a.time - b.time);
     }
 
     clearEventsForUnit(unit) {
-        let clearedQueue = [];
+        let heapEvents = this.minHeap.toArray();
 
-        for (let i = 0; i < this.queue.length; i++) {
-            let event = this.queue[i];
-
+        for (const event of heapEvents) {
             if (event.source == unit || event.target == unit) {
-                continue;
-            }
-
-            clearedQueue.push(event);
-        }
-
-        this.queue = clearedQueue;
-    }
-
-    containsEvent(event) {
-        for (const queueEvent of this.queue.filter((e) => e.type == event.type)) {
-            let equal = true;
-            for (const key in queueEvent) {
-                if (event[key] != queueEvent[key]) {
-                    equal = false;
-                }
-            }
-
-            if (equal) {
-                return true;
+                this.minHeap.remove(event);
             }
         }
-
-        return false;
     }
 }
 
