@@ -136,4 +136,6 @@ player.abilities[0] = ability1;
 player.abilities[1] = ability2;
 
 let simulator = new CombatSimulator(player, zone);
-simulator.simulate(320 * 1e9);
+let simResult = simulator.simulate(100 * 60 * 60 * 1e9);
+
+console.log(simResult);

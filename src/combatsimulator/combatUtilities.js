@@ -35,19 +35,19 @@ class CombatUtilities {
         let damageRoll = CombatUtilities.randomInt(minDamage, maxDamage);
         let premitigatedDamage = Math.min(damageRoll, target.combatStats.currentHitpoints);
 
-        let damage = 0;
+        let damageDone = 0;
         let hitChance = CombatUtilities.calculateHitChance(source, target, combatStyle);
 
         if (Math.random() < hitChance) {
             let damageTakenRatio = 100 / (100 + target.combatStats.armor);
             let mitigatedDamage = damageTakenRatio * premitigatedDamage;
-            damage = CombatUtilities.randomInt(mitigatedDamage, mitigatedDamage);
-            target.combatStats.currentHitpoints -= damage;
+            damageDone = CombatUtilities.randomInt(mitigatedDamage, mitigatedDamage);
+            target.combatStats.currentHitpoints -= damageDone;
         }
 
-        let damagePrevented = premitigatedDamage - damage;
+        let damagePrevented = premitigatedDamage - damageDone;
 
-        return { damage, damagePrevented };
+        return { damageDone, damagePrevented, maxDamage };
     }
 
     static calculateTickValue(totalValue, totalTicks, currentTick) {
@@ -55,6 +55,26 @@ class CombatUtilities {
         let previousSum = Math.floor(((currentTick - 1) * totalValue) / totalTicks);
 
         return currentSum - previousSum;
+    }
+
+    static calculateStaminaExperience(damagePrevented, damageTaken) {
+        return 0.05 * damagePrevented + 0.5 * damageTaken;
+    }
+
+    static calculateIntelligenceExperience(manaUsed) {
+        return 0.5 * manaUsed;
+    }
+
+    static calculateAttackExperience(damageDone) {
+        return 0.45 + 0.125 * damageDone;
+    }
+
+    static calculatePowerExperience(maxDamage) {
+        return 0.3 + 0.04 * maxDamage;
+    }
+
+    static calculateDefenseExperience(damagePrevented) {
+        return 0.4 + 0.15 * damagePrevented;
     }
 }
 

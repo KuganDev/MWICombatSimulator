@@ -9,6 +9,7 @@ import EnemyRespawnEvent from "./events/enemyRespawnEvent";
 import EventQueue from "./events/eventQueue";
 import PlayerRespawnEvent from "./events/playerRespawnEvent";
 import RegenTickEvent from "./events/regenTickEvent";
+import SimResult from "./simResult";
 
 class CombatSimulator {
     constructor(player, zone) {
@@ -16,6 +17,7 @@ class CombatSimulator {
         this.zone = zone;
 
         this.eventQueue = new EventQueue();
+        this.simResult = new SimResult();
     }
 
     simulate(simulationTimeLimit) {
@@ -28,17 +30,22 @@ class CombatSimulator {
             let nextEvent = this.eventQueue.getNextEvent();
             this.processEvent(nextEvent);
         }
+
+        this.simResult.simulatedTime = this.simulationTime;
+
+        return this.simResult;
     }
 
     reset() {
         this.simulationTime = 0;
         this.eventQueue.clear();
+        this.simResult = new SimResult();
     }
 
     processEvent(event) {
         this.simulationTime = event.time;
 
-        console.log(this.simulationTime / 1e9, event.type, event);
+        // console.log(this.simulationTime / 1e9, event.type, event);
 
         switch (event.type) {
             case CombatStartEvent.type:
@@ -130,22 +137,31 @@ class CombatSimulator {
     }
 
     processAutoAttackEvent(event) {
-        console.log("source:", event.source.hrid, "target:", event.target.hrid);
+        // console.log("source:", event.source.hrid, "target:", event.target.hrid);
 
-        let { damage, damagePrevented } = CombatUtilities.processAttack(event.source, event.target);
-        console.log("Hit for", damage);
+        let { damageDone, damagePrevented, maxDamage } = CombatUtilities.processAttack(event.source, event.target);
+        // console.log("Hit for", damageDone);
 
         if (event.source.combatStats.lifeSteal > 0) {
-            let lifeStealHeal = Math.floor(damage * event.source.combatStats.lifeSteal);
+            let lifeStealHeal = Math.floor(damageDone * event.source.combatStats.lifeSteal);
             let hitpointsAdded = event.source.addHitpoints(lifeStealHeal);
-            console.log("Added hitpoints from life steal:", hitpointsAdded);
+            // console.log("Added hitpoints from life steal:", hitpointsAdded);
         }
+
+        let targetStaminaExperience = CombatUtilities.calculateStaminaExperience(damagePrevented, damageDone);
+        let targetDefenseExperience = CombatUtilities.calculateDefenseExperience(damagePrevented);
+        let sourceAttackExperience = CombatUtilities.calculateAttackExperience(damageDone);
+        let sourcePowerExperience = CombatUtilities.calculatePowerExperience(maxDamage);
+
+        this.simResult.addExperienceGain(event.target, "stamina", targetStaminaExperience);
+        this.simResult.addExperienceGain(event.target, "defense", targetDefenseExperience);
+        this.simResult.addExperienceGain(event.source, "attack", sourceAttackExperience);
+        this.simResult.addExperienceGain(event.source, "power", sourcePowerExperience);
 
         if (event.target.combatStats.currentHitpoints == 0) {
             this.eventQueue.clearEventsForUnit(event.target);
+            this.simResult.addDeath(event.target);
         }
-
-        // TODO: add experience
 
         if (!this.checkEncounterEnd()) {
             this.addNextAutoAttackEvent(event.source);
@@ -192,7 +208,7 @@ class CombatSimulator {
                 event.currentTick
             );
             let hitpointsAdded = event.source.addHitpoints(tickValue);
-            console.log("Added hitpoints:", hitpointsAdded);
+            // console.log("Added hitpoints:", hitpointsAdded);
         }
 
         if (event.consumable.manapointRestore > 0) {
@@ -202,7 +218,7 @@ class CombatSimulator {
                 event.currentTick
             );
             let manapointsAdded = event.source.addManapoints(tickValue);
-            console.log("Added manapoints:", manapointsAdded);
+            // console.log("Added manapoints:", manapointsAdded);
         }
 
         if (event.currentTick < event.totalTicks) {
@@ -222,7 +238,7 @@ class CombatSimulator {
         let damage = Math.min(tickDamage, event.target.combatStats.currentHitpoints);
 
         event.target.combatStats.currentHitpoints -= damage;
-        console.log(event.target.hrid, "bleed for", damage);
+        // console.log(event.target.hrid, "bleed for", damage);
 
         if (event.currentTick < event.totalTicks) {
             let bleedTickEvent = new BleedTickEvent(
@@ -237,6 +253,7 @@ class CombatSimulator {
 
         if (event.target.combatStats.currentHitpoints == 0) {
             this.eventQueue.clearEventsForUnit(event.target);
+            this.simResult.addDeath(event.target);
         }
 
         this.checkEncounterEnd();
@@ -245,11 +262,11 @@ class CombatSimulator {
     processRegenTickEvent(event) {
         let hitpointRegen = Math.floor(event.source.combatStats.maxHitpoints * event.source.combatStats.HPRegen);
         let hitpointsAdded = event.source.addHitpoints(hitpointRegen);
-        console.log("Added hitpoints:", hitpointsAdded);
+        // console.log("Added hitpoints:", hitpointsAdded);
 
         let manapointRegen = Math.floor(event.source.combatStats.maxManapoints * event.source.combatStats.MPRegen);
         let manapointsAdded = event.source.addManapoints(manapointRegen);
-        console.log("Added manapoints:", manapointsAdded);
+        // console.log("Added manapoints:", manapointsAdded);
 
         let regenTickEvent = new RegenTickEvent(this.simulationTime + 10 * 1e9, event.source);
         this.eventQueue.addEvent(regenTickEvent);
@@ -316,7 +333,7 @@ class CombatSimulator {
     }
 
     useConsumable(source, consumable) {
-        console.log("Consuming:", consumable);
+        // console.log("Consuming:", consumable);
 
         console.assert(source.combatStats.currentHitpoints > 0, "Dead unit is trying to use a consumable");
 
@@ -327,12 +344,12 @@ class CombatSimulator {
         if (consumable.recoveryDuration == 0) {
             if (consumable.hitpointRestore > 0) {
                 let hitpointsAdded = source.addHitpoints(consumable.hitpointRestore);
-                console.log("Added hitpoints:", hitpointsAdded);
+                // console.log("Added hitpoints:", hitpointsAdded);
             }
 
             if (consumable.manapointRestore > 0) {
                 let manapointsAdded = source.addManapoints(consumable.manapointRestore);
-                console.log("Added manapoints:", manapointsAdded);
+                // console.log("Added manapoints:", manapointsAdded);
             }
         } else {
             let consumableTickEvent = new ConsumableTickEvent(
@@ -347,7 +364,7 @@ class CombatSimulator {
 
         for (const buff of consumable.buffs) {
             source.addBuff(buff, this.simulationTime);
-            console.log("Added buff:", buff);
+            // console.log("Added buff:", buff);
             let checkBuffExpirationEvent = new CheckBuffExpirationEvent(this.simulationTime + buff.duration, source);
             this.eventQueue.addEvent(checkBuffExpirationEvent);
         }
@@ -360,9 +377,12 @@ class CombatSimulator {
             return;
         }
 
-        console.log("Casting:", ability);
+        // console.log("Casting:", ability);
 
         source.combatStats.currentManapoints -= ability.manaCost;
+
+        let sourceIntelligenceExperience = CombatUtilities.calculateIntelligenceExperience(ability.manaCost);
+        this.simResult.addExperienceGain(source, "intelligence", sourceIntelligenceExperience);
 
         ability.lastUsed = this.simulationTime;
         let cooldownReadyEvent = new CooldownReadyEvent(this.simulationTime + ability.cooldownDuration);
@@ -387,26 +407,42 @@ class CombatSimulator {
                     }
 
                     for (const target of targets) {
-                        let { damage, damagePrevented } = CombatUtilities.processAttack(source, target, abilityEffect);
+                        let { damageDone, damagePrevented, maxDamage } = CombatUtilities.processAttack(
+                            source,
+                            target,
+                            abilityEffect
+                        );
 
-                        if (abilityEffect.bleedRatio > 0 && damage > 0) {
+                        if (abilityEffect.bleedRatio > 0 && damageDone > 0) {
                             let bleedTickEvent = new BleedTickEvent(
                                 this.simulationTime + 2 * 1e9,
                                 target,
-                                damage * abilityEffect.bleedRatio,
+                                damageDone * abilityEffect.bleedRatio,
                                 abilityEffect.duration / (2 * 1e9),
                                 1
                             );
                             this.eventQueue.addEvent(bleedTickEvent);
                         }
 
-                        console.log("Ability hit for", damage);
+                        // console.log("Ability hit for", damageDone);
+
+                        let targetStaminaExperience = CombatUtilities.calculateStaminaExperience(
+                            damagePrevented,
+                            damageDone
+                        );
+                        let targetDefenseExperience = CombatUtilities.calculateDefenseExperience(damagePrevented);
+                        let sourceAttackExperience = CombatUtilities.calculateAttackExperience(damageDone);
+                        let sourcePowerExperience = CombatUtilities.calculatePowerExperience(maxDamage);
+
+                        this.simResult.addExperienceGain(target, "stamina", targetStaminaExperience);
+                        this.simResult.addExperienceGain(target, "defense", targetDefenseExperience);
+                        this.simResult.addExperienceGain(source, "attack", sourceAttackExperience);
+                        this.simResult.addExperienceGain(source, "power", sourcePowerExperience);
 
                         if (target.combatStats.currentHitpoints == 0) {
                             this.eventQueue.clearEventsForUnit(target);
+                            this.simResult.addDeath(target);
                         }
-
-                        // TODO: Add experience
                     }
                     break;
             }
