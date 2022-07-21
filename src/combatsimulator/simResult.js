@@ -2,6 +2,7 @@ class SimResult {
     constructor() {
         this.deaths = {};
         this.experienceGained = {};
+        this.encounters = 0;
     }
 
     addDeath(unit) {
@@ -28,6 +29,10 @@ class SimResult {
         }
 
         this.experienceGained[unit.hrid][type] += experience;
+    }
+
+    addEncounterEnd() {
+        this.encounters++;
     }
 }
 

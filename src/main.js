@@ -24,18 +24,18 @@ worker.onmessage = function (event) {
 };
 
 let player = new Player();
-player.staminaLevel = 43;
-player.intelligenceLevel = 41;
-player.attackLevel = 46;
-player.powerLevel = 46;
-player.defenseLevel = 45;
-player.equipment["/equipment_types/helm"] = new Equipment("/items/burble_helmet", 0);
-player.equipment["/equipment_types/body"] = new Equipment("/items/burble_plate_body", 0);
-player.equipment["/equipment_types/legs"] = new Equipment("/items/burble_plate_legs", 0);
-player.equipment["/equipment_types/feet"] = new Equipment("/items/burble_boots", 0);
-player.equipment["/equipment_types/hands"] = new Equipment("/items/crab_pincer", 5);
-player.equipment["/equipment_types/main_hand"] = new Equipment("/items/burble_sword", 0);
-player.equipment["/equipment_types/off_hand"] = new Equipment("/items/snake_fang_dirk", 5);
+player.staminaLevel = 65;
+player.intelligenceLevel = 69;
+player.attackLevel = 71;
+player.powerLevel = 69;
+player.defenseLevel = 68;
+player.equipment["/equipment_types/helm"] = new Equipment("/items/rainbow_helmet", 2);
+player.equipment["/equipment_types/body"] = new Equipment("/items/rainbow_plate_body", 2);
+player.equipment["/equipment_types/legs"] = new Equipment("/items/rainbow_plate_legs", 2);
+player.equipment["/equipment_types/feet"] = new Equipment("/items/rainbow_boots", 2);
+player.equipment["/equipment_types/hands"] = new Equipment("/items/rainbow_gauntlets", 2);
+player.equipment["/equipment_types/main_hand"] = new Equipment("/items/gobo_smasher", 6);
+// player.equipment["/equipment_types/off_hand"] = new Equipment("/items/rainbow_buckler", 2);
 player.equipment["/equipment_types/pouch"] = new Equipment("/items/large_pouch", 0);
 
 player.updateCombatStats();
@@ -90,7 +90,7 @@ console.log(trigger.isActive(player, monster, [player], [monster, monster2, mons
 
 
 
-let zone = new Zone("/actions/combat/nom_nom");
+let zone = new Zone("/actions/combat/gobo_planet");
 console.log(zone);
 
 let counts = {};
@@ -110,9 +110,9 @@ for (const [key, value] of Object.entries(counts)) {
     console.log(key, value / iterations);
 }
 
-let ability1 = new Ability("/abilities/scratch", 6);
-let ability2 = new Ability("/abilities/smack", 5);
-let ability3 = new Ability("/abilities/berserk", 14);
+let ability1 = new Ability("/abilities/sweep", 12);
+let ability2 = new Ability("/abilities/cleave", 1);
+let ability3 = new Ability("/abilities/berserk", 13);
 
 let trigger1 = new Trigger(
     "/combat_trigger_dependencies/self",
@@ -121,27 +121,29 @@ let trigger1 = new Trigger(
     400
 );
 
-let consumable1 = new Consumable("/items/mooberry_donut");
-let consumable2 = new Consumable("/items/orange_yogurt");
-let consumable3 = new Consumable("/items/dragon_fruit_yogurt");
+let consumable1 = new Consumable("/items/mooberry_cake");
+let consumable2 = new Consumable("/items/peach_yogurt");
+let consumable3 = new Consumable("/items/strawberry_cake");
 let consumable4 = new Consumable("/items/power_coffee");
-let consumable5 = new Consumable("/items/super_intelligence_coffee");
+let consumable5 = new Consumable("/items/lucky_coffee");
 
 player.food[0] = consumable1;
 player.food[1] = consumable2;
-// player.food[2] = consumable3;
-// player.drinks[0] = consumable4;
-// player.drinks[1] = consumable5;
+player.food[2] = consumable3;
+player.drinks[0] = consumable4;
+player.drinks[1] = consumable5;
 player.abilities[0] = ability1;
 player.abilities[1] = ability2;
-// player.abilities[2] = ability3;
+player.abilities[2] = ability3;
 
 let simulator = new CombatSimulator(player, zone);
-let simResult = simulator.simulate(200 * 60 * 60 * 1e9);
+let simResult = simulator.simulate(1 * 60 * 60 * 1e9);
 
 console.log(simResult);
 
 console.log("Simulated hours:", simResult.simulatedTime / (60 * 60 * 1e9));
+
+console.log("Encounters per hour:", simResult.encounters / (simResult.simulatedTime / (60 * 60 * 1e9)));
 
 console.log("Deaths per hour:");
 for (const [key, value] of Object.entries(simResult.deaths)) {

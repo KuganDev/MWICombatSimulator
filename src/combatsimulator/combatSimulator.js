@@ -174,6 +174,8 @@ class CombatSimulator {
             this.eventQueue.addEvent(enemyRespawnEvent);
             this.enemies = null;
 
+            this.simResult.addEncounterEnd();
+
             return true;
         } else if (!this.players.find((player) => player.combatStats.currentHitpoints > 0)) {
             this.eventQueue.clear();
@@ -181,6 +183,8 @@ class CombatSimulator {
             let playerRespawnEvent = new PlayerRespawnEvent(this.simulationTime + 150 * 1e9);
             this.eventQueue.addEvent(playerRespawnEvent);
             this.enemies = null;
+
+            this.simResult.addEncounterEnd();
 
             return true;
         }
@@ -412,7 +416,7 @@ class CombatSimulator {
                             break;
                     }
 
-                    for (const target of targets) {
+                    for (const target of targets.filter((unit) => unit.combatStats.currentHitpoints > 0)) {
                         let { damageDone, damagePrevented, maxDamage } = CombatUtilities.processAttack(
                             source,
                             target,
