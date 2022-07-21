@@ -1194,6 +1194,7 @@ class CombatSimulator {
                     let cooldownReadyEvent = new _events_cooldownReadyEvent__WEBPACK_IMPORTED_MODULE_6__["default"](ability.lastUsed + ability.cooldownDuration);
                     this.eventQueue.addEvent(cooldownReadyEvent);
                 });
+            // console.log(enemy.hrid, "spawned");
         });
 
         this.addNextAutoAttackEvent(this.players[0]);
@@ -1204,7 +1205,10 @@ class CombatSimulator {
     processAutoAttackEvent(event) {
         // console.log("source:", event.source.hrid, "target:", event.target.hrid);
 
-        let { damageDone, damagePrevented, maxDamage } = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].processAttack(event.source, event.target);
+        let { damageDone, damagePrevented, maxDamage, didHit } = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].processAttack(
+            event.source,
+            event.target
+        );
         // console.log("Hit for", damageDone);
 
         if (event.source.combatStats.lifeSteal > 0) {
@@ -1212,6 +1216,8 @@ class CombatSimulator {
             let hitpointsAdded = event.source.addHitpoints(lifeStealHeal);
             // console.log("Added hitpoints from life steal:", hitpointsAdded);
         }
+
+        this.simResult.addAttack(event.source, event.target, "autoAttack", didHit ? damageDone : "miss");
 
         let targetStaminaExperience = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].calculateStaminaExperience(damagePrevented, damageDone);
         let targetDefenseExperience = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].calculateDefenseExperience(damagePrevented);
@@ -1226,6 +1232,7 @@ class CombatSimulator {
         if (event.target.combatStats.currentHitpoints == 0) {
             this.eventQueue.clearEventsForUnit(event.target);
             this.simResult.addDeath(event.target);
+            // console.log(event.target.hrid, "died");
         }
 
         if (!this.checkEncounterEnd()) {
@@ -1240,6 +1247,7 @@ class CombatSimulator {
             this.enemies = null;
 
             this.simResult.addEncounterEnd();
+            // console.log("All enemies died");
 
             return true;
         } else if (!this.players.find((player) => player.combatStats.currentHitpoints > 0)) {
@@ -1250,6 +1258,7 @@ class CombatSimulator {
             this.enemies = null;
 
             this.simResult.addEncounterEnd();
+            // console.log("Player died");
 
             return true;
         }
@@ -1465,7 +1474,11 @@ class CombatSimulator {
             switch (abilityEffect.effectType) {
                 case "/ability_effect_types/buff":
                     source.addBuff(abilityEffect.buff, this.simulationTime);
-                    let checkBuffExpirationEvent = new _events_checkBuffExpirationEvent__WEBPACK_IMPORTED_MODULE_3__["default"](this.simulationTime + abilityEffect.buff.duration, source);
+                    // console.log("Added buff:", abilityEffect.buff);
+                    let checkBuffExpirationEvent = new _events_checkBuffExpirationEvent__WEBPACK_IMPORTED_MODULE_3__["default"](
+                        this.simulationTime + abilityEffect.buff.duration,
+                        source
+                    );
                     this.eventQueue.addEvent(checkBuffExpirationEvent);
                     break;
                 case "/ability_effect_types/damage":
@@ -1482,7 +1495,7 @@ class CombatSimulator {
                     }
 
                     for (const target of targets.filter((unit) => unit.combatStats.currentHitpoints > 0)) {
-                        let { damageDone, damagePrevented, maxDamage } = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].processAttack(
+                        let { damageDone, damagePrevented, maxDamage, didHit } = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].processAttack(
                             source,
                             target,
                             abilityEffect
@@ -1499,7 +1512,9 @@ class CombatSimulator {
                             this.eventQueue.addEvent(bleedTickEvent);
                         }
 
-                        // console.log("Ability hit for", damageDone);
+                        // console.log("Ability hit", target.hrid, "for", damageDone);
+
+                        this.simResult.addAttack(source, target, ability.hrid, didHit ? damageDone : "miss");
 
                         let targetStaminaExperience = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].calculateStaminaExperience(
                             damagePrevented,
@@ -1517,6 +1532,7 @@ class CombatSimulator {
                         if (target.combatStats.currentHitpoints == 0) {
                             this.eventQueue.clearEventsForUnit(target);
                             this.simResult.addDeath(target);
+                            // console.log(target.hrid, "died");
                         }
                     }
                     break;
@@ -1803,7 +1819,9 @@ class CombatUtilities {
         let damageDone = 0;
         let hitChance = CombatUtilities.calculateHitChance(source, target, combatStyle);
 
+        let didHit = false;
         if (Math.random() < hitChance) {
+            didHit = true;
             let damageTakenRatio = 100 / (100 + target.combatStats.armor);
             let mitigatedDamage = damageTakenRatio * premitigatedDamage;
             damageDone = CombatUtilities.randomInt(mitigatedDamage, mitigatedDamage);
@@ -1812,7 +1830,7 @@ class CombatUtilities {
 
         let damagePrevented = premitigatedDamage - damageDone;
 
-        return { damageDone, damagePrevented, maxDamage };
+        return { damageDone, damagePrevented, maxDamage, didHit };
     }
 
     static calculateTickValue(totalValue, totalTicks, currentTick) {
@@ -2454,6 +2472,7 @@ class SimResult {
         this.deaths = {};
         this.experienceGained = {};
         this.encounters = 0;
+        this.attacks = {};
     }
 
     addDeath(unit) {
@@ -2484,6 +2503,24 @@ class SimResult {
 
     addEncounterEnd() {
         this.encounters++;
+    }
+
+    addAttack(source, target, ability, hit) {
+        if (!this.attacks[source.hrid]) {
+            this.attacks[source.hrid] = {};
+        }
+        if (!this.attacks[source.hrid][target.hrid]) {
+            this.attacks[source.hrid][target.hrid] = {};
+        }
+        if (!this.attacks[source.hrid][target.hrid][ability]) {
+            this.attacks[source.hrid][target.hrid][ability] = {};
+        }
+
+        if (!this.attacks[source.hrid][target.hrid][ability][hit]) {
+            this.attacks[source.hrid][target.hrid][ability][hit] = 0;
+        }
+
+        this.attacks[source.hrid][target.hrid][ability][hit] += 1;
     }
 }
 
@@ -2983,8 +3020,6 @@ let trigger = new _combatsimulator_trigger_js__WEBPACK_IMPORTED_MODULE_6__["defa
 );
 console.log(trigger.isActive(player, monster, [player], [monster, monster2, monster3]));
 
-
-
 let zone = new _combatsimulator_zone_js__WEBPACK_IMPORTED_MODULE_9__["default"]("/actions/combat/gobo_planet");
 console.log(zone);
 
@@ -3017,7 +3052,7 @@ let trigger1 = new _combatsimulator_trigger_js__WEBPACK_IMPORTED_MODULE_6__["def
 );
 
 let consumable1 = new _combatsimulator_consumable_js__WEBPACK_IMPORTED_MODULE_8__["default"]("/items/mooberry_cake");
-let consumable2 = new _combatsimulator_consumable_js__WEBPACK_IMPORTED_MODULE_8__["default"]("/items/peach_yogurt");
+let consumable2 = new _combatsimulator_consumable_js__WEBPACK_IMPORTED_MODULE_8__["default"]("/items/dragon_fruit_yogurt");
 let consumable3 = new _combatsimulator_consumable_js__WEBPACK_IMPORTED_MODULE_8__["default"]("/items/strawberry_cake");
 let consumable4 = new _combatsimulator_consumable_js__WEBPACK_IMPORTED_MODULE_8__["default"]("/items/power_coffee");
 let consumable5 = new _combatsimulator_consumable_js__WEBPACK_IMPORTED_MODULE_8__["default"]("/items/lucky_coffee");
@@ -3032,7 +3067,7 @@ player.abilities[1] = ability2;
 player.abilities[2] = ability3;
 
 let simulator = new _combatsimulator_combatSimulator_js__WEBPACK_IMPORTED_MODULE_10__["default"](player, zone);
-let simResult = simulator.simulate(1 * 60 * 60 * 1e9);
+let simResult = simulator.simulate(100 * 60 * 60 * 1e9);
 
 console.log(simResult);
 
@@ -3050,6 +3085,24 @@ for (const [key, value] of Object.entries(simResult.experienceGained["player"]))
     console.log(key, value / (simResult.simulatedTime / (60 * 60 * 1e9)));
 }
 
+for (const [source, targets] of Object.entries(simResult.attacks)) {
+    console.log("Attack stats for", source);
+    for (const [target, abilities] of Object.entries(targets)) {
+        console.log("   Against", target);
+        for (const [ability, attacks] of Object.entries(abilities)) {
+            console.log("       ", ability);
+            let misses = attacks["miss"];
+            let attempts = Object.values(attacks).reduce((prev, cur) => prev + cur);
+            console.log("           Casts:", attempts);
+            console.log("           Hitchance:", 1 - misses / attempts);
+            let totalDamage = Object.entries(attacks)
+                .filter(([key, value]) => key != "miss")
+                .map(([key, value]) => key * value)
+                .reduce((prev, cur) => prev + cur);
+            console.log("           Average hit:", totalDamage / (attempts - misses));
+        }
+    }
+}
 
 })();
 

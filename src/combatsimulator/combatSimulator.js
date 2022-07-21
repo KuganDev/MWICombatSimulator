@@ -129,6 +129,7 @@ class CombatSimulator {
                     let cooldownReadyEvent = new CooldownReadyEvent(ability.lastUsed + ability.cooldownDuration);
                     this.eventQueue.addEvent(cooldownReadyEvent);
                 });
+            // console.log(enemy.hrid, "spawned");
         });
 
         this.addNextAutoAttackEvent(this.players[0]);
@@ -139,7 +140,10 @@ class CombatSimulator {
     processAutoAttackEvent(event) {
         // console.log("source:", event.source.hrid, "target:", event.target.hrid);
 
-        let { damageDone, damagePrevented, maxDamage } = CombatUtilities.processAttack(event.source, event.target);
+        let { damageDone, damagePrevented, maxDamage, didHit } = CombatUtilities.processAttack(
+            event.source,
+            event.target
+        );
         // console.log("Hit for", damageDone);
 
         if (event.source.combatStats.lifeSteal > 0) {
@@ -147,6 +151,8 @@ class CombatSimulator {
             let hitpointsAdded = event.source.addHitpoints(lifeStealHeal);
             // console.log("Added hitpoints from life steal:", hitpointsAdded);
         }
+
+        this.simResult.addAttack(event.source, event.target, "autoAttack", didHit ? damageDone : "miss");
 
         let targetStaminaExperience = CombatUtilities.calculateStaminaExperience(damagePrevented, damageDone);
         let targetDefenseExperience = CombatUtilities.calculateDefenseExperience(damagePrevented);
@@ -161,6 +167,7 @@ class CombatSimulator {
         if (event.target.combatStats.currentHitpoints == 0) {
             this.eventQueue.clearEventsForUnit(event.target);
             this.simResult.addDeath(event.target);
+            // console.log(event.target.hrid, "died");
         }
 
         if (!this.checkEncounterEnd()) {
@@ -175,6 +182,7 @@ class CombatSimulator {
             this.enemies = null;
 
             this.simResult.addEncounterEnd();
+            // console.log("All enemies died");
 
             return true;
         } else if (!this.players.find((player) => player.combatStats.currentHitpoints > 0)) {
@@ -185,6 +193,7 @@ class CombatSimulator {
             this.enemies = null;
 
             this.simResult.addEncounterEnd();
+            // console.log("Player died");
 
             return true;
         }
@@ -400,7 +409,11 @@ class CombatSimulator {
             switch (abilityEffect.effectType) {
                 case "/ability_effect_types/buff":
                     source.addBuff(abilityEffect.buff, this.simulationTime);
-                    let checkBuffExpirationEvent = new CheckBuffExpirationEvent(this.simulationTime + abilityEffect.buff.duration, source);
+                    // console.log("Added buff:", abilityEffect.buff);
+                    let checkBuffExpirationEvent = new CheckBuffExpirationEvent(
+                        this.simulationTime + abilityEffect.buff.duration,
+                        source
+                    );
                     this.eventQueue.addEvent(checkBuffExpirationEvent);
                     break;
                 case "/ability_effect_types/damage":
@@ -417,7 +430,7 @@ class CombatSimulator {
                     }
 
                     for (const target of targets.filter((unit) => unit.combatStats.currentHitpoints > 0)) {
-                        let { damageDone, damagePrevented, maxDamage } = CombatUtilities.processAttack(
+                        let { damageDone, damagePrevented, maxDamage, didHit } = CombatUtilities.processAttack(
                             source,
                             target,
                             abilityEffect
@@ -434,7 +447,9 @@ class CombatSimulator {
                             this.eventQueue.addEvent(bleedTickEvent);
                         }
 
-                        // console.log("Ability hit for", damageDone);
+                        // console.log("Ability hit", target.hrid, "for", damageDone);
+
+                        this.simResult.addAttack(source, target, ability.hrid, didHit ? damageDone : "miss");
 
                         let targetStaminaExperience = CombatUtilities.calculateStaminaExperience(
                             damagePrevented,
@@ -452,6 +467,7 @@ class CombatSimulator {
                         if (target.combatStats.currentHitpoints == 0) {
                             this.eventQueue.clearEventsForUnit(target);
                             this.simResult.addDeath(target);
+                            // console.log(target.hrid, "died");
                         }
                     }
                     break;

@@ -88,8 +88,6 @@ let trigger = new Trigger(
 );
 console.log(trigger.isActive(player, monster, [player], [monster, monster2, monster3]));
 
-
-
 let zone = new Zone("/actions/combat/gobo_planet");
 console.log(zone);
 
@@ -122,7 +120,7 @@ let trigger1 = new Trigger(
 );
 
 let consumable1 = new Consumable("/items/mooberry_cake");
-let consumable2 = new Consumable("/items/peach_yogurt");
+let consumable2 = new Consumable("/items/dragon_fruit_yogurt");
 let consumable3 = new Consumable("/items/strawberry_cake");
 let consumable4 = new Consumable("/items/power_coffee");
 let consumable5 = new Consumable("/items/lucky_coffee");
@@ -137,7 +135,7 @@ player.abilities[1] = ability2;
 player.abilities[2] = ability3;
 
 let simulator = new CombatSimulator(player, zone);
-let simResult = simulator.simulate(1 * 60 * 60 * 1e9);
+let simResult = simulator.simulate(100 * 60 * 60 * 1e9);
 
 console.log(simResult);
 
@@ -155,3 +153,21 @@ for (const [key, value] of Object.entries(simResult.experienceGained["player"]))
     console.log(key, value / (simResult.simulatedTime / (60 * 60 * 1e9)));
 }
 
+for (const [source, targets] of Object.entries(simResult.attacks)) {
+    console.log("Attack stats for", source);
+    for (const [target, abilities] of Object.entries(targets)) {
+        console.log("   Against", target);
+        for (const [ability, attacks] of Object.entries(abilities)) {
+            console.log("       ", ability);
+            let misses = attacks["miss"];
+            let attempts = Object.values(attacks).reduce((prev, cur) => prev + cur);
+            console.log("           Casts:", attempts);
+            console.log("           Hitchance:", 1 - misses / attempts);
+            let totalDamage = Object.entries(attacks)
+                .filter(([key, value]) => key != "miss")
+                .map(([key, value]) => key * value)
+                .reduce((prev, cur) => prev + cur);
+            console.log("           Average hit:", totalDamage / (attempts - misses));
+        }
+    }
+}

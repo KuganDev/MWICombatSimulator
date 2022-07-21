@@ -3,6 +3,7 @@ class SimResult {
         this.deaths = {};
         this.experienceGained = {};
         this.encounters = 0;
+        this.attacks = {};
     }
 
     addDeath(unit) {
@@ -33,6 +34,24 @@ class SimResult {
 
     addEncounterEnd() {
         this.encounters++;
+    }
+
+    addAttack(source, target, ability, hit) {
+        if (!this.attacks[source.hrid]) {
+            this.attacks[source.hrid] = {};
+        }
+        if (!this.attacks[source.hrid][target.hrid]) {
+            this.attacks[source.hrid][target.hrid] = {};
+        }
+        if (!this.attacks[source.hrid][target.hrid][ability]) {
+            this.attacks[source.hrid][target.hrid][ability] = {};
+        }
+
+        if (!this.attacks[source.hrid][target.hrid][ability][hit]) {
+            this.attacks[source.hrid][target.hrid][ability][hit] = 0;
+        }
+
+        this.attacks[source.hrid][target.hrid][ability][hit] += 1;
     }
 }
 
