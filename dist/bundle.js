@@ -1205,9 +1205,16 @@ class CombatSimulator {
     processAutoAttackEvent(event) {
         // console.log("source:", event.source.hrid, "target:", event.target.hrid);
 
+        let target;
+        if (event.source.isPlayer) {
+            target = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].getTarget(this.enemies);
+        } else {
+            target = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].getTarget(this.players);
+        }
+
         let { damageDone, damagePrevented, maxDamage, didHit } = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].processAttack(
             event.source,
-            event.target
+            target
         );
         // console.log("Hit for", damageDone);
 
@@ -1217,21 +1224,21 @@ class CombatSimulator {
             // console.log("Added hitpoints from life steal:", hitpointsAdded);
         }
 
-        this.simResult.addAttack(event.source, event.target, "autoAttack", didHit ? damageDone : "miss");
+        this.simResult.addAttack(event.source, target, "autoAttack", didHit ? damageDone : "miss");
 
         let targetStaminaExperience = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].calculateStaminaExperience(damagePrevented, damageDone);
         let targetDefenseExperience = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].calculateDefenseExperience(damagePrevented);
         let sourceAttackExperience = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].calculateAttackExperience(damageDone);
         let sourcePowerExperience = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].calculatePowerExperience(maxDamage);
 
-        this.simResult.addExperienceGain(event.target, "stamina", targetStaminaExperience);
-        this.simResult.addExperienceGain(event.target, "defense", targetDefenseExperience);
+        this.simResult.addExperienceGain(target, "stamina", targetStaminaExperience);
+        this.simResult.addExperienceGain(target, "defense", targetDefenseExperience);
         this.simResult.addExperienceGain(event.source, "attack", sourceAttackExperience);
         this.simResult.addExperienceGain(event.source, "power", sourcePowerExperience);
 
-        if (event.target.combatStats.currentHitpoints == 0) {
-            this.eventQueue.clearEventsForUnit(event.target);
-            this.simResult.addDeath(event.target);
+        if (target.combatStats.currentHitpoints == 0) {
+            this.eventQueue.clearEventsForUnit(target);
+            this.simResult.addDeath(target);
             // console.log(event.target.hrid, "died");
         }
 
@@ -1242,6 +1249,7 @@ class CombatSimulator {
 
     checkEncounterEnd() {
         if (this.enemies && !this.enemies.find((enemy) => enemy.combatStats.currentHitpoints > 0)) {
+            this.eventQueue.clearEventsOfType(_events_autoAttackEvent__WEBPACK_IMPORTED_MODULE_1__["default"].type);
             let enemyRespawnEvent = new _events_enemyRespawnEvent__WEBPACK_IMPORTED_MODULE_7__["default"](this.simulationTime + 3 * 1e9);
             this.eventQueue.addEvent(enemyRespawnEvent);
             this.enemies = null;
@@ -1267,17 +1275,9 @@ class CombatSimulator {
     }
 
     addNextAutoAttackEvent(source) {
-        let target;
-        if (source.isPlayer) {
-            target = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].getTarget(this.enemies);
-        } else {
-            target = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].getTarget(this.players);
-        }
-
         let autoAttackEvent = new _events_autoAttackEvent__WEBPACK_IMPORTED_MODULE_1__["default"](
             this.simulationTime + source.combatStats.attackInterval,
-            source,
-            target
+            source
         );
         this.eventQueue.addEvent(autoAttackEvent);
     }
@@ -2012,11 +2012,10 @@ __webpack_require__.r(__webpack_exports__);
 class AutoAttackEvent extends _combatEvent__WEBPACK_IMPORTED_MODULE_0__["default"] {
     static type = "autoAttack";
 
-    constructor(time, source, target) {
+    constructor(time, source) {
         super(AutoAttackEvent.type, time);
 
         this.source = source;
-        this.target = target;
     }
 }
 
@@ -2246,10 +2245,18 @@ class EventQueue {
     }
 
     clearEventsForUnit(unit) {
+        this.clearMatching((event) => event.source == unit || event.target == unit);
+    }
+
+    clearEventsOfType(type) {
+        this.clearMatching((event) => event.type == type);
+    }
+
+    clearMatching(fn) {
         let heapEvents = this.minHeap.toArray();
 
         for (const event of heapEvents) {
-            if (event.source == unit || event.target == unit) {
+            if (fn(event)) {
                 this.minHeap.remove(event);
             }
         }

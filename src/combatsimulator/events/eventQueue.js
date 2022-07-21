@@ -18,10 +18,18 @@ class EventQueue {
     }
 
     clearEventsForUnit(unit) {
+        this.clearMatching((event) => event.source == unit || event.target == unit);
+    }
+
+    clearEventsOfType(type) {
+        this.clearMatching((event) => event.type == type);
+    }
+
+    clearMatching(fn) {
         let heapEvents = this.minHeap.toArray();
 
         for (const event of heapEvents) {
-            if (event.source == unit || event.target == unit) {
+            if (fn(event)) {
                 this.minHeap.remove(event);
             }
         }

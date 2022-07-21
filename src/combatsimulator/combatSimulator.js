@@ -140,9 +140,16 @@ class CombatSimulator {
     processAutoAttackEvent(event) {
         // console.log("source:", event.source.hrid, "target:", event.target.hrid);
 
+        let target;
+        if (event.source.isPlayer) {
+            target = CombatUtilities.getTarget(this.enemies);
+        } else {
+            target = CombatUtilities.getTarget(this.players);
+        }
+
         let { damageDone, damagePrevented, maxDamage, didHit } = CombatUtilities.processAttack(
             event.source,
-            event.target
+            target
         );
         // console.log("Hit for", damageDone);
 
@@ -152,21 +159,21 @@ class CombatSimulator {
             // console.log("Added hitpoints from life steal:", hitpointsAdded);
         }
 
-        this.simResult.addAttack(event.source, event.target, "autoAttack", didHit ? damageDone : "miss");
+        this.simResult.addAttack(event.source, target, "autoAttack", didHit ? damageDone : "miss");
 
         let targetStaminaExperience = CombatUtilities.calculateStaminaExperience(damagePrevented, damageDone);
         let targetDefenseExperience = CombatUtilities.calculateDefenseExperience(damagePrevented);
         let sourceAttackExperience = CombatUtilities.calculateAttackExperience(damageDone);
         let sourcePowerExperience = CombatUtilities.calculatePowerExperience(maxDamage);
 
-        this.simResult.addExperienceGain(event.target, "stamina", targetStaminaExperience);
-        this.simResult.addExperienceGain(event.target, "defense", targetDefenseExperience);
+        this.simResult.addExperienceGain(target, "stamina", targetStaminaExperience);
+        this.simResult.addExperienceGain(target, "defense", targetDefenseExperience);
         this.simResult.addExperienceGain(event.source, "attack", sourceAttackExperience);
         this.simResult.addExperienceGain(event.source, "power", sourcePowerExperience);
 
-        if (event.target.combatStats.currentHitpoints == 0) {
-            this.eventQueue.clearEventsForUnit(event.target);
-            this.simResult.addDeath(event.target);
+        if (target.combatStats.currentHitpoints == 0) {
+            this.eventQueue.clearEventsForUnit(target);
+            this.simResult.addDeath(target);
             // console.log(event.target.hrid, "died");
         }
 
@@ -177,6 +184,7 @@ class CombatSimulator {
 
     checkEncounterEnd() {
         if (this.enemies && !this.enemies.find((enemy) => enemy.combatStats.currentHitpoints > 0)) {
+            this.eventQueue.clearEventsOfType(AutoAttackEvent.type);
             let enemyRespawnEvent = new EnemyRespawnEvent(this.simulationTime + 3 * 1e9);
             this.eventQueue.addEvent(enemyRespawnEvent);
             this.enemies = null;
@@ -202,17 +210,9 @@ class CombatSimulator {
     }
 
     addNextAutoAttackEvent(source) {
-        let target;
-        if (source.isPlayer) {
-            target = CombatUtilities.getTarget(this.enemies);
-        } else {
-            target = CombatUtilities.getTarget(this.players);
-        }
-
         let autoAttackEvent = new AutoAttackEvent(
             this.simulationTime + source.combatStats.attackInterval,
-            source,
-            target
+            source
         );
         this.eventQueue.addEvent(autoAttackEvent);
     }
