@@ -10,12 +10,11 @@ import Consumable from "./combatsimulator/consumable.js";
 import Zone from "./combatsimulator/zone.js";
 import CombatSimulator from "./combatsimulator/combatSimulator.js";
 
-let button = document.querySelector("#button1");
-let input = document.querySelector("#input1");
+let buttonStartSimulation = document.getElementById("buttonStartSimulation");
 
 let worker = new Worker(new URL("worker.js", import.meta.url));
 
-button.onclick = function () {
+buttonStartSimulation.onclick = function () {
     startSimulation();
 };
 
@@ -26,6 +25,25 @@ worker.onmessage = function (event) {
             break;
     }
 };
+
+function fillEquipmentSelects() {
+    ["Head", "Body", "Legs", "Feet", "Hands", "Pouch"].forEach((type) => {
+        fillEquipmentSelect("selectEquipment" + type, "/equipment_types/" + type.toLowerCase());
+    });
+    fillEquipmentSelect("selectEquipmentWeapon", "/equipment_types/main_hand");
+    fillEquipmentSelect("selectEquipmentWeapon", "/equipment_types/two_hand");
+    fillEquipmentSelect("selectEquipmentOffhand", "/equipment_types/off_hand");
+}
+
+function fillEquipmentSelect(selectId, equipmentType) {
+    let selectElement = document.getElementById(selectId);
+
+    for (const value of Object.values(itemDetailMap)
+        .filter((item) => item.categoryHrid == "/item_categories/equipment")
+        .filter((item) => item.equipmentDetail.type == equipmentType)) {
+        selectElement.add(new Option(value.name, value.hrid));
+    }
+}
 
 function startSimulation() {
     let player = new Player();
@@ -119,3 +137,5 @@ function printSimResult(simResult) {
         }
     }
 }
+
+fillEquipmentSelects();

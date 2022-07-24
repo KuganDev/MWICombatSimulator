@@ -3085,12 +3085,11 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-let button = document.querySelector("#button1");
-let input = document.querySelector("#input1");
+let buttonStartSimulation = document.getElementById("buttonStartSimulation");
 
 let worker = new Worker(new URL(/* worker import */ __webpack_require__.p + __webpack_require__.u("src_worker_js"), __webpack_require__.b));
 
-button.onclick = function () {
+buttonStartSimulation.onclick = function () {
     startSimulation();
 };
 
@@ -3101,6 +3100,25 @@ worker.onmessage = function (event) {
             break;
     }
 };
+
+function fillEquipmentSelects() {
+    ["Head", "Body", "Legs", "Feet", "Hands", "Pouch"].forEach((type) => {
+        fillEquipmentSelect("selectEquipment" + type, "/equipment_types/" + type.toLowerCase());
+    });
+    fillEquipmentSelect("selectEquipmentWeapon", "/equipment_types/main_hand");
+    fillEquipmentSelect("selectEquipmentWeapon", "/equipment_types/two_hand");
+    fillEquipmentSelect("selectEquipmentOffhand", "/equipment_types/off_hand");
+}
+
+function fillEquipmentSelect(selectId, equipmentType) {
+    let selectElement = document.getElementById(selectId);
+
+    for (const value of Object.values(_combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_5__)
+        .filter((item) => item.categoryHrid == "/item_categories/equipment")
+        .filter((item) => item.equipmentDetail.type == equipmentType)) {
+        selectElement.add(new Option(value.name, value.hrid));
+    }
+}
 
 function startSimulation() {
     let player = new _combatsimulator_player_js__WEBPACK_IMPORTED_MODULE_2__["default"]();
@@ -3194,6 +3212,8 @@ function printSimResult(simResult) {
         }
     }
 }
+
+fillEquipmentSelects();
 
 })();
 
