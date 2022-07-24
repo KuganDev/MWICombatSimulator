@@ -1,4 +1,7 @@
+import Ability from "./ability";
 import CombatUnit from "./combatUnit";
+import Consumable from "./consumable";
+import Equipment from "./equipment";
 
 class Player extends CombatUnit {
     equipment = {
@@ -18,6 +21,26 @@ class Player extends CombatUnit {
 
         this.isPlayer = true;
         this.hrid = "player";
+    }
+
+    static createFromDTO(dto) {
+        let player = new Player();
+
+        player.staminaLevel = dto.staminaLevel;
+        player.intelligenceLevel = dto.intelligenceLevel;
+        player.attackLevel = dto.attackLevel;
+        player.powerLevel = dto.powerLevel;
+        player.defenseLevel = dto.defenseLevel;
+
+        for (const [key, value] of Object.entries(dto.equipment)) {
+            player.equipment[key] = value ? Equipment.createFromDTO(value) : null;
+        }
+
+        player.food = dto.food.map(food => food ? Consumable.createFromDTO(food) : null);
+        player.drinks = dto.drinks.map(drink => drink ? Consumable.createFromDTO(drink) : null);
+        player.abilities = dto.abilities.map(ability => ability ? Ability.createFromDTO(ability) : null);
+
+        return player;
     }
 
     updateCombatStats() {

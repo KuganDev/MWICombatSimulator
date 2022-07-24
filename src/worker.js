@@ -1,5 +1,9 @@
+import Player from "./combatsimulator/player";
 
 
 onmessage = function (event) {
-    this.postMessage(event.data);
+    console.log(event.data.player);
+    let player = Player.createFromDTO(event.data.player);
+    player.updateCombatStats();
+    console.log(player);
 };

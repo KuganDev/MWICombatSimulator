@@ -985,6 +985,13 @@ class Ability {
         this.lastUsed = Number.MIN_SAFE_INTEGER;
     }
 
+    static createFromDTO(dto) {
+        let triggers = dto.triggers.map(trigger => _trigger__WEBPACK_IMPORTED_MODULE_2__["default"].createFromDTO(trigger));
+        let ability = new Ability(dto.hrid, dto.level, triggers);
+
+        return ability;
+    }
+
     shouldTrigger(currentTime, source, target, friendlies, enemies) {
         if (this.lastUsed + this.cooldownDuration > currentTime) {
             return false;
@@ -1967,6 +1974,13 @@ class Consumable {
         this.lastUsed = Number.MIN_SAFE_INTEGER;
     }
 
+    static createFromDTO(dto) {
+        let triggers = dto.triggers.map(trigger => _trigger__WEBPACK_IMPORTED_MODULE_2__["default"].createFromDTO(trigger));
+        let consumable = new Consumable(dto.hrid, triggers);
+
+        return consumable;
+    }
+
     shouldTrigger(currentTime, source, target, friendlies, enemies) {
         if (this.lastUsed + this.cooldownDuration > currentTime) {
             return false;
@@ -2011,6 +2025,12 @@ class Equipment {
     constructor(hrid, enhancementLevel) {
         this.hrid = hrid;
         this.enhancementLevel = enhancementLevel;
+    }
+
+    static createFromDTO(dto) {
+        let equipment = new Equipment(dto.hrid, dto.enhancementLevel);
+
+        return equipment;
     }
 
     getCombatStat(combatStat) {
@@ -2435,10 +2455,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _combatUnit__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./combatUnit */ "./src/combatsimulator/combatUnit.js");
+/* harmony import */ var _ability__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ability */ "./src/combatsimulator/ability.js");
+/* harmony import */ var _combatUnit__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./combatUnit */ "./src/combatsimulator/combatUnit.js");
+/* harmony import */ var _consumable__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./consumable */ "./src/combatsimulator/consumable.js");
+/* harmony import */ var _equipment__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./equipment */ "./src/combatsimulator/equipment.js");
 
 
-class Player extends _combatUnit__WEBPACK_IMPORTED_MODULE_0__["default"] {
+
+
+
+class Player extends _combatUnit__WEBPACK_IMPORTED_MODULE_1__["default"] {
     equipment = {
         "/equipment_types/head": null,
         "/equipment_types/body": null,
@@ -2456,6 +2482,26 @@ class Player extends _combatUnit__WEBPACK_IMPORTED_MODULE_0__["default"] {
 
         this.isPlayer = true;
         this.hrid = "player";
+    }
+
+    static createFromDTO(dto) {
+        let player = new Player();
+
+        player.staminaLevel = dto.staminaLevel;
+        player.intelligenceLevel = dto.intelligenceLevel;
+        player.attackLevel = dto.attackLevel;
+        player.powerLevel = dto.powerLevel;
+        player.defenseLevel = dto.defenseLevel;
+
+        for (const [key, value] of Object.entries(dto.equipment)) {
+            player.equipment[key] = value ? _equipment__WEBPACK_IMPORTED_MODULE_3__["default"].createFromDTO(value) : null;
+        }
+
+        player.food = dto.food.map(food => food ? _consumable__WEBPACK_IMPORTED_MODULE_2__["default"].createFromDTO(food) : null);
+        player.drinks = dto.drinks.map(drink => drink ? _consumable__WEBPACK_IMPORTED_MODULE_2__["default"].createFromDTO(drink) : null);
+        player.abilities = dto.abilities.map(ability => ability ? _ability__WEBPACK_IMPORTED_MODULE_0__["default"].createFromDTO(ability) : null);
+
+        return player;
     }
 
     updateCombatStats() {
@@ -2639,6 +2685,12 @@ class Trigger {
         this.conditionHrid = conditionHrid;
         this.comparatorHrid = comparatorHrid;
         this.value = value;
+    }
+
+    static createFromDTO(dto) {
+        let trigger = new Trigger(dto.dependencyHrid, dto.conditionHrid, dto.comparatorHrid, dto.value);
+
+        return trigger;
     }
 
     isActive(source, target, friendlies, enemies) {
@@ -3198,6 +3250,8 @@ for (const [source, targets] of Object.entries(simResult.attacks)) {
         }
     }
 }
+
+worker.postMessage({ player: player });
 
 })();
 

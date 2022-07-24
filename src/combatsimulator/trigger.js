@@ -8,6 +8,12 @@ class Trigger {
         this.value = value;
     }
 
+    static createFromDTO(dto) {
+        let trigger = new Trigger(dto.dependencyHrid, dto.conditionHrid, dto.comparatorHrid, dto.value);
+
+        return trigger;
+    }
+
     isActive(source, target, friendlies, enemies) {
         if (combatTriggerDependencyDetailMap[this.dependencyHrid].isSingleTarget) {
             return this.isActiveSingleTarget(source, target);

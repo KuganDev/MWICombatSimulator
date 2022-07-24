@@ -175,3 +175,5 @@ for (const [source, targets] of Object.entries(simResult.attacks)) {
         }
     }
 }
+
+worker.postMessage({ player: player });

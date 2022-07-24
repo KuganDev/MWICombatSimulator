@@ -7,6 +7,12 @@ class Equipment {
         this.enhancementLevel = enhancementLevel;
     }
 
+    static createFromDTO(dto) {
+        let equipment = new Equipment(dto.hrid, dto.enhancementLevel);
+
+        return equipment;
+    }
+
     getCombatStat(combatStat) {
         let gameItem = itemDetailMap[this.hrid];
         console.assert(gameItem, "No equipment found for hrid:" + this.hrid);

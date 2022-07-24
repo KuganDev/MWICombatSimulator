@@ -47,6 +47,13 @@ class Ability {
         this.lastUsed = Number.MIN_SAFE_INTEGER;
     }
 
+    static createFromDTO(dto) {
+        let triggers = dto.triggers.map(trigger => Trigger.createFromDTO(trigger));
+        let ability = new Ability(dto.hrid, dto.level, triggers);
+
+        return ability;
+    }
+
     shouldTrigger(currentTime, source, target, friendlies, enemies) {
         if (this.lastUsed + this.cooldownDuration > currentTime) {
             return false;
