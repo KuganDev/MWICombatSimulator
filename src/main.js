@@ -135,7 +135,11 @@ player.abilities[1] = ability2;
 player.abilities[2] = ability3;
 
 let simulator = new CombatSimulator(player, zone);
+let start = new Date();
 let simResult = simulator.simulate(100 * 60 * 60 * 1e9);
+let end = new Date();
+
+console.log("Simulation took", (end - start) / (1000), "seconds");
 
 console.log(simResult);
 

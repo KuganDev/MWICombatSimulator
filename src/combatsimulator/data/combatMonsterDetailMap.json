@@ -47,8 +47,8 @@
             {
                 "itemHrid": "/items/coin",
                 "dropRate": 1,
-                "minCount": 35,
-                "maxCount": 175
+                "minCount": 50,
+                "maxCount": 250
             },
             {
                 "itemHrid": "/items/blueberry",
@@ -71,12 +71,6 @@
             {
                 "itemHrid": "/items/orange",
                 "dropRate": 0.15,
-                "minCount": 1,
-                "maxCount": 3
-            },
-            {
-                "itemHrid": "/items/robusta_coffee_bean",
-                "dropRate": 0.1,
                 "minCount": 1,
                 "maxCount": 3
             },
@@ -155,19 +149,37 @@
                 "itemHrid": "/items/mooberry",
                 "dropRate": 0.1,
                 "minCount": 1,
-                "maxCount": 6
+                "maxCount": 4
             },
             {
                 "itemHrid": "/items/marsberry",
                 "dropRate": 0.15,
                 "minCount": 1,
-                "maxCount": 6
+                "maxCount": 4
             },
             {
                 "itemHrid": "/items/spaceberry",
                 "dropRate": 0.05,
                 "minCount": 1,
-                "maxCount": 6
+                "maxCount": 4
+            },
+            {
+                "itemHrid": "/items/black_tea_leaf",
+                "dropRate": 0.3,
+                "minCount": 1,
+                "maxCount": 3
+            },
+            {
+                "itemHrid": "/items/red_tea_leaf",
+                "dropRate": 0.3,
+                "minCount": 1,
+                "maxCount": 2
+            },
+            {
+                "itemHrid": "/items/emp_tea_leaf",
+                "dropRate": 0.15,
+                "minCount": 1,
+                "maxCount": 1
             },
             {
                 "itemHrid": "/items/black_bear_fluff",
@@ -237,8 +249,8 @@
             {
                 "itemHrid": "/items/coin",
                 "dropRate": 1,
-                "minCount": 50,
-                "maxCount": 250
+                "minCount": 60,
+                "maxCount": 300
             },
             {
                 "itemHrid": "/items/orange",
@@ -378,6 +390,24 @@
                 "maxCount": 5
             },
             {
+                "itemHrid": "/items/burble_tea_leaf",
+                "dropRate": 0.45,
+                "minCount": 1,
+                "maxCount": 3
+            },
+            {
+                "itemHrid": "/items/moolong_tea_leaf",
+                "dropRate": 0.6,
+                "minCount": 1,
+                "maxCount": 3
+            },
+            {
+                "itemHrid": "/items/red_tea_leaf",
+                "dropRate": 0.3,
+                "minCount": 1,
+                "maxCount": 3
+            },
+            {
                 "itemHrid": "/items/eyessence",
                 "dropRate": 1,
                 "minCount": 1,
@@ -443,22 +473,22 @@
                 "maxCount": 1200
             },
             {
-                "itemHrid": "/items/liberica_coffee_bean",
-                "dropRate": 0.1,
+                "itemHrid": "/items/burble_tea_leaf",
+                "dropRate": 0.15,
                 "minCount": 1,
-                "maxCount": 2
+                "maxCount": 1
             },
             {
-                "itemHrid": "/items/excelsa_coffee_bean",
-                "dropRate": 0.1,
+                "itemHrid": "/items/moolong_tea_leaf",
+                "dropRate": 0.2,
                 "minCount": 1,
-                "maxCount": 2
+                "maxCount": 1
             },
             {
-                "itemHrid": "/items/fieriosa_coffee_bean",
-                "dropRate": 0.05,
+                "itemHrid": "/items/red_tea_leaf",
+                "dropRate": 0.1,
                 "minCount": 1,
-                "maxCount": 2
+                "maxCount": 1
             },
             {
                 "itemHrid": "/items/goggles",
@@ -528,8 +558,8 @@
             {
                 "itemHrid": "/items/coin",
                 "dropRate": 1,
-                "minCount": 3,
-                "maxCount": 15
+                "minCount": 8,
+                "maxCount": 40
             }
         ]
     },
@@ -581,14 +611,26 @@
             {
                 "itemHrid": "/items/coin",
                 "dropRate": 1,
-                "minCount": 12,
-                "maxCount": 60
+                "minCount": 24,
+                "maxCount": 120
             },
             {
                 "itemHrid": "/items/egg",
                 "dropRate": 0.3,
                 "minCount": 1,
                 "maxCount": 2
+            },
+            {
+                "itemHrid": "/items/green_tea_leaf",
+                "dropRate": 0.4,
+                "minCount": 1,
+                "maxCount": 3
+            },
+            {
+                "itemHrid": "/items/black_tea_leaf",
+                "dropRate": 0.2,
+                "minCount": 1,
+                "maxCount": 3
             },
             {
                 "itemHrid": "/items/swamp_essence",
@@ -686,6 +728,24 @@
                 "maxCount": 9
             },
             {
+                "itemHrid": "/items/black_tea_leaf",
+                "dropRate": 0.2,
+                "minCount": 1,
+                "maxCount": 2
+            },
+            {
+                "itemHrid": "/items/burble_tea_leaf",
+                "dropRate": 0.2,
+                "minCount": 1,
+                "maxCount": 2
+            },
+            {
+                "itemHrid": "/items/moolong_tea_leaf",
+                "dropRate": 0.1,
+                "minCount": 1,
+                "maxCount": 2
+            },
+            {
                 "itemHrid": "/items/cleave",
                 "dropRate": 0.001,
                 "minCount": 1,
@@ -761,6 +821,24 @@
                 "dropRate": 0.05,
                 "minCount": 1,
                 "maxCount": 5
+            },
+            {
+                "itemHrid": "/items/green_tea_leaf",
+                "dropRate": 0.2,
+                "minCount": 1,
+                "maxCount": 2
+            },
+            {
+                "itemHrid": "/items/burble_tea_leaf",
+                "dropRate": 0.2,
+                "minCount": 1,
+                "maxCount": 2
+            },
+            {
+                "itemHrid": "/items/moolong_tea_leaf",
+                "dropRate": 0.1,
+                "minCount": 1,
+                "maxCount": 2
             },
             {
                 "itemHrid": "/items/gobo_smasher",
@@ -846,14 +924,20 @@
                 "maxCount": 10
             },
             {
-                "itemHrid": "/items/liberica_coffee_bean",
-                "dropRate": 0.15,
+                "itemHrid": "/items/black_tea_leaf",
+                "dropRate": 0.2,
                 "minCount": 1,
                 "maxCount": 2
             },
             {
-                "itemHrid": "/items/excelsa_coffee_bean",
-                "dropRate": 0.05,
+                "itemHrid": "/items/burble_tea_leaf",
+                "dropRate": 0.2,
+                "minCount": 1,
+                "maxCount": 2
+            },
+            {
+                "itemHrid": "/items/moolong_tea_leaf",
+                "dropRate": 0.1,
                 "minCount": 1,
                 "maxCount": 2
             },
@@ -932,19 +1016,37 @@
                 "itemHrid": "/items/mooberry",
                 "dropRate": 0.1,
                 "minCount": 1,
-                "maxCount": 8
+                "maxCount": 6
             },
             {
                 "itemHrid": "/items/marsberry",
                 "dropRate": 0.15,
                 "minCount": 1,
-                "maxCount": 8
+                "maxCount": 6
             },
             {
                 "itemHrid": "/items/spaceberry",
                 "dropRate": 0.05,
                 "minCount": 1,
-                "maxCount": 8
+                "maxCount": 6
+            },
+            {
+                "itemHrid": "/items/burble_tea_leaf",
+                "dropRate": 0.3,
+                "minCount": 1,
+                "maxCount": 3
+            },
+            {
+                "itemHrid": "/items/red_tea_leaf",
+                "dropRate": 0.3,
+                "minCount": 1,
+                "maxCount": 2
+            },
+            {
+                "itemHrid": "/items/emp_tea_leaf",
+                "dropRate": 0.15,
+                "minCount": 1,
+                "maxCount": 1
             },
             {
                 "itemHrid": "/items/grizzly_bear_fluff",
@@ -1014,8 +1116,8 @@
             {
                 "itemHrid": "/items/sugar",
                 "dropRate": 1,
-                "minCount": 1,
-                "maxCount": 120
+                "minCount": 50,
+                "maxCount": 250
             },
             {
                 "itemHrid": "/items/apple_gummy",
@@ -1109,8 +1211,8 @@
             {
                 "itemHrid": "/items/coin",
                 "dropRate": 1,
-                "minCount": 70,
-                "maxCount": 350
+                "minCount": 90,
+                "maxCount": 450
             },
             {
                 "itemHrid": "/items/blackberry",
@@ -1137,14 +1239,20 @@
                 "maxCount": 6
             },
             {
-                "itemHrid": "/items/robusta_coffee_bean",
-                "dropRate": 0.15,
+                "itemHrid": "/items/green_tea_leaf",
+                "dropRate": 0.3,
                 "minCount": 1,
-                "maxCount": 4
+                "maxCount": 3
             },
             {
-                "itemHrid": "/items/liberica_coffee_bean",
-                "dropRate": 0.05,
+                "itemHrid": "/items/black_tea_leaf",
+                "dropRate": 0.4,
+                "minCount": 1,
+                "maxCount": 3
+            },
+            {
+                "itemHrid": "/items/burble_tea_leaf",
+                "dropRate": 0.2,
                 "minCount": 1,
                 "maxCount": 3
             },
@@ -1244,6 +1352,24 @@
                 "maxCount": 5
             },
             {
+                "itemHrid": "/items/green_tea_leaf",
+                "dropRate": 0.3,
+                "minCount": 1,
+                "maxCount": 3
+            },
+            {
+                "itemHrid": "/items/red_tea_leaf",
+                "dropRate": 0.3,
+                "minCount": 1,
+                "maxCount": 2
+            },
+            {
+                "itemHrid": "/items/emp_tea_leaf",
+                "dropRate": 0.15,
+                "minCount": 1,
+                "maxCount": 1
+            },
+            {
                 "itemHrid": "/items/panda_fluff",
                 "dropRate": 0.002,
                 "minCount": 1,
@@ -1318,19 +1444,37 @@
                 "itemHrid": "/items/crimson_milk",
                 "dropRate": 0.1,
                 "minCount": 1,
-                "maxCount": 6
+                "maxCount": 4
             },
             {
                 "itemHrid": "/items/rainbow_milk",
                 "dropRate": 0.15,
                 "minCount": 1,
-                "maxCount": 6
+                "maxCount": 4
             },
             {
                 "itemHrid": "/items/holy_milk",
                 "dropRate": 0.05,
                 "minCount": 1,
-                "maxCount": 6
+                "maxCount": 4
+            },
+            {
+                "itemHrid": "/items/moolong_tea_leaf",
+                "dropRate": 0.3,
+                "minCount": 1,
+                "maxCount": 3
+            },
+            {
+                "itemHrid": "/items/red_tea_leaf",
+                "dropRate": 0.3,
+                "minCount": 1,
+                "maxCount": 2
+            },
+            {
+                "itemHrid": "/items/emp_tea_leaf",
+                "dropRate": 0.15,
+                "minCount": 1,
+                "maxCount": 1
             },
             {
                 "itemHrid": "/items/polar_bear_fluff",
@@ -1400,8 +1544,8 @@
             {
                 "itemHrid": "/items/coin",
                 "dropRate": 1,
-                "minCount": 4,
-                "maxCount": 20
+                "minCount": 10,
+                "maxCount": 50
             },
             {
                 "itemHrid": "/items/wheat",
@@ -1489,8 +1633,8 @@
             {
                 "itemHrid": "/items/coin",
                 "dropRate": 1,
-                "minCount": 40,
-                "maxCount": 200
+                "minCount": 56,
+                "maxCount": 280
             },
             {
                 "itemHrid": "/items/wheat",
@@ -1503,6 +1647,24 @@
                 "dropRate": 0.006,
                 "minCount": 1,
                 "maxCount": 1
+            },
+            {
+                "itemHrid": "/items/green_tea_leaf",
+                "dropRate": 0.3,
+                "minCount": 1,
+                "maxCount": 2
+            },
+            {
+                "itemHrid": "/items/black_tea_leaf",
+                "dropRate": 0.4,
+                "minCount": 1,
+                "maxCount": 2
+            },
+            {
+                "itemHrid": "/items/burble_tea_leaf",
+                "dropRate": 0.2,
+                "minCount": 1,
+                "maxCount": 2
             },
             {
                 "itemHrid": "/items/aqua_essence",
@@ -1566,14 +1728,20 @@
             {
                 "itemHrid": "/items/coin",
                 "dropRate": 1,
-                "minCount": 6,
-                "maxCount": 30
+                "minCount": 14,
+                "maxCount": 70
             },
             {
                 "itemHrid": "/items/blueberry",
                 "dropRate": 0.2,
                 "minCount": 1,
                 "maxCount": 5
+            },
+            {
+                "itemHrid": "/items/green_tea_leaf",
+                "dropRate": 0.2,
+                "minCount": 1,
+                "maxCount": 3
             },
             {
                 "itemHrid": "/items/scratch",
@@ -1631,8 +1799,8 @@
             {
                 "itemHrid": "/items/coin",
                 "dropRate": 1,
-                "minCount": 8,
-                "maxCount": 40
+                "minCount": 20,
+                "maxCount": 100
             },
             {
                 "itemHrid": "/items/apple",
@@ -1641,10 +1809,10 @@
                 "maxCount": 4
             },
             {
-                "itemHrid": "/items/arabica_coffee_bean",
-                "dropRate": 0.1,
+                "itemHrid": "/items/green_tea_leaf",
+                "dropRate": 0.2,
                 "minCount": 1,
-                "maxCount": 2
+                "maxCount": 4
             },
             {
                 "itemHrid": "/items/smack",
@@ -1702,8 +1870,8 @@
             {
                 "itemHrid": "/items/coin",
                 "dropRate": 1,
-                "minCount": 15,
-                "maxCount": 75
+                "minCount": 32,
+                "maxCount": 160
             },
             {
                 "itemHrid": "/items/egg",
@@ -1779,8 +1947,8 @@
             {
                 "itemHrid": "/items/coin",
                 "dropRate": 1,
-                "minCount": 25,
-                "maxCount": 125
+                "minCount": 44,
+                "maxCount": 220
             },
             {
                 "itemHrid": "/items/blueberry",
@@ -1807,10 +1975,16 @@
                 "maxCount": 3
             },
             {
-                "itemHrid": "/items/robusta_coffee_bean",
-                "dropRate": 0.1,
+                "itemHrid": "/items/green_tea_leaf",
+                "dropRate": 0.4,
                 "minCount": 1,
-                "maxCount": 2
+                "maxCount": 4
+            },
+            {
+                "itemHrid": "/items/black_tea_leaf",
+                "dropRate": 0.2,
+                "minCount": 1,
+                "maxCount": 4
             },
             {
                 "itemHrid": "/items/swamp_essence",
@@ -1874,8 +2048,8 @@
             {
                 "itemHrid": "/items/coin",
                 "dropRate": 1,
-                "minCount": 90,
-                "maxCount": 450
+                "minCount": 120,
+                "maxCount": 600
             },
             {
                 "itemHrid": "/items/egg",
@@ -1973,6 +2147,18 @@
                 "maxCount": 3000
             },
             {
+                "itemHrid": "/items/red_tea_leaf",
+                "dropRate": 0.2,
+                "minCount": 1,
+                "maxCount": 2
+            },
+            {
+                "itemHrid": "/items/emp_tea_leaf",
+                "dropRate": 0.2,
+                "minCount": 1,
+                "maxCount": 2
+            },
+            {
                 "itemHrid": "/items/twilight_essence",
                 "dropRate": 0.5,
                 "minCount": 2,
@@ -2044,13 +2230,19 @@
                 "maxCount": 1400
             },
             {
-                "itemHrid": "/items/excelsa_coffee_bean",
-                "dropRate": 0.1,
+                "itemHrid": "/items/burble_tea_leaf",
+                "dropRate": 0.15,
                 "minCount": 1,
                 "maxCount": 2
             },
             {
-                "itemHrid": "/items/fieriosa_coffee_bean",
+                "itemHrid": "/items/moolong_tea_leaf",
+                "dropRate": 0.2,
+                "minCount": 1,
+                "maxCount": 2
+            },
+            {
+                "itemHrid": "/items/red_tea_leaf",
                 "dropRate": 0.1,
                 "minCount": 1,
                 "maxCount": 2
@@ -2128,6 +2320,18 @@
                 "dropRate": 1,
                 "minCount": 750,
                 "maxCount": 3750
+            },
+            {
+                "itemHrid": "/items/red_tea_leaf",
+                "dropRate": 0.2,
+                "minCount": 1,
+                "maxCount": 2
+            },
+            {
+                "itemHrid": "/items/emp_tea_leaf",
+                "dropRate": 0.2,
+                "minCount": 1,
+                "maxCount": 2
             },
             {
                 "itemHrid": "/items/twilight_essence",
@@ -2208,6 +2412,42 @@
                 "dropRate": 1,
                 "minCount": 500,
                 "maxCount": 2500
+            },
+            {
+                "itemHrid": "/items/green_tea_leaf",
+                "dropRate": 0.3,
+                "minCount": 1,
+                "maxCount": 5
+            },
+            {
+                "itemHrid": "/items/black_tea_leaf",
+                "dropRate": 0.3,
+                "minCount": 1,
+                "maxCount": 5
+            },
+            {
+                "itemHrid": "/items/burble_tea_leaf",
+                "dropRate": 0.3,
+                "minCount": 1,
+                "maxCount": 4
+            },
+            {
+                "itemHrid": "/items/moolong_tea_leaf",
+                "dropRate": 0.3,
+                "minCount": 1,
+                "maxCount": 4
+            },
+            {
+                "itemHrid": "/items/red_tea_leaf",
+                "dropRate": 0.4,
+                "minCount": 1,
+                "maxCount": 3
+            },
+            {
+                "itemHrid": "/items/emp_tea_leaf",
+                "dropRate": 0.4,
+                "minCount": 1,
+                "maxCount": 3
             },
             {
                 "itemHrid": "/items/twilight_essence",

@@ -1,13 +1,33 @@
 {
+    "/actions/brewing/artisan_tea": {
+        "hrid": "/actions/brewing/artisan_tea",
+        "function": "/action_functions/production",
+        "type": "/action_types/brewing",
+        "category": "/action_categories/brewing/tea",
+        "name": "Artisan Tea",
+        "levelRequirement": { "skillHrid": "/skills/brewing", "level": 78 },
+        "baseTimeCost": 16000000000,
+        "experienceGain": { "skillHrid": "/skills/brewing", "value": 53 },
+        "dropTable": null,
+        "upgradeItemHrid": "",
+        "inputItems": [
+            { "itemHrid": "/items/emp_tea_leaf", "count": 2 },
+            { "itemHrid": "/items/mooberry", "count": 2 },
+            { "itemHrid": "/items/crimson_milk", "count": 1 }
+        ],
+        "outputItems": [{ "itemHrid": "/items/artisan_tea", "count": 1 }],
+        "monsterSpawnRates": null,
+        "sortIndex": 30
+    },
     "/actions/brewing/attack_coffee": {
         "hrid": "/actions/brewing/attack_coffee",
         "function": "/action_functions/production",
         "type": "/action_types/brewing",
         "category": "/action_categories/brewing/coffee",
         "name": "Attack Coffee",
-        "levelRequirement": { "skillHrid": "/skills/brewing", "level": 15 },
-        "baseTimeCost": 7000000000,
-        "experienceGain": { "skillHrid": "/skills/brewing", "value": 15 },
+        "levelRequirement": { "skillHrid": "/skills/brewing", "level": 20 },
+        "baseTimeCost": 9000000000,
+        "experienceGain": { "skillHrid": "/skills/brewing", "value": 18 },
         "dropTable": null,
         "upgradeItemHrid": "",
         "inputItems": [
@@ -16,7 +36,84 @@
         ],
         "outputItems": [{ "itemHrid": "/items/attack_coffee", "count": 1 }],
         "monsterSpawnRates": null,
-        "sortIndex": 4
+        "sortIndex": 8
+    },
+    "/actions/brewing/blessed_tea": {
+        "hrid": "/actions/brewing/blessed_tea",
+        "function": "/action_functions/production",
+        "type": "/action_types/brewing",
+        "category": "/action_categories/brewing/tea",
+        "name": "Blessed Tea",
+        "levelRequirement": { "skillHrid": "/skills/brewing", "level": 88 },
+        "baseTimeCost": 16000000000,
+        "experienceGain": { "skillHrid": "/skills/brewing", "value": 59 },
+        "dropTable": null,
+        "upgradeItemHrid": "",
+        "inputItems": [
+            { "itemHrid": "/items/emp_tea_leaf", "count": 2 },
+            { "itemHrid": "/items/spaceberry", "count": 2 },
+            { "itemHrid": "/items/holy_milk", "count": 1 }
+        ],
+        "outputItems": [{ "itemHrid": "/items/blessed_tea", "count": 1 }],
+        "monsterSpawnRates": null,
+        "sortIndex": 31
+    },
+    "/actions/brewing/brewing_tea": {
+        "hrid": "/actions/brewing/brewing_tea",
+        "function": "/action_functions/production",
+        "type": "/action_types/brewing",
+        "category": "/action_categories/brewing/tea",
+        "name": "Brewing Tea",
+        "levelRequirement": { "skillHrid": "/skills/brewing", "level": 20 },
+        "baseTimeCost": 9000000000,
+        "experienceGain": { "skillHrid": "/skills/brewing", "value": 18 },
+        "dropTable": null,
+        "upgradeItemHrid": "",
+        "inputItems": [
+            { "itemHrid": "/items/black_tea_leaf", "count": 1 },
+            { "itemHrid": "/items/orange", "count": 1 }
+        ],
+        "outputItems": [{ "itemHrid": "/items/brewing_tea", "count": 1 }],
+        "monsterSpawnRates": null,
+        "sortIndex": 9
+    },
+    "/actions/brewing/cheesesmithing_tea": {
+        "hrid": "/actions/brewing/cheesesmithing_tea",
+        "function": "/action_functions/production",
+        "type": "/action_types/brewing",
+        "category": "/action_categories/brewing/tea",
+        "name": "Cheesesmithing Tea",
+        "levelRequirement": { "skillHrid": "/skills/brewing", "level": 30 },
+        "baseTimeCost": 10000000000,
+        "experienceGain": { "skillHrid": "/skills/brewing", "value": 24 },
+        "dropTable": null,
+        "upgradeItemHrid": "",
+        "inputItems": [
+            { "itemHrid": "/items/burble_tea_leaf", "count": 1 },
+            { "itemHrid": "/items/orange", "count": 1 }
+        ],
+        "outputItems": [{ "itemHrid": "/items/cheesesmithing_tea", "count": 1 }],
+        "monsterSpawnRates": null,
+        "sortIndex": 13
+    },
+    "/actions/brewing/cooking_tea": {
+        "hrid": "/actions/brewing/cooking_tea",
+        "function": "/action_functions/production",
+        "type": "/action_types/brewing",
+        "category": "/action_categories/brewing/tea",
+        "name": "Cooking Tea",
+        "levelRequirement": { "skillHrid": "/skills/brewing", "level": 15 },
+        "baseTimeCost": 9000000000,
+        "experienceGain": { "skillHrid": "/skills/brewing", "value": 15 },
+        "dropTable": null,
+        "upgradeItemHrid": "",
+        "inputItems": [
+            { "itemHrid": "/items/black_tea_leaf", "count": 1 },
+            { "itemHrid": "/items/apple", "count": 1 }
+        ],
+        "outputItems": [{ "itemHrid": "/items/cooking_tea", "count": 1 }],
+        "monsterSpawnRates": null,
+        "sortIndex": 7
     },
     "/actions/brewing/defense_coffee": {
         "hrid": "/actions/brewing/defense_coffee",
@@ -24,9 +121,9 @@
         "type": "/action_types/brewing",
         "category": "/action_categories/brewing/coffee",
         "name": "Defense Coffee",
-        "levelRequirement": { "skillHrid": "/skills/brewing", "level": 10 },
-        "baseTimeCost": 7000000000,
-        "experienceGain": { "skillHrid": "/skills/brewing", "value": 12 },
+        "levelRequirement": { "skillHrid": "/skills/brewing", "level": 15 },
+        "baseTimeCost": 9000000000,
+        "experienceGain": { "skillHrid": "/skills/brewing", "value": 15 },
         "dropTable": null,
         "upgradeItemHrid": "",
         "inputItems": [
@@ -35,7 +132,125 @@
         ],
         "outputItems": [{ "itemHrid": "/items/defense_coffee", "count": 1 }],
         "monsterSpawnRates": null,
-        "sortIndex": 3
+        "sortIndex": 6
+    },
+    "/actions/brewing/efficiency_tea": {
+        "hrid": "/actions/brewing/efficiency_tea",
+        "function": "/action_functions/production",
+        "type": "/action_types/brewing",
+        "category": "/action_categories/brewing/tea",
+        "name": "Efficiency Tea",
+        "levelRequirement": { "skillHrid": "/skills/brewing", "level": 68 },
+        "baseTimeCost": 14000000000,
+        "experienceGain": { "skillHrid": "/skills/brewing", "value": 47 },
+        "dropTable": null,
+        "upgradeItemHrid": "",
+        "inputItems": [
+            { "itemHrid": "/items/red_tea_leaf", "count": 2 },
+            { "itemHrid": "/items/marsberry", "count": 2 },
+            { "itemHrid": "/items/rainbow_milk", "count": 1 }
+        ],
+        "outputItems": [{ "itemHrid": "/items/efficiency_tea", "count": 1 }],
+        "monsterSpawnRates": null,
+        "sortIndex": 26
+    },
+    "/actions/brewing/enhancing_tea": {
+        "hrid": "/actions/brewing/enhancing_tea",
+        "function": "/action_functions/production",
+        "type": "/action_types/brewing",
+        "category": "/action_categories/brewing/tea",
+        "name": "Enhancing Tea",
+        "levelRequirement": { "skillHrid": "/skills/brewing", "level": 25 },
+        "baseTimeCost": 9000000000,
+        "experienceGain": { "skillHrid": "/skills/brewing", "value": 21 },
+        "dropTable": null,
+        "upgradeItemHrid": "",
+        "inputItems": [
+            { "itemHrid": "/items/black_tea_leaf", "count": 1 },
+            { "itemHrid": "/items/plum", "count": 1 }
+        ],
+        "outputItems": [{ "itemHrid": "/items/enhancing_tea", "count": 1 }],
+        "monsterSpawnRates": null,
+        "sortIndex": 11
+    },
+    "/actions/brewing/fermenting_tea": {
+        "hrid": "/actions/brewing/fermenting_tea",
+        "function": "/action_functions/production",
+        "type": "/action_types/brewing",
+        "category": "/action_categories/brewing/tea",
+        "name": "Fermenting Tea",
+        "levelRequirement": { "skillHrid": "/skills/brewing", "level": 53 },
+        "baseTimeCost": 12000000000,
+        "experienceGain": { "skillHrid": "/skills/brewing", "value": 38 },
+        "dropTable": null,
+        "upgradeItemHrid": "",
+        "inputItems": [
+            { "itemHrid": "/items/moolong_tea_leaf", "count": 2 },
+            { "itemHrid": "/items/mooberry", "count": 2 },
+            { "itemHrid": "/items/rainbow_cheese", "count": 1 }
+        ],
+        "outputItems": [{ "itemHrid": "/items/fermenting_tea", "count": 1 }],
+        "monsterSpawnRates": null,
+        "sortIndex": 20
+    },
+    "/actions/brewing/foraging_tea": {
+        "hrid": "/actions/brewing/foraging_tea",
+        "function": "/action_functions/production",
+        "type": "/action_types/brewing",
+        "category": "/action_categories/brewing/tea",
+        "name": "Foraging Tea",
+        "levelRequirement": { "skillHrid": "/skills/brewing", "level": 5 },
+        "baseTimeCost": 8000000000,
+        "experienceGain": { "skillHrid": "/skills/brewing", "value": 9 },
+        "dropTable": null,
+        "upgradeItemHrid": "",
+        "inputItems": [
+            { "itemHrid": "/items/green_tea_leaf", "count": 1 },
+            { "itemHrid": "/items/orange", "count": 1 }
+        ],
+        "outputItems": [{ "itemHrid": "/items/foraging_tea", "count": 1 }],
+        "monsterSpawnRates": null,
+        "sortIndex": 4
+    },
+    "/actions/brewing/gathering_tea": {
+        "hrid": "/actions/brewing/gathering_tea",
+        "function": "/action_functions/production",
+        "type": "/action_types/brewing",
+        "category": "/action_categories/brewing/tea",
+        "name": "Gathering Tea",
+        "levelRequirement": { "skillHrid": "/skills/brewing", "level": 8 },
+        "baseTimeCost": 8000000000,
+        "experienceGain": { "skillHrid": "/skills/brewing", "value": 11 },
+        "dropTable": null,
+        "upgradeItemHrid": "",
+        "inputItems": [
+            { "itemHrid": "/items/green_tea_leaf", "count": 2 },
+            { "itemHrid": "/items/blueberry", "count": 2 },
+            { "itemHrid": "/items/verdant_milk", "count": 1 }
+        ],
+        "outputItems": [{ "itemHrid": "/items/gathering_tea", "count": 1 }],
+        "monsterSpawnRates": null,
+        "sortIndex": 5
+    },
+    "/actions/brewing/gourmet_tea": {
+        "hrid": "/actions/brewing/gourmet_tea",
+        "function": "/action_functions/production",
+        "type": "/action_types/brewing",
+        "category": "/action_categories/brewing/tea",
+        "name": "Gourmet Tea",
+        "levelRequirement": { "skillHrid": "/skills/brewing", "level": 23 },
+        "baseTimeCost": 9000000000,
+        "experienceGain": { "skillHrid": "/skills/brewing", "value": 20 },
+        "dropTable": null,
+        "upgradeItemHrid": "",
+        "inputItems": [
+            { "itemHrid": "/items/black_tea_leaf", "count": 2 },
+            { "itemHrid": "/items/blackberry", "count": 2 },
+            { "itemHrid": "/items/azure_milk", "count": 1 }
+        ],
+        "outputItems": [{ "itemHrid": "/items/gourmet_tea", "count": 1 }],
+        "monsterSpawnRates": null,
+        "sortIndex": 10
     },
     "/actions/brewing/intelligence_coffee": {
         "hrid": "/actions/brewing/intelligence_coffee",
@@ -44,7 +259,7 @@
         "category": "/action_categories/brewing/coffee",
         "name": "Intelligence Coffee",
         "levelRequirement": { "skillHrid": "/skills/brewing", "level": 5 },
-        "baseTimeCost": 6000000000,
+        "baseTimeCost": 8000000000,
         "experienceGain": { "skillHrid": "/skills/brewing", "value": 9 },
         "dropTable": null,
         "upgradeItemHrid": "",
@@ -54,7 +269,7 @@
         ],
         "outputItems": [{ "itemHrid": "/items/intelligence_coffee", "count": 1 }],
         "monsterSpawnRates": null,
-        "sortIndex": 2
+        "sortIndex": 3
     },
     "/actions/brewing/lucky_coffee": {
         "hrid": "/actions/brewing/lucky_coffee",
@@ -62,18 +277,38 @@
         "type": "/action_types/brewing",
         "category": "/action_categories/brewing/coffee",
         "name": "Lucky Coffee",
-        "levelRequirement": { "skillHrid": "/skills/brewing", "level": 50 },
-        "baseTimeCost": 9000000000,
-        "experienceGain": { "skillHrid": "/skills/brewing", "value": 39 },
+        "levelRequirement": { "skillHrid": "/skills/brewing", "level": 53 },
+        "baseTimeCost": 12000000000,
+        "experienceGain": { "skillHrid": "/skills/brewing", "value": 38 },
         "dropTable": null,
         "upgradeItemHrid": "",
         "inputItems": [
-            { "itemHrid": "/items/excelsa_coffee_bean", "count": 1 },
-            { "itemHrid": "/items/marsberry", "count": 1 }
+            { "itemHrid": "/items/excelsa_coffee_bean", "count": 2 },
+            { "itemHrid": "/items/peach", "count": 1 },
+            { "itemHrid": "/items/crimson_milk", "count": 1 }
         ],
         "outputItems": [{ "itemHrid": "/items/lucky_coffee", "count": 1 }],
         "monsterSpawnRates": null,
-        "sortIndex": 8
+        "sortIndex": 19
+    },
+    "/actions/brewing/milking_tea": {
+        "hrid": "/actions/brewing/milking_tea",
+        "function": "/action_functions/production",
+        "type": "/action_types/brewing",
+        "category": "/action_categories/brewing/tea",
+        "name": "Milking Tea",
+        "levelRequirement": { "skillHrid": "/skills/brewing", "level": 1 },
+        "baseTimeCost": 8000000000,
+        "experienceGain": { "skillHrid": "/skills/brewing", "value": 6 },
+        "dropTable": null,
+        "upgradeItemHrid": "",
+        "inputItems": [
+            { "itemHrid": "/items/green_tea_leaf", "count": 1 },
+            { "itemHrid": "/items/apple", "count": 1 }
+        ],
+        "outputItems": [{ "itemHrid": "/items/milking_tea", "count": 1 }],
+        "monsterSpawnRates": null,
+        "sortIndex": 2
     },
     "/actions/brewing/power_coffee": {
         "hrid": "/actions/brewing/power_coffee",
@@ -81,9 +316,9 @@
         "type": "/action_types/brewing",
         "category": "/action_categories/brewing/coffee",
         "name": "Power Coffee",
-        "levelRequirement": { "skillHrid": "/skills/brewing", "level": 25 },
-        "baseTimeCost": 8000000000,
-        "experienceGain": { "skillHrid": "/skills/brewing", "value": 21 },
+        "levelRequirement": { "skillHrid": "/skills/brewing", "level": 30 },
+        "baseTimeCost": 10000000000,
+        "experienceGain": { "skillHrid": "/skills/brewing", "value": 24 },
         "dropTable": null,
         "upgradeItemHrid": "",
         "inputItems": [
@@ -92,7 +327,7 @@
         ],
         "outputItems": [{ "itemHrid": "/items/power_coffee", "count": 1 }],
         "monsterSpawnRates": null,
-        "sortIndex": 5
+        "sortIndex": 12
     },
     "/actions/brewing/stamina_coffee": {
         "hrid": "/actions/brewing/stamina_coffee",
@@ -101,7 +336,7 @@
         "category": "/action_categories/brewing/coffee",
         "name": "Stamina Coffee",
         "levelRequirement": { "skillHrid": "/skills/brewing", "level": 1 },
-        "baseTimeCost": 6000000000,
+        "baseTimeCost": 8000000000,
         "experienceGain": { "skillHrid": "/skills/brewing", "value": 6 },
         "dropTable": null,
         "upgradeItemHrid": "",
@@ -119,19 +354,75 @@
         "type": "/action_types/brewing",
         "category": "/action_categories/brewing/coffee",
         "name": "Super Attack Coffee",
-        "levelRequirement": { "skillHrid": "/skills/brewing", "level": 60 },
-        "baseTimeCost": 10000000000,
-        "experienceGain": { "skillHrid": "/skills/brewing", "value": 48 },
+        "levelRequirement": { "skillHrid": "/skills/brewing", "level": 65 },
+        "baseTimeCost": 14000000000,
+        "experienceGain": { "skillHrid": "/skills/brewing", "value": 45 },
         "dropTable": null,
-        "upgradeItemHrid": "",
+        "upgradeItemHrid": "/items/attack_coffee",
         "inputItems": [
-            { "itemHrid": "/items/attack_coffee", "count": 1 },
             { "itemHrid": "/items/fieriosa_coffee_bean", "count": 1 },
             { "itemHrid": "/items/marsberry", "count": 1 }
         ],
         "outputItems": [{ "itemHrid": "/items/super_attack_coffee", "count": 1 }],
         "monsterSpawnRates": null,
-        "sortIndex": 10
+        "sortIndex": 23
+    },
+    "/actions/brewing/super_brewing_tea": {
+        "hrid": "/actions/brewing/super_brewing_tea",
+        "function": "/action_functions/production",
+        "type": "/action_types/brewing",
+        "category": "/action_categories/brewing/tea",
+        "name": "Super Brewing Tea",
+        "levelRequirement": { "skillHrid": "/skills/brewing", "level": 65 },
+        "baseTimeCost": 14000000000,
+        "experienceGain": { "skillHrid": "/skills/brewing", "value": 45 },
+        "dropTable": null,
+        "upgradeItemHrid": "/items/brewing_tea",
+        "inputItems": [
+            { "itemHrid": "/items/red_tea_leaf", "count": 1 },
+            { "itemHrid": "/items/dragon_fruit", "count": 1 }
+        ],
+        "outputItems": [{ "itemHrid": "/items/super_brewing_tea", "count": 1 }],
+        "monsterSpawnRates": null,
+        "sortIndex": 24
+    },
+    "/actions/brewing/super_cheesesmithing_tea": {
+        "hrid": "/actions/brewing/super_cheesesmithing_tea",
+        "function": "/action_functions/production",
+        "type": "/action_types/brewing",
+        "category": "/action_categories/brewing/tea",
+        "name": "Super Cheesesmithing Tea",
+        "levelRequirement": { "skillHrid": "/skills/brewing", "level": 75 },
+        "baseTimeCost": 16000000000,
+        "experienceGain": { "skillHrid": "/skills/brewing", "value": 51 },
+        "dropTable": null,
+        "upgradeItemHrid": "/items/cheesesmithing_tea",
+        "inputItems": [
+            { "itemHrid": "/items/emp_tea_leaf", "count": 1 },
+            { "itemHrid": "/items/peach", "count": 1 }
+        ],
+        "outputItems": [{ "itemHrid": "/items/super_cheesesmithing_tea", "count": 1 }],
+        "monsterSpawnRates": null,
+        "sortIndex": 29
+    },
+    "/actions/brewing/super_cooking_tea": {
+        "hrid": "/actions/brewing/super_cooking_tea",
+        "function": "/action_functions/production",
+        "type": "/action_types/brewing",
+        "category": "/action_categories/brewing/tea",
+        "name": "Super Cooking Tea",
+        "levelRequirement": { "skillHrid": "/skills/brewing", "level": 60 },
+        "baseTimeCost": 14000000000,
+        "experienceGain": { "skillHrid": "/skills/brewing", "value": 42 },
+        "dropTable": null,
+        "upgradeItemHrid": "/items/cooking_tea",
+        "inputItems": [
+            { "itemHrid": "/items/red_tea_leaf", "count": 1 },
+            { "itemHrid": "/items/peach", "count": 1 }
+        ],
+        "outputItems": [{ "itemHrid": "/items/super_cooking_tea", "count": 1 }],
+        "monsterSpawnRates": null,
+        "sortIndex": 22
     },
     "/actions/brewing/super_defense_coffee": {
         "hrid": "/actions/brewing/super_defense_coffee",
@@ -139,19 +430,56 @@
         "type": "/action_types/brewing",
         "category": "/action_categories/brewing/coffee",
         "name": "Super Defense Coffee",
-        "levelRequirement": { "skillHrid": "/skills/brewing", "level": 55 },
-        "baseTimeCost": 10000000000,
-        "experienceGain": { "skillHrid": "/skills/brewing", "value": 45 },
+        "levelRequirement": { "skillHrid": "/skills/brewing", "level": 60 },
+        "baseTimeCost": 14000000000,
+        "experienceGain": { "skillHrid": "/skills/brewing", "value": 42 },
         "dropTable": null,
-        "upgradeItemHrid": "",
+        "upgradeItemHrid": "/items/defense_coffee",
         "inputItems": [
-            { "itemHrid": "/items/defense_coffee", "count": 1 },
             { "itemHrid": "/items/fieriosa_coffee_bean", "count": 1 },
             { "itemHrid": "/items/mooberry", "count": 1 }
         ],
         "outputItems": [{ "itemHrid": "/items/super_defense_coffee", "count": 1 }],
         "monsterSpawnRates": null,
-        "sortIndex": 9
+        "sortIndex": 21
+    },
+    "/actions/brewing/super_enhancing_tea": {
+        "hrid": "/actions/brewing/super_enhancing_tea",
+        "function": "/action_functions/production",
+        "type": "/action_types/brewing",
+        "category": "/action_categories/brewing/tea",
+        "name": "Super Enhancing Tea",
+        "levelRequirement": { "skillHrid": "/skills/brewing", "level": 70 },
+        "baseTimeCost": 14000000000,
+        "experienceGain": { "skillHrid": "/skills/brewing", "value": 48 },
+        "dropTable": null,
+        "upgradeItemHrid": "/items/enhancing_tea",
+        "inputItems": [
+            { "itemHrid": "/items/red_tea_leaf", "count": 1 },
+            { "itemHrid": "/items/star_fruit", "count": 1 }
+        ],
+        "outputItems": [{ "itemHrid": "/items/super_enhancing_tea", "count": 1 }],
+        "monsterSpawnRates": null,
+        "sortIndex": 27
+    },
+    "/actions/brewing/super_foraging_tea": {
+        "hrid": "/actions/brewing/super_foraging_tea",
+        "function": "/action_functions/production",
+        "type": "/action_types/brewing",
+        "category": "/action_categories/brewing/tea",
+        "name": "Super Foraging Tea",
+        "levelRequirement": { "skillHrid": "/skills/brewing", "level": 50 },
+        "baseTimeCost": 12000000000,
+        "experienceGain": { "skillHrid": "/skills/brewing", "value": 36 },
+        "dropTable": null,
+        "upgradeItemHrid": "/items/foraging_tea",
+        "inputItems": [
+            { "itemHrid": "/items/moolong_tea_leaf", "count": 1 },
+            { "itemHrid": "/items/peach", "count": 1 }
+        ],
+        "outputItems": [{ "itemHrid": "/items/super_foraging_tea", "count": 1 }],
+        "monsterSpawnRates": null,
+        "sortIndex": 18
     },
     "/actions/brewing/super_intelligence_coffee": {
         "hrid": "/actions/brewing/super_intelligence_coffee",
@@ -159,19 +487,37 @@
         "type": "/action_types/brewing",
         "category": "/action_categories/brewing/coffee",
         "name": "Super Intelligence Coffee",
-        "levelRequirement": { "skillHrid": "/skills/brewing", "level": 45 },
-        "baseTimeCost": 9000000000,
+        "levelRequirement": { "skillHrid": "/skills/brewing", "level": 50 },
+        "baseTimeCost": 12000000000,
         "experienceGain": { "skillHrid": "/skills/brewing", "value": 36 },
         "dropTable": null,
-        "upgradeItemHrid": "",
+        "upgradeItemHrid": "/items/intelligence_coffee",
         "inputItems": [
-            { "itemHrid": "/items/intelligence_coffee", "count": 1 },
             { "itemHrid": "/items/excelsa_coffee_bean", "count": 1 },
             { "itemHrid": "/items/mooberry", "count": 1 }
         ],
         "outputItems": [{ "itemHrid": "/items/super_intelligence_coffee", "count": 1 }],
         "monsterSpawnRates": null,
-        "sortIndex": 7
+        "sortIndex": 17
+    },
+    "/actions/brewing/super_milking_tea": {
+        "hrid": "/actions/brewing/super_milking_tea",
+        "function": "/action_functions/production",
+        "type": "/action_types/brewing",
+        "category": "/action_categories/brewing/tea",
+        "name": "Super Milking Tea",
+        "levelRequirement": { "skillHrid": "/skills/brewing", "level": 45 },
+        "baseTimeCost": 12000000000,
+        "experienceGain": { "skillHrid": "/skills/brewing", "value": 33 },
+        "dropTable": null,
+        "upgradeItemHrid": "/items/milking_tea",
+        "inputItems": [
+            { "itemHrid": "/items/moolong_tea_leaf", "count": 1 },
+            { "itemHrid": "/items/plum", "count": 1 }
+        ],
+        "outputItems": [{ "itemHrid": "/items/super_milking_tea", "count": 1 }],
+        "monsterSpawnRates": null,
+        "sortIndex": 16
     },
     "/actions/brewing/super_power_coffee": {
         "hrid": "/actions/brewing/super_power_coffee",
@@ -179,19 +525,18 @@
         "type": "/action_types/brewing",
         "category": "/action_categories/brewing/coffee",
         "name": "Super Power Coffee",
-        "levelRequirement": { "skillHrid": "/skills/brewing", "level": 70 },
-        "baseTimeCost": 12000000000,
-        "experienceGain": { "skillHrid": "/skills/brewing", "value": 54 },
+        "levelRequirement": { "skillHrid": "/skills/brewing", "level": 75 },
+        "baseTimeCost": 16000000000,
+        "experienceGain": { "skillHrid": "/skills/brewing", "value": 51 },
         "dropTable": null,
-        "upgradeItemHrid": "",
+        "upgradeItemHrid": "/items/power_coffee",
         "inputItems": [
-            { "itemHrid": "/items/power_coffee", "count": 1 },
             { "itemHrid": "/items/spacia_coffee_bean", "count": 1 },
             { "itemHrid": "/items/mooberry", "count": 1 }
         ],
         "outputItems": [{ "itemHrid": "/items/super_power_coffee", "count": 1 }],
         "monsterSpawnRates": null,
-        "sortIndex": 12
+        "sortIndex": 28
     },
     "/actions/brewing/super_stamina_coffee": {
         "hrid": "/actions/brewing/super_stamina_coffee",
@@ -199,19 +544,18 @@
         "type": "/action_types/brewing",
         "category": "/action_categories/brewing/coffee",
         "name": "Super Stamina Coffee",
-        "levelRequirement": { "skillHrid": "/skills/brewing", "level": 40 },
-        "baseTimeCost": 9000000000,
+        "levelRequirement": { "skillHrid": "/skills/brewing", "level": 45 },
+        "baseTimeCost": 12000000000,
         "experienceGain": { "skillHrid": "/skills/brewing", "value": 33 },
         "dropTable": null,
-        "upgradeItemHrid": "",
+        "upgradeItemHrid": "/items/stamina_coffee",
         "inputItems": [
-            { "itemHrid": "/items/stamina_coffee", "count": 1 },
             { "itemHrid": "/items/excelsa_coffee_bean", "count": 1 },
             { "itemHrid": "/items/strawberry", "count": 1 }
         ],
         "outputItems": [{ "itemHrid": "/items/super_stamina_coffee", "count": 1 }],
         "monsterSpawnRates": null,
-        "sortIndex": 6
+        "sortIndex": 15
     },
     "/actions/brewing/swiftness_coffee": {
         "hrid": "/actions/brewing/swiftness_coffee",
@@ -219,18 +563,39 @@
         "type": "/action_types/brewing",
         "category": "/action_categories/brewing/coffee",
         "name": "Swiftness Coffee",
-        "levelRequirement": { "skillHrid": "/skills/brewing", "level": 65 },
-        "baseTimeCost": 10000000000,
-        "experienceGain": { "skillHrid": "/skills/brewing", "value": 51 },
+        "levelRequirement": { "skillHrid": "/skills/brewing", "level": 68 },
+        "baseTimeCost": 14000000000,
+        "experienceGain": { "skillHrid": "/skills/brewing", "value": 48 },
         "dropTable": null,
         "upgradeItemHrid": "",
         "inputItems": [
-            { "itemHrid": "/items/fieriosa_coffee_bean", "count": 1 },
-            { "itemHrid": "/items/spaceberry", "count": 1 }
+            { "itemHrid": "/items/fieriosa_coffee_bean", "count": 2 },
+            { "itemHrid": "/items/dragon_fruit", "count": 1 },
+            { "itemHrid": "/items/rainbow_milk", "count": 1 }
         ],
         "outputItems": [{ "itemHrid": "/items/swiftness_coffee", "count": 1 }],
         "monsterSpawnRates": null,
-        "sortIndex": 11
+        "sortIndex": 25
+    },
+    "/actions/brewing/wisdom_tea": {
+        "hrid": "/actions/brewing/wisdom_tea",
+        "function": "/action_functions/production",
+        "type": "/action_types/brewing",
+        "category": "/action_categories/brewing/tea",
+        "name": "Wisdom Tea",
+        "levelRequirement": { "skillHrid": "/skills/brewing", "level": 36 },
+        "baseTimeCost": 10000000000,
+        "experienceGain": { "skillHrid": "/skills/brewing", "value": 29 },
+        "dropTable": null,
+        "upgradeItemHrid": "",
+        "inputItems": [
+            { "itemHrid": "/items/burble_tea_leaf", "count": 2 },
+            { "itemHrid": "/items/strawberry", "count": 2 },
+            { "itemHrid": "/items/burble_milk", "count": 1 }
+        ],
+        "outputItems": [{ "itemHrid": "/items/wisdom_tea", "count": 1 }],
+        "monsterSpawnRates": null,
+        "sortIndex": 14
     },
     "/actions/cheesesmithing/azure_boots": {
         "hrid": "/actions/cheesesmithing/azure_boots",
@@ -242,7 +607,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 20
         },
-        "baseTimeCost": 10000000000,
+        "baseTimeCost": 20000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 192 },
         "dropTable": null,
         "upgradeItemHrid": "/items/verdant_boots",
@@ -261,7 +626,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 25
         },
-        "baseTimeCost": 10000000000,
+        "baseTimeCost": 20000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 240 },
         "dropTable": null,
         "upgradeItemHrid": "/items/verdant_brush",
@@ -280,7 +645,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 27
         },
-        "baseTimeCost": 10000000000,
+        "baseTimeCost": 20000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 288 },
         "dropTable": null,
         "upgradeItemHrid": "/items/verdant_buckler",
@@ -299,7 +664,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 30
         },
-        "baseTimeCost": 10000000000,
+        "baseTimeCost": 20000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 480 },
         "dropTable": null,
         "upgradeItemHrid": "/items/verdant_bulwark",
@@ -337,7 +702,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 25
         },
-        "baseTimeCost": 10000000000,
+        "baseTimeCost": 20000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 240 },
         "dropTable": null,
         "upgradeItemHrid": "/items/verdant_enhancer",
@@ -356,7 +721,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 21
         },
-        "baseTimeCost": 10000000000,
+        "baseTimeCost": 20000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 192 },
         "dropTable": null,
         "upgradeItemHrid": "/items/verdant_gauntlets",
@@ -375,7 +740,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 25
         },
-        "baseTimeCost": 10000000000,
+        "baseTimeCost": 20000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 240 },
         "dropTable": null,
         "upgradeItemHrid": "/items/verdant_hammer",
@@ -394,7 +759,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 26
         },
-        "baseTimeCost": 10000000000,
+        "baseTimeCost": 20000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 240 },
         "dropTable": null,
         "upgradeItemHrid": "/items/verdant_helmet",
@@ -413,7 +778,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 24
         },
-        "baseTimeCost": 10000000000,
+        "baseTimeCost": 20000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 288 },
         "dropTable": null,
         "upgradeItemHrid": "/items/verdant_mace",
@@ -432,7 +797,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 29
         },
-        "baseTimeCost": 10000000000,
+        "baseTimeCost": 20000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 432 },
         "dropTable": null,
         "upgradeItemHrid": "/items/verdant_plate_body",
@@ -451,7 +816,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 28
         },
-        "baseTimeCost": 10000000000,
+        "baseTimeCost": 20000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 336 },
         "dropTable": null,
         "upgradeItemHrid": "/items/verdant_plate_legs",
@@ -470,7 +835,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 25
         },
-        "baseTimeCost": 10000000000,
+        "baseTimeCost": 20000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 240 },
         "dropTable": null,
         "upgradeItemHrid": "/items/verdant_pot",
@@ -489,7 +854,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 25
         },
-        "baseTimeCost": 10000000000,
+        "baseTimeCost": 20000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 240 },
         "dropTable": null,
         "upgradeItemHrid": "/items/verdant_shears",
@@ -508,7 +873,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 25
         },
-        "baseTimeCost": 10000000000,
+        "baseTimeCost": 20000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 240 },
         "dropTable": null,
         "upgradeItemHrid": "/items/verdant_spatula",
@@ -527,7 +892,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 22
         },
-        "baseTimeCost": 10000000000,
+        "baseTimeCost": 20000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 288 },
         "dropTable": null,
         "upgradeItemHrid": "/items/verdant_spear",
@@ -546,7 +911,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 23
         },
-        "baseTimeCost": 10000000000,
+        "baseTimeCost": 20000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 288 },
         "dropTable": null,
         "upgradeItemHrid": "/items/verdant_sword",
@@ -565,7 +930,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 70
         },
-        "baseTimeCost": 10000000000,
+        "baseTimeCost": 30000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 10000
@@ -587,7 +952,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 35
         },
-        "baseTimeCost": 12000000000,
+        "baseTimeCost": 24000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 432 },
         "dropTable": null,
         "upgradeItemHrid": "/items/azure_boots",
@@ -606,7 +971,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 40
         },
-        "baseTimeCost": 12000000000,
+        "baseTimeCost": 24000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 540 },
         "dropTable": null,
         "upgradeItemHrid": "/items/azure_brush",
@@ -625,7 +990,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 42
         },
-        "baseTimeCost": 12000000000,
+        "baseTimeCost": 24000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 648 },
         "dropTable": null,
         "upgradeItemHrid": "/items/azure_buckler",
@@ -644,7 +1009,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 45
         },
-        "baseTimeCost": 12000000000,
+        "baseTimeCost": 24000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 1080
@@ -685,7 +1050,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 40
         },
-        "baseTimeCost": 12000000000,
+        "baseTimeCost": 24000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 540 },
         "dropTable": null,
         "upgradeItemHrid": "/items/azure_enhancer",
@@ -704,7 +1069,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 36
         },
-        "baseTimeCost": 12000000000,
+        "baseTimeCost": 24000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 432 },
         "dropTable": null,
         "upgradeItemHrid": "/items/azure_gauntlets",
@@ -723,7 +1088,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 40
         },
-        "baseTimeCost": 12000000000,
+        "baseTimeCost": 24000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 540 },
         "dropTable": null,
         "upgradeItemHrid": "/items/azure_hammer",
@@ -742,7 +1107,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 41
         },
-        "baseTimeCost": 12000000000,
+        "baseTimeCost": 24000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 540 },
         "dropTable": null,
         "upgradeItemHrid": "/items/azure_helmet",
@@ -761,7 +1126,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 39
         },
-        "baseTimeCost": 12000000000,
+        "baseTimeCost": 24000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 648 },
         "dropTable": null,
         "upgradeItemHrid": "/items/azure_mace",
@@ -780,7 +1145,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 44
         },
-        "baseTimeCost": 12000000000,
+        "baseTimeCost": 24000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 972 },
         "dropTable": null,
         "upgradeItemHrid": "/items/azure_plate_body",
@@ -799,7 +1164,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 43
         },
-        "baseTimeCost": 12000000000,
+        "baseTimeCost": 24000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 756 },
         "dropTable": null,
         "upgradeItemHrid": "/items/azure_plate_legs",
@@ -818,7 +1183,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 40
         },
-        "baseTimeCost": 12000000000,
+        "baseTimeCost": 24000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 540 },
         "dropTable": null,
         "upgradeItemHrid": "/items/azure_pot",
@@ -837,7 +1202,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 40
         },
-        "baseTimeCost": 12000000000,
+        "baseTimeCost": 24000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 540 },
         "dropTable": null,
         "upgradeItemHrid": "/items/azure_shears",
@@ -856,7 +1221,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 40
         },
-        "baseTimeCost": 12000000000,
+        "baseTimeCost": 24000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 540 },
         "dropTable": null,
         "upgradeItemHrid": "/items/azure_spatula",
@@ -875,7 +1240,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 37
         },
-        "baseTimeCost": 12000000000,
+        "baseTimeCost": 24000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 648 },
         "dropTable": null,
         "upgradeItemHrid": "/items/azure_spear",
@@ -894,7 +1259,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 38
         },
-        "baseTimeCost": 12000000000,
+        "baseTimeCost": 24000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 648 },
         "dropTable": null,
         "upgradeItemHrid": "/items/azure_sword",
@@ -926,7 +1291,7 @@
         "category": "/action_categories/cheesesmithing/cheese",
         "name": "Cheese Boots",
         "levelRequirement": { "skillHrid": "/skills/cheesesmithing", "level": 1 },
-        "baseTimeCost": 8000000000,
+        "baseTimeCost": 16000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 24 },
         "dropTable": null,
         "upgradeItemHrid": "",
@@ -942,7 +1307,7 @@
         "category": "/action_categories/cheesesmithing/cheese",
         "name": "Cheese Brush",
         "levelRequirement": { "skillHrid": "/skills/cheesesmithing", "level": 5 },
-        "baseTimeCost": 8000000000,
+        "baseTimeCost": 16000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 30 },
         "dropTable": null,
         "upgradeItemHrid": "",
@@ -958,7 +1323,7 @@
         "category": "/action_categories/cheesesmithing/cheese",
         "name": "Cheese Buckler",
         "levelRequirement": { "skillHrid": "/skills/cheesesmithing", "level": 7 },
-        "baseTimeCost": 8000000000,
+        "baseTimeCost": 16000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 36 },
         "dropTable": null,
         "upgradeItemHrid": "",
@@ -977,7 +1342,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 10
         },
-        "baseTimeCost": 8000000000,
+        "baseTimeCost": 16000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 60 },
         "dropTable": null,
         "upgradeItemHrid": "",
@@ -993,7 +1358,7 @@
         "category": "/action_categories/cheesesmithing/cheese",
         "name": "Cheese Enhancer",
         "levelRequirement": { "skillHrid": "/skills/cheesesmithing", "level": 5 },
-        "baseTimeCost": 8000000000,
+        "baseTimeCost": 16000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 30 },
         "dropTable": null,
         "upgradeItemHrid": "",
@@ -1009,7 +1374,7 @@
         "category": "/action_categories/cheesesmithing/cheese",
         "name": "Cheese Gauntlets",
         "levelRequirement": { "skillHrid": "/skills/cheesesmithing", "level": 1 },
-        "baseTimeCost": 8000000000,
+        "baseTimeCost": 16000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 24 },
         "dropTable": null,
         "upgradeItemHrid": "",
@@ -1025,7 +1390,7 @@
         "category": "/action_categories/cheesesmithing/cheese",
         "name": "Cheese Hammer",
         "levelRequirement": { "skillHrid": "/skills/cheesesmithing", "level": 5 },
-        "baseTimeCost": 8000000000,
+        "baseTimeCost": 16000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 30 },
         "dropTable": null,
         "upgradeItemHrid": "",
@@ -1041,7 +1406,7 @@
         "category": "/action_categories/cheesesmithing/cheese",
         "name": "Cheese Helmet",
         "levelRequirement": { "skillHrid": "/skills/cheesesmithing", "level": 6 },
-        "baseTimeCost": 8000000000,
+        "baseTimeCost": 16000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 30 },
         "dropTable": null,
         "upgradeItemHrid": "",
@@ -1057,7 +1422,7 @@
         "category": "/action_categories/cheesesmithing/cheese",
         "name": "Cheese Mace",
         "levelRequirement": { "skillHrid": "/skills/cheesesmithing", "level": 4 },
-        "baseTimeCost": 8000000000,
+        "baseTimeCost": 16000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 36 },
         "dropTable": null,
         "upgradeItemHrid": "",
@@ -1073,7 +1438,7 @@
         "category": "/action_categories/cheesesmithing/cheese",
         "name": "Cheese Plate Body",
         "levelRequirement": { "skillHrid": "/skills/cheesesmithing", "level": 9 },
-        "baseTimeCost": 8000000000,
+        "baseTimeCost": 16000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 54 },
         "dropTable": null,
         "upgradeItemHrid": "",
@@ -1089,7 +1454,7 @@
         "category": "/action_categories/cheesesmithing/cheese",
         "name": "Cheese Plate Legs",
         "levelRequirement": { "skillHrid": "/skills/cheesesmithing", "level": 8 },
-        "baseTimeCost": 8000000000,
+        "baseTimeCost": 16000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 42 },
         "dropTable": null,
         "upgradeItemHrid": "",
@@ -1105,7 +1470,7 @@
         "category": "/action_categories/cheesesmithing/cheese",
         "name": "Cheese Pot",
         "levelRequirement": { "skillHrid": "/skills/cheesesmithing", "level": 5 },
-        "baseTimeCost": 8000000000,
+        "baseTimeCost": 16000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 30 },
         "dropTable": null,
         "upgradeItemHrid": "",
@@ -1121,7 +1486,7 @@
         "category": "/action_categories/cheesesmithing/cheese",
         "name": "Cheese Shears",
         "levelRequirement": { "skillHrid": "/skills/cheesesmithing", "level": 5 },
-        "baseTimeCost": 8000000000,
+        "baseTimeCost": 16000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 30 },
         "dropTable": null,
         "upgradeItemHrid": "",
@@ -1137,7 +1502,7 @@
         "category": "/action_categories/cheesesmithing/cheese",
         "name": "Cheese Spatula",
         "levelRequirement": { "skillHrid": "/skills/cheesesmithing", "level": 5 },
-        "baseTimeCost": 8000000000,
+        "baseTimeCost": 16000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 30 },
         "dropTable": null,
         "upgradeItemHrid": "",
@@ -1153,7 +1518,7 @@
         "category": "/action_categories/cheesesmithing/cheese",
         "name": "Cheese Spear",
         "levelRequirement": { "skillHrid": "/skills/cheesesmithing", "level": 2 },
-        "baseTimeCost": 8000000000,
+        "baseTimeCost": 16000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 36 },
         "dropTable": null,
         "upgradeItemHrid": "",
@@ -1169,7 +1534,7 @@
         "category": "/action_categories/cheesesmithing/cheese",
         "name": "Cheese Sword",
         "levelRequirement": { "skillHrid": "/skills/cheesesmithing", "level": 3 },
-        "baseTimeCost": 8000000000,
+        "baseTimeCost": 16000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 36 },
         "dropTable": null,
         "upgradeItemHrid": "",
@@ -1188,7 +1553,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 50
         },
-        "baseTimeCost": 14000000000,
+        "baseTimeCost": 28000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 864 },
         "dropTable": null,
         "upgradeItemHrid": "/items/burble_boots",
@@ -1207,7 +1572,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 55
         },
-        "baseTimeCost": 14000000000,
+        "baseTimeCost": 28000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 1080
@@ -1229,7 +1594,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 57
         },
-        "baseTimeCost": 14000000000,
+        "baseTimeCost": 28000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 1296
@@ -1251,7 +1616,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 60
         },
-        "baseTimeCost": 14000000000,
+        "baseTimeCost": 28000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 2160
@@ -1292,7 +1657,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 55
         },
-        "baseTimeCost": 14000000000,
+        "baseTimeCost": 28000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 1080
@@ -1314,7 +1679,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 51
         },
-        "baseTimeCost": 14000000000,
+        "baseTimeCost": 28000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 864 },
         "dropTable": null,
         "upgradeItemHrid": "/items/burble_gauntlets",
@@ -1333,7 +1698,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 55
         },
-        "baseTimeCost": 14000000000,
+        "baseTimeCost": 28000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 1080
@@ -1355,7 +1720,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 56
         },
-        "baseTimeCost": 14000000000,
+        "baseTimeCost": 28000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 1080
@@ -1377,7 +1742,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 54
         },
-        "baseTimeCost": 14000000000,
+        "baseTimeCost": 28000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 1296
@@ -1399,7 +1764,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 59
         },
-        "baseTimeCost": 14000000000,
+        "baseTimeCost": 28000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 1944
@@ -1421,7 +1786,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 58
         },
-        "baseTimeCost": 14000000000,
+        "baseTimeCost": 28000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 1512
@@ -1443,7 +1808,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 55
         },
-        "baseTimeCost": 14000000000,
+        "baseTimeCost": 28000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 1080
@@ -1465,7 +1830,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 55
         },
-        "baseTimeCost": 14000000000,
+        "baseTimeCost": 28000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 1080
@@ -1487,7 +1852,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 55
         },
-        "baseTimeCost": 14000000000,
+        "baseTimeCost": 28000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 1080
@@ -1509,7 +1874,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 52
         },
-        "baseTimeCost": 14000000000,
+        "baseTimeCost": 28000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 1296
@@ -1531,7 +1896,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 53
         },
-        "baseTimeCost": 14000000000,
+        "baseTimeCost": 28000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 1296
@@ -1553,7 +1918,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 70
         },
-        "baseTimeCost": 10000000000,
+        "baseTimeCost": 30000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 10000
@@ -1575,7 +1940,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 80
         },
-        "baseTimeCost": 24000000000,
+        "baseTimeCost": 48000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 2592
@@ -1597,7 +1962,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 85
         },
-        "baseTimeCost": 24000000000,
+        "baseTimeCost": 48000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 3240
@@ -1619,7 +1984,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 87
         },
-        "baseTimeCost": 24000000000,
+        "baseTimeCost": 48000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 3888
@@ -1641,7 +2006,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 90
         },
-        "baseTimeCost": 24000000000,
+        "baseTimeCost": 48000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 6480
@@ -1682,7 +2047,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 85
         },
-        "baseTimeCost": 24000000000,
+        "baseTimeCost": 48000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 3240
@@ -1704,7 +2069,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 81
         },
-        "baseTimeCost": 24000000000,
+        "baseTimeCost": 48000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 2592
@@ -1726,7 +2091,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 85
         },
-        "baseTimeCost": 24000000000,
+        "baseTimeCost": 48000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 3240
@@ -1748,7 +2113,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 86
         },
-        "baseTimeCost": 24000000000,
+        "baseTimeCost": 48000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 3240
@@ -1770,7 +2135,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 84
         },
-        "baseTimeCost": 24000000000,
+        "baseTimeCost": 48000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 3888
@@ -1792,7 +2157,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 89
         },
-        "baseTimeCost": 24000000000,
+        "baseTimeCost": 48000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 5832
@@ -1814,7 +2179,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 88
         },
-        "baseTimeCost": 24000000000,
+        "baseTimeCost": 48000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 4536
@@ -1836,7 +2201,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 85
         },
-        "baseTimeCost": 24000000000,
+        "baseTimeCost": 48000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 3240
@@ -1858,7 +2223,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 85
         },
-        "baseTimeCost": 24000000000,
+        "baseTimeCost": 48000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 3240
@@ -1880,7 +2245,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 85
         },
-        "baseTimeCost": 24000000000,
+        "baseTimeCost": 48000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 3240
@@ -1902,7 +2267,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 82
         },
-        "baseTimeCost": 24000000000,
+        "baseTimeCost": 48000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 3888
@@ -1924,7 +2289,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 83
         },
-        "baseTimeCost": 24000000000,
+        "baseTimeCost": 48000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 3888
@@ -1946,7 +2311,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 70
         },
-        "baseTimeCost": 10000000000,
+        "baseTimeCost": 30000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 10000
@@ -1968,7 +2333,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 28
         },
-        "baseTimeCost": 10000000000,
+        "baseTimeCost": 30000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 1600
@@ -1990,7 +2355,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 70
         },
-        "baseTimeCost": 10000000000,
+        "baseTimeCost": 30000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 10000
@@ -2012,7 +2377,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 65
         },
-        "baseTimeCost": 16000000000,
+        "baseTimeCost": 32000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 1560
@@ -2034,7 +2399,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 70
         },
-        "baseTimeCost": 16000000000,
+        "baseTimeCost": 32000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 1950
@@ -2056,7 +2421,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 72
         },
-        "baseTimeCost": 16000000000,
+        "baseTimeCost": 32000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 2340
@@ -2078,7 +2443,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 75
         },
-        "baseTimeCost": 16000000000,
+        "baseTimeCost": 32000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 3900
@@ -2119,7 +2484,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 70
         },
-        "baseTimeCost": 16000000000,
+        "baseTimeCost": 32000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 1950
@@ -2141,7 +2506,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 66
         },
-        "baseTimeCost": 16000000000,
+        "baseTimeCost": 32000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 1560
@@ -2163,7 +2528,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 70
         },
-        "baseTimeCost": 16000000000,
+        "baseTimeCost": 32000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 1950
@@ -2185,7 +2550,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 71
         },
-        "baseTimeCost": 16000000000,
+        "baseTimeCost": 32000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 1950
@@ -2207,7 +2572,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 69
         },
-        "baseTimeCost": 16000000000,
+        "baseTimeCost": 32000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 2340
@@ -2229,7 +2594,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 74
         },
-        "baseTimeCost": 16000000000,
+        "baseTimeCost": 32000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 3510
@@ -2251,7 +2616,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 73
         },
-        "baseTimeCost": 16000000000,
+        "baseTimeCost": 32000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 2730
@@ -2273,7 +2638,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 70
         },
-        "baseTimeCost": 16000000000,
+        "baseTimeCost": 32000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 1950
@@ -2295,7 +2660,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 70
         },
-        "baseTimeCost": 16000000000,
+        "baseTimeCost": 32000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 1950
@@ -2317,7 +2682,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 70
         },
-        "baseTimeCost": 16000000000,
+        "baseTimeCost": 32000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 1950
@@ -2339,7 +2704,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 67
         },
-        "baseTimeCost": 16000000000,
+        "baseTimeCost": 32000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 2340
@@ -2361,7 +2726,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 68
         },
-        "baseTimeCost": 16000000000,
+        "baseTimeCost": 32000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 2340
@@ -2383,7 +2748,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 26
         },
-        "baseTimeCost": 10000000000,
+        "baseTimeCost": 30000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 1600
@@ -2405,7 +2770,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 15
         },
-        "baseTimeCost": 10000000000,
+        "baseTimeCost": 30000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 600 },
         "dropTable": null,
         "upgradeItemHrid": "",
@@ -2427,7 +2792,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 32
         },
-        "baseTimeCost": 10000000000,
+        "baseTimeCost": 30000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 3000
@@ -2449,7 +2814,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 32
         },
-        "baseTimeCost": 10000000000,
+        "baseTimeCost": 30000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 2000
@@ -2471,7 +2836,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 85
         },
-        "baseTimeCost": 10000000000,
+        "baseTimeCost": 30000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 48000
@@ -2496,7 +2861,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 10
         },
-        "baseTimeCost": 9000000000,
+        "baseTimeCost": 18000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 72 },
         "dropTable": null,
         "upgradeItemHrid": "/items/cheese_boots",
@@ -2515,7 +2880,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 15
         },
-        "baseTimeCost": 9000000000,
+        "baseTimeCost": 18000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 90 },
         "dropTable": null,
         "upgradeItemHrid": "/items/cheese_brush",
@@ -2534,7 +2899,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 17
         },
-        "baseTimeCost": 9000000000,
+        "baseTimeCost": 18000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 108 },
         "dropTable": null,
         "upgradeItemHrid": "/items/cheese_buckler",
@@ -2553,7 +2918,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 20
         },
-        "baseTimeCost": 9000000000,
+        "baseTimeCost": 18000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 180 },
         "dropTable": null,
         "upgradeItemHrid": "/items/cheese_bulwark",
@@ -2591,7 +2956,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 15
         },
-        "baseTimeCost": 9000000000,
+        "baseTimeCost": 18000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 90 },
         "dropTable": null,
         "upgradeItemHrid": "/items/cheese_enhancer",
@@ -2610,7 +2975,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 11
         },
-        "baseTimeCost": 9000000000,
+        "baseTimeCost": 18000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 72 },
         "dropTable": null,
         "upgradeItemHrid": "/items/cheese_gauntlets",
@@ -2629,7 +2994,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 15
         },
-        "baseTimeCost": 9000000000,
+        "baseTimeCost": 18000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 90 },
         "dropTable": null,
         "upgradeItemHrid": "/items/cheese_hammer",
@@ -2648,7 +3013,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 16
         },
-        "baseTimeCost": 9000000000,
+        "baseTimeCost": 18000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 90 },
         "dropTable": null,
         "upgradeItemHrid": "/items/cheese_helmet",
@@ -2667,7 +3032,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 14
         },
-        "baseTimeCost": 9000000000,
+        "baseTimeCost": 18000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 108 },
         "dropTable": null,
         "upgradeItemHrid": "/items/cheese_mace",
@@ -2686,7 +3051,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 19
         },
-        "baseTimeCost": 9000000000,
+        "baseTimeCost": 18000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 162 },
         "dropTable": null,
         "upgradeItemHrid": "/items/cheese_plate_body",
@@ -2705,7 +3070,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 18
         },
-        "baseTimeCost": 9000000000,
+        "baseTimeCost": 18000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 126 },
         "dropTable": null,
         "upgradeItemHrid": "/items/cheese_plate_legs",
@@ -2724,7 +3089,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 15
         },
-        "baseTimeCost": 9000000000,
+        "baseTimeCost": 18000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 90 },
         "dropTable": null,
         "upgradeItemHrid": "/items/cheese_pot",
@@ -2743,7 +3108,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 15
         },
-        "baseTimeCost": 9000000000,
+        "baseTimeCost": 18000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 90 },
         "dropTable": null,
         "upgradeItemHrid": "/items/cheese_shears",
@@ -2762,7 +3127,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 15
         },
-        "baseTimeCost": 9000000000,
+        "baseTimeCost": 18000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 90 },
         "dropTable": null,
         "upgradeItemHrid": "/items/cheese_spatula",
@@ -2781,7 +3146,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 12
         },
-        "baseTimeCost": 9000000000,
+        "baseTimeCost": 18000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 108 },
         "dropTable": null,
         "upgradeItemHrid": "/items/cheese_spear",
@@ -2800,7 +3165,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 13
         },
-        "baseTimeCost": 9000000000,
+        "baseTimeCost": 18000000000,
         "experienceGain": { "skillHrid": "/skills/cheesesmithing", "value": 108 },
         "dropTable": null,
         "upgradeItemHrid": "/items/cheese_sword",
@@ -2819,7 +3184,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 56
         },
-        "baseTimeCost": 10000000000,
+        "baseTimeCost": 30000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 6000
@@ -2841,7 +3206,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 56
         },
-        "baseTimeCost": 10000000000,
+        "baseTimeCost": 30000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 7200
@@ -2863,7 +3228,7 @@
             "skillHrid": "/skills/cheesesmithing",
             "level": 85
         },
-        "baseTimeCost": 10000000000,
+        "baseTimeCost": 30000000000,
         "experienceGain": {
             "skillHrid": "/skills/cheesesmithing",
             "value": 48000
@@ -2978,16 +3343,12 @@
         "outputItems": null,
         "monsterSpawnRates": [
             {
-                "combatMonsterHrids": ["/combat_monsters/gummy_bear", "/combat_monsters/gummy_bear"],
-                "rate": 0.2
-            },
-            {
                 "combatMonsterHrids": [
                     "/combat_monsters/gummy_bear",
                     "/combat_monsters/gummy_bear",
                     "/combat_monsters/gummy_bear"
                 ],
-                "rate": 0.1
+                "rate": 0.2
             },
             {
                 "combatMonsterHrids": ["/combat_monsters/panda", "/combat_monsters/panda"],
@@ -2995,19 +3356,19 @@
             },
             {
                 "combatMonsterHrids": ["/combat_monsters/black_bear", "/combat_monsters/black_bear"],
-                "rate": 0.1
+                "rate": 0.125
             },
             {
                 "combatMonsterHrids": ["/combat_monsters/black_bear", "/combat_monsters/grizzly_bear"],
-                "rate": 0.1
+                "rate": 0.125
             },
             {
                 "combatMonsterHrids": ["/combat_monsters/grizzly_bear", "/combat_monsters/grizzly_bear"],
-                "rate": 0.1
+                "rate": 0.125
             },
             {
                 "combatMonsterHrids": ["/combat_monsters/polar_bear", "/combat_monsters/polar_bear"],
-                "rate": 0.1
+                "rate": 0.125
             },
             {
                 "combatMonsterHrids": [
@@ -3678,7 +4039,7 @@
         "category": "/action_categories/cooking/mana_over_time",
         "name": "Apple Yogurt",
         "levelRequirement": { "skillHrid": "/skills/cooking", "level": 10 },
-        "baseTimeCost": 6500000000,
+        "baseTimeCost": 8000000000,
         "experienceGain": { "skillHrid": "/skills/cooking", "value": 10 },
         "dropTable": null,
         "upgradeItemHrid": "",
@@ -3698,7 +4059,7 @@
         "category": "/action_categories/cooking/heal_over_time",
         "name": "Blackberry Cake",
         "levelRequirement": { "skillHrid": "/skills/cooking", "level": 20 },
-        "baseTimeCost": 7000000000,
+        "baseTimeCost": 9000000000,
         "experienceGain": { "skillHrid": "/skills/cooking", "value": 20 },
         "dropTable": null,
         "upgradeItemHrid": "",
@@ -3741,7 +4102,7 @@
         "category": "/action_categories/cooking/heal_over_time",
         "name": "Blueberry Cake",
         "levelRequirement": { "skillHrid": "/skills/cooking", "level": 10 },
-        "baseTimeCost": 6500000000,
+        "baseTimeCost": 8000000000,
         "experienceGain": { "skillHrid": "/skills/cooking", "value": 10 },
         "dropTable": null,
         "upgradeItemHrid": "",
@@ -3784,7 +4145,7 @@
         "category": "/action_categories/cooking/heal_over_time",
         "name": "Cupcake",
         "levelRequirement": { "skillHrid": "/skills/cooking", "level": 1 },
-        "baseTimeCost": 6000000000,
+        "baseTimeCost": 7000000000,
         "experienceGain": { "skillHrid": "/skills/cooking", "value": 5 },
         "dropTable": null,
         "upgradeItemHrid": "",
@@ -3844,7 +4205,7 @@
         "category": "/action_categories/cooking/mana_over_time",
         "name": "Dragon Fruit Yogurt",
         "levelRequirement": { "skillHrid": "/skills/cooking", "level": 65 },
-        "baseTimeCost": 10000000000,
+        "baseTimeCost": 14000000000,
         "experienceGain": { "skillHrid": "/skills/cooking", "value": 50 },
         "dropTable": null,
         "upgradeItemHrid": "",
@@ -3880,7 +4241,7 @@
         "category": "/action_categories/cooking/heal_over_time",
         "name": "Marsberry Cake",
         "levelRequirement": { "skillHrid": "/skills/cooking", "level": 65 },
-        "baseTimeCost": 10000000000,
+        "baseTimeCost": 14000000000,
         "experienceGain": { "skillHrid": "/skills/cooking", "value": 50 },
         "dropTable": null,
         "upgradeItemHrid": "",
@@ -3923,7 +4284,7 @@
         "category": "/action_categories/cooking/heal_over_time",
         "name": "Mooberry Cake",
         "levelRequirement": { "skillHrid": "/skills/cooking", "level": 50 },
-        "baseTimeCost": 9000000000,
+        "baseTimeCost": 12000000000,
         "experienceGain": { "skillHrid": "/skills/cooking", "value": 40 },
         "dropTable": null,
         "upgradeItemHrid": "",
@@ -3985,7 +4346,7 @@
         "category": "/action_categories/cooking/mana_over_time",
         "name": "Orange Yogurt",
         "levelRequirement": { "skillHrid": "/skills/cooking", "level": 20 },
-        "baseTimeCost": 7000000000,
+        "baseTimeCost": 9000000000,
         "experienceGain": { "skillHrid": "/skills/cooking", "value": 20 },
         "dropTable": null,
         "upgradeItemHrid": "",
@@ -4024,7 +4385,7 @@
         "category": "/action_categories/cooking/mana_over_time",
         "name": "Peach Yogurt",
         "levelRequirement": { "skillHrid": "/skills/cooking", "level": 50 },
-        "baseTimeCost": 9000000000,
+        "baseTimeCost": 12000000000,
         "experienceGain": { "skillHrid": "/skills/cooking", "value": 40 },
         "dropTable": null,
         "upgradeItemHrid": "",
@@ -4063,7 +4424,7 @@
         "category": "/action_categories/cooking/mana_over_time",
         "name": "Plum Yogurt",
         "levelRequirement": { "skillHrid": "/skills/cooking", "level": 35 },
-        "baseTimeCost": 8000000000,
+        "baseTimeCost": 10000000000,
         "experienceGain": { "skillHrid": "/skills/cooking", "value": 30 },
         "dropTable": null,
         "upgradeItemHrid": "",
@@ -4083,7 +4444,7 @@
         "category": "/action_categories/cooking/heal_over_time",
         "name": "Spaceberry Cake",
         "levelRequirement": { "skillHrid": "/skills/cooking", "level": 80 },
-        "baseTimeCost": 12000000000,
+        "baseTimeCost": 16000000000,
         "experienceGain": { "skillHrid": "/skills/cooking", "value": 60 },
         "dropTable": null,
         "upgradeItemHrid": "",
@@ -4145,7 +4506,7 @@
         "category": "/action_categories/cooking/mana_over_time",
         "name": "Star Fruit Yogurt",
         "levelRequirement": { "skillHrid": "/skills/cooking", "level": 80 },
-        "baseTimeCost": 12000000000,
+        "baseTimeCost": 16000000000,
         "experienceGain": { "skillHrid": "/skills/cooking", "value": 60 },
         "dropTable": null,
         "upgradeItemHrid": "",
@@ -4165,7 +4526,7 @@
         "category": "/action_categories/cooking/heal_over_time",
         "name": "Strawberry Cake",
         "levelRequirement": { "skillHrid": "/skills/cooking", "level": 35 },
-        "baseTimeCost": 8000000000,
+        "baseTimeCost": 10000000000,
         "experienceGain": { "skillHrid": "/skills/cooking", "value": 30 },
         "dropTable": null,
         "upgradeItemHrid": "",
@@ -4208,7 +4569,7 @@
         "category": "/action_categories/cooking/mana_over_time",
         "name": "Yogurt",
         "levelRequirement": { "skillHrid": "/skills/cooking", "level": 1 },
-        "baseTimeCost": 6000000000,
+        "baseTimeCost": 7000000000,
         "experienceGain": { "skillHrid": "/skills/cooking", "value": 5 },
         "dropTable": null,
         "upgradeItemHrid": "",
@@ -4273,7 +4634,7 @@
                 "itemHrid": "/items/arabica_coffee_bean",
                 "dropRate": 1,
                 "minCount": 1,
-                "maxCount": 2
+                "maxCount": 1
             }
         ],
         "upgradeItemHrid": "",
@@ -4308,7 +4669,7 @@
                 "itemHrid": "/items/spacia_coffee_bean",
                 "dropRate": 0.4,
                 "minCount": 1,
-                "maxCount": 2
+                "maxCount": 1
             }
         ],
         "upgradeItemHrid": "",
@@ -4389,7 +4750,7 @@
                 "itemHrid": "/items/liberica_coffee_bean",
                 "dropRate": 0.4,
                 "minCount": 1,
-                "maxCount": 2
+                "maxCount": 1
             }
         ],
         "upgradeItemHrid": "",
@@ -4458,7 +4819,7 @@
                 "itemHrid": "/items/excelsa_coffee_bean",
                 "dropRate": 1,
                 "minCount": 1,
-                "maxCount": 2
+                "maxCount": 1
             }
         ],
         "upgradeItemHrid": "",
@@ -4516,7 +4877,7 @@
                 "itemHrid": "/items/fieriosa_coffee_bean",
                 "dropRate": 1,
                 "minCount": 1,
-                "maxCount": 2
+                "maxCount": 1
             }
         ],
         "upgradeItemHrid": "",
@@ -4539,7 +4900,7 @@
                 "itemHrid": "/items/liberica_coffee_bean",
                 "dropRate": 1,
                 "minCount": 1,
-                "maxCount": 2
+                "maxCount": 1
             }
         ],
         "upgradeItemHrid": "",
@@ -4597,7 +4958,7 @@
                 "itemHrid": "/items/robusta_coffee_bean",
                 "dropRate": 0.4,
                 "minCount": 1,
-                "maxCount": 2
+                "maxCount": 1
             }
         ],
         "upgradeItemHrid": "",
@@ -4655,7 +5016,7 @@
                 "itemHrid": "/items/fieriosa_coffee_bean",
                 "dropRate": 0.4,
                 "minCount": 1,
-                "maxCount": 2
+                "maxCount": 1
             }
         ],
         "upgradeItemHrid": "",
@@ -4747,7 +5108,7 @@
                 "itemHrid": "/items/robusta_coffee_bean",
                 "dropRate": 1,
                 "minCount": 1,
-                "maxCount": 2
+                "maxCount": 1
             }
         ],
         "upgradeItemHrid": "",
@@ -4782,7 +5143,7 @@
                 "itemHrid": "/items/arabica_coffee_bean",
                 "dropRate": 0.4,
                 "minCount": 1,
-                "maxCount": 2
+                "maxCount": 1
             }
         ],
         "upgradeItemHrid": "",
@@ -4817,7 +5178,7 @@
                 "itemHrid": "/items/excelsa_coffee_bean",
                 "dropRate": 0.4,
                 "minCount": 1,
-                "maxCount": 2
+                "maxCount": 1
             }
         ],
         "upgradeItemHrid": "",
@@ -4863,7 +5224,7 @@
                 "itemHrid": "/items/spacia_coffee_bean",
                 "dropRate": 1,
                 "minCount": 1,
-                "maxCount": 2
+                "maxCount": 1
             }
         ],
         "upgradeItemHrid": "",

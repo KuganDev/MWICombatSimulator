@@ -5,7 +5,7 @@
         "isSingleTarget": true,
         "isMultiTarget": false,
         "allowedComparatorHrids": ["/combat_trigger_comparators/is_active", "/combat_trigger_comparators/is_inactive"],
-        "sortIndex": 9
+        "sortIndex": 11
     },
     "/combat_trigger_conditions/berserk": {
         "hrid": "/combat_trigger_conditions/berserk",
@@ -13,7 +13,7 @@
         "isSingleTarget": true,
         "isMultiTarget": false,
         "allowedComparatorHrids": ["/combat_trigger_comparators/is_active", "/combat_trigger_comparators/is_inactive"],
-        "sortIndex": 24
+        "sortIndex": 19
     },
     "/combat_trigger_conditions/current_hp": {
         "hrid": "/combat_trigger_conditions/current_hp",
@@ -43,7 +43,7 @@
         "isSingleTarget": true,
         "isMultiTarget": false,
         "allowedComparatorHrids": ["/combat_trigger_comparators/is_active", "/combat_trigger_comparators/is_inactive"],
-        "sortIndex": 8
+        "sortIndex": 10
     },
     "/combat_trigger_conditions/frenzy": {
         "hrid": "/combat_trigger_conditions/frenzy",
@@ -51,15 +51,23 @@
         "isSingleTarget": true,
         "isMultiTarget": false,
         "allowedComparatorHrids": ["/combat_trigger_comparators/is_active", "/combat_trigger_comparators/is_inactive"],
-        "sortIndex": 25
+        "sortIndex": 20
     },
-    "/combat_trigger_conditions/intelligence_coffee": {
-        "hrid": "/combat_trigger_conditions/intelligence_coffee",
-        "name": "Intelligence Coffee",
+    "/combat_trigger_conditions/intelligence_coffee_max_mp": {
+        "hrid": "/combat_trigger_conditions/intelligence_coffee_max_mp",
+        "name": "Intelligence Coffee (Max MP)",
         "isSingleTarget": true,
         "isMultiTarget": false,
         "allowedComparatorHrids": ["/combat_trigger_comparators/is_active", "/combat_trigger_comparators/is_inactive"],
-        "sortIndex": 7
+        "sortIndex": 8
+    },
+    "/combat_trigger_conditions/intelligence_coffee_mp_regen": {
+        "hrid": "/combat_trigger_conditions/intelligence_coffee_mp_regen",
+        "name": "Intelligence Coffee (MP Regen)",
+        "isSingleTarget": true,
+        "isMultiTarget": false,
+        "allowedComparatorHrids": ["/combat_trigger_comparators/is_active", "/combat_trigger_comparators/is_inactive"],
+        "sortIndex": 9
     },
     "/combat_trigger_conditions/lucky_coffee": {
         "hrid": "/combat_trigger_conditions/lucky_coffee",
@@ -67,7 +75,7 @@
         "isSingleTarget": true,
         "isMultiTarget": false,
         "allowedComparatorHrids": ["/combat_trigger_comparators/is_active", "/combat_trigger_comparators/is_inactive"],
-        "sortIndex": 20
+        "sortIndex": 15
     },
     "/combat_trigger_conditions/magic_coffee": {
         "hrid": "/combat_trigger_conditions/magic_coffee",
@@ -75,7 +83,7 @@
         "isSingleTarget": true,
         "isMultiTarget": false,
         "allowedComparatorHrids": ["/combat_trigger_comparators/is_active", "/combat_trigger_comparators/is_inactive"],
-        "sortIndex": 12
+        "sortIndex": 14
     },
     "/combat_trigger_conditions/missing_hp": {
         "hrid": "/combat_trigger_conditions/missing_hp",
@@ -116,7 +124,7 @@
         "isSingleTarget": true,
         "isMultiTarget": false,
         "allowedComparatorHrids": ["/combat_trigger_comparators/is_active", "/combat_trigger_comparators/is_inactive"],
-        "sortIndex": 10
+        "sortIndex": 12
     },
     "/combat_trigger_conditions/precision": {
         "hrid": "/combat_trigger_conditions/precision",
@@ -124,7 +132,7 @@
         "isSingleTarget": true,
         "isMultiTarget": false,
         "allowedComparatorHrids": ["/combat_trigger_comparators/is_active", "/combat_trigger_comparators/is_inactive"],
-        "sortIndex": 23
+        "sortIndex": 18
     },
     "/combat_trigger_conditions/ranged_coffee": {
         "hrid": "/combat_trigger_conditions/ranged_coffee",
@@ -132,71 +140,23 @@
         "isSingleTarget": true,
         "isMultiTarget": false,
         "allowedComparatorHrids": ["/combat_trigger_comparators/is_active", "/combat_trigger_comparators/is_inactive"],
-        "sortIndex": 11
+        "sortIndex": 13
     },
-    "/combat_trigger_conditions/stamina_coffee": {
-        "hrid": "/combat_trigger_conditions/stamina_coffee",
-        "name": "Stamina Coffee",
+    "/combat_trigger_conditions/stamina_coffee_hp_regen": {
+        "hrid": "/combat_trigger_conditions/stamina_coffee_hp_regen",
+        "name": "Stamina Coffee (HP Regen)",
+        "isSingleTarget": true,
+        "isMultiTarget": false,
+        "allowedComparatorHrids": ["/combat_trigger_comparators/is_active", "/combat_trigger_comparators/is_inactive"],
+        "sortIndex": 7
+    },
+    "/combat_trigger_conditions/stamina_coffee_max_hp": {
+        "hrid": "/combat_trigger_conditions/stamina_coffee_max_hp",
+        "name": "Stamina Coffee (Max HP)",
         "isSingleTarget": true,
         "isMultiTarget": false,
         "allowedComparatorHrids": ["/combat_trigger_comparators/is_active", "/combat_trigger_comparators/is_inactive"],
         "sortIndex": 6
-    },
-    "/combat_trigger_conditions/super_attack_coffee": {
-        "hrid": "/combat_trigger_conditions/super_attack_coffee",
-        "name": "Super Attack Coffee",
-        "isSingleTarget": true,
-        "isMultiTarget": false,
-        "allowedComparatorHrids": ["/combat_trigger_comparators/is_active", "/combat_trigger_comparators/is_inactive"],
-        "sortIndex": 16
-    },
-    "/combat_trigger_conditions/super_defense_coffee": {
-        "hrid": "/combat_trigger_conditions/super_defense_coffee",
-        "name": "Super Defense Coffee",
-        "isSingleTarget": true,
-        "isMultiTarget": false,
-        "allowedComparatorHrids": ["/combat_trigger_comparators/is_active", "/combat_trigger_comparators/is_inactive"],
-        "sortIndex": 15
-    },
-    "/combat_trigger_conditions/super_intelligence_coffee": {
-        "hrid": "/combat_trigger_conditions/super_intelligence_coffee",
-        "name": "Super Intelligence Coffee",
-        "isSingleTarget": true,
-        "isMultiTarget": false,
-        "allowedComparatorHrids": ["/combat_trigger_comparators/is_active", "/combat_trigger_comparators/is_inactive"],
-        "sortIndex": 14
-    },
-    "/combat_trigger_conditions/super_magic_coffee": {
-        "hrid": "/combat_trigger_conditions/super_magic_coffee",
-        "name": "Super Magic Coffee",
-        "isSingleTarget": true,
-        "isMultiTarget": false,
-        "allowedComparatorHrids": ["/combat_trigger_comparators/is_active", "/combat_trigger_comparators/is_inactive"],
-        "sortIndex": 19
-    },
-    "/combat_trigger_conditions/super_power_coffee": {
-        "hrid": "/combat_trigger_conditions/super_power_coffee",
-        "name": "Super Power Coffee",
-        "isSingleTarget": true,
-        "isMultiTarget": false,
-        "allowedComparatorHrids": ["/combat_trigger_comparators/is_active", "/combat_trigger_comparators/is_inactive"],
-        "sortIndex": 17
-    },
-    "/combat_trigger_conditions/super_ranged_coffee": {
-        "hrid": "/combat_trigger_conditions/super_ranged_coffee",
-        "name": "Super Ranged Coffee",
-        "isSingleTarget": true,
-        "isMultiTarget": false,
-        "allowedComparatorHrids": ["/combat_trigger_comparators/is_active", "/combat_trigger_comparators/is_inactive"],
-        "sortIndex": 18
-    },
-    "/combat_trigger_conditions/super_stamina_coffee": {
-        "hrid": "/combat_trigger_conditions/super_stamina_coffee",
-        "name": "Super Stamina Coffee",
-        "isSingleTarget": true,
-        "isMultiTarget": false,
-        "allowedComparatorHrids": ["/combat_trigger_comparators/is_active", "/combat_trigger_comparators/is_inactive"],
-        "sortIndex": 13
     },
     "/combat_trigger_conditions/swiftness_coffee": {
         "hrid": "/combat_trigger_conditions/swiftness_coffee",
@@ -204,7 +164,7 @@
         "isSingleTarget": true,
         "isMultiTarget": false,
         "allowedComparatorHrids": ["/combat_trigger_comparators/is_active", "/combat_trigger_comparators/is_inactive"],
-        "sortIndex": 21
+        "sortIndex": 16
     },
     "/combat_trigger_conditions/toughness": {
         "hrid": "/combat_trigger_conditions/toughness",
@@ -212,7 +172,7 @@
         "isSingleTarget": true,
         "isMultiTarget": false,
         "allowedComparatorHrids": ["/combat_trigger_comparators/is_active", "/combat_trigger_comparators/is_inactive"],
-        "sortIndex": 22
+        "sortIndex": 17
     },
     "/combat_trigger_conditions/vampirism": {
         "hrid": "/combat_trigger_conditions/vampirism",
@@ -220,6 +180,6 @@
         "isSingleTarget": true,
         "isMultiTarget": false,
         "allowedComparatorHrids": ["/combat_trigger_comparators/is_active", "/combat_trigger_comparators/is_inactive"],
-        "sortIndex": 26
+        "sortIndex": 21
     }
 }
