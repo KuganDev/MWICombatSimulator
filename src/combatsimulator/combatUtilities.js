@@ -9,7 +9,41 @@ class CombatUtilities {
     }
 
     static randomInt(min, max) {
-        return Math.floor(min + Math.random() * (max - min + 1));
+        if (max < min) {
+            let temp = min;
+            min = max;
+            max = temp;
+        }
+
+        let minCeil = Math.ceil(min);
+        let maxFloor = Math.floor(max);
+
+        if (Math.floor(min) == maxFloor) {
+            return Math.floor((min + max) / 2 + Math.random());
+        }
+
+        let minTail = -1 * (min - minCeil);
+        let maxTail = max - maxFloor;
+
+        let balancedWeight = 2 * minTail + (maxFloor - minCeil);
+        let balancedAverage = (maxFloor + minCeil) / 2;
+        let average = (max + min) / 2;
+        let extraTailWeight = (balancedWeight * (average - balancedAverage)) / (maxFloor + 1 - average);
+        let extraTailChance = Math.abs(extraTailWeight / (extraTailWeight + balancedWeight));
+
+        if (Math.random() < extraTailChance) {
+            if (maxTail > minTail) {
+                return Math.floor(maxFloor + 1);
+            } else {
+                return Math.floor(minCeil - 1);
+            }
+        }
+
+        if (maxTail > minTail) {
+            return Math.floor(min + Math.random() * (maxFloor + minTail - min + 1));
+        } else {
+            return Math.floor(minCeil - maxTail + Math.random() * (max - (minCeil - maxTail) + 1));
+        }
     }
 
     static calculateHitChance(source, target, combatStyle) {
