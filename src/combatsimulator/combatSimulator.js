@@ -156,6 +156,7 @@ class CombatSimulator {
         if (event.source.combatStats.lifeSteal > 0) {
             let lifeStealHeal = Math.floor(damageDone * event.source.combatStats.lifeSteal);
             let hitpointsAdded = event.source.addHitpoints(lifeStealHeal);
+            this.simResult.addHitpointsGained(event.source, "lifesteal", hitpointsAdded);
             // console.log("Added hitpoints from life steal:", hitpointsAdded);
         }
 
@@ -225,6 +226,7 @@ class CombatSimulator {
                 event.currentTick
             );
             let hitpointsAdded = event.source.addHitpoints(tickValue);
+            this.simResult.addHitpointsGained(event.source, event.consumable.hrid, hitpointsAdded);
             // console.log("Added hitpoints:", hitpointsAdded);
         }
 
@@ -235,6 +237,7 @@ class CombatSimulator {
                 event.currentTick
             );
             let manapointsAdded = event.source.addManapoints(tickValue);
+            this.simResult.addManapointsGained(event.source, event.consumable.hrid, manapointsAdded);
             // console.log("Added manapoints:", manapointsAdded);
         }
 
@@ -255,11 +258,13 @@ class CombatSimulator {
         let damage = Math.min(tickDamage, event.target.combatStats.currentHitpoints);
 
         event.target.combatStats.currentHitpoints -= damage;
+        this.simResult.addAttack(event.sourceRef, event.target, "bleed", damage);
         // console.log(event.target.hrid, "bleed for", damage);
 
         if (event.currentTick < event.totalTicks) {
             let bleedTickEvent = new BleedTickEvent(
                 this.simulationTime + 2 * 1e9,
+                event.sourceRef,
                 event.target,
                 event.damage,
                 event.totalTicks,
@@ -279,10 +284,12 @@ class CombatSimulator {
     processRegenTickEvent(event) {
         let hitpointRegen = Math.floor(event.source.combatStats.maxHitpoints * event.source.combatStats.HPRegen);
         let hitpointsAdded = event.source.addHitpoints(hitpointRegen);
+        this.simResult.addHitpointsGained(event.source, "regen", hitpointsAdded);
         // console.log("Added hitpoints:", hitpointsAdded);
 
         let manapointRegen = Math.floor(event.source.combatStats.maxManapoints * event.source.combatStats.MPRegen);
         let manapointsAdded = event.source.addManapoints(manapointRegen);
+        this.simResult.addManapointsGained(event.source, "regen", manapointsAdded);
         // console.log("Added manapoints:", manapointsAdded);
 
         let regenTickEvent = new RegenTickEvent(this.simulationTime + 10 * 1e9, event.source);
@@ -358,14 +365,18 @@ class CombatSimulator {
         let cooldownReadyEvent = new CooldownReadyEvent(this.simulationTime + consumable.cooldownDuration);
         this.eventQueue.addEvent(cooldownReadyEvent);
 
+        this.simResult.addConsumableUse(source, consumable);
+
         if (consumable.recoveryDuration == 0) {
             if (consumable.hitpointRestore > 0) {
                 let hitpointsAdded = source.addHitpoints(consumable.hitpointRestore);
+                this.simResult.addHitpointsGained(source, consumable.hrid, hitpointsAdded);
                 // console.log("Added hitpoints:", hitpointsAdded);
             }
 
             if (consumable.manapointRestore > 0) {
                 let manapointsAdded = source.addManapoints(consumable.manapointRestore);
+                this.simResult.addManapointsGained(source, consumable.hrid, manapointsAdded);
                 // console.log("Added manapoints:", manapointsAdded);
             }
         } else {
@@ -439,6 +450,7 @@ class CombatSimulator {
                         if (abilityEffect.bleedRatio > 0 && damageDone > 0) {
                             let bleedTickEvent = new BleedTickEvent(
                                 this.simulationTime + 2 * 1e9,
+                                source,
                                 target,
                                 damageDone * abilityEffect.bleedRatio,
                                 abilityEffect.duration / (2 * 1e9),

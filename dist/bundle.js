@@ -1221,6 +1221,7 @@ class CombatSimulator {
         if (event.source.combatStats.lifeSteal > 0) {
             let lifeStealHeal = Math.floor(damageDone * event.source.combatStats.lifeSteal);
             let hitpointsAdded = event.source.addHitpoints(lifeStealHeal);
+            this.simResult.addHitpointsGained(event.source, "lifesteal", hitpointsAdded);
             // console.log("Added hitpoints from life steal:", hitpointsAdded);
         }
 
@@ -1290,6 +1291,7 @@ class CombatSimulator {
                 event.currentTick
             );
             let hitpointsAdded = event.source.addHitpoints(tickValue);
+            this.simResult.addHitpointsGained(event.source, event.consumable.hrid, hitpointsAdded);
             // console.log("Added hitpoints:", hitpointsAdded);
         }
 
@@ -1300,6 +1302,7 @@ class CombatSimulator {
                 event.currentTick
             );
             let manapointsAdded = event.source.addManapoints(tickValue);
+            this.simResult.addManapointsGained(event.source, event.consumable.hrid, manapointsAdded);
             // console.log("Added manapoints:", manapointsAdded);
         }
 
@@ -1320,11 +1323,13 @@ class CombatSimulator {
         let damage = Math.min(tickDamage, event.target.combatStats.currentHitpoints);
 
         event.target.combatStats.currentHitpoints -= damage;
+        this.simResult.addAttack(event.sourceRef, event.target, "bleed", damage);
         // console.log(event.target.hrid, "bleed for", damage);
 
         if (event.currentTick < event.totalTicks) {
             let bleedTickEvent = new _events_bleedTickEvent__WEBPACK_IMPORTED_MODULE_2__["default"](
                 this.simulationTime + 2 * 1e9,
+                event.sourceRef,
                 event.target,
                 event.damage,
                 event.totalTicks,
@@ -1344,10 +1349,12 @@ class CombatSimulator {
     processRegenTickEvent(event) {
         let hitpointRegen = Math.floor(event.source.combatStats.maxHitpoints * event.source.combatStats.HPRegen);
         let hitpointsAdded = event.source.addHitpoints(hitpointRegen);
+        this.simResult.addHitpointsGained(event.source, "regen", hitpointsAdded);
         // console.log("Added hitpoints:", hitpointsAdded);
 
         let manapointRegen = Math.floor(event.source.combatStats.maxManapoints * event.source.combatStats.MPRegen);
         let manapointsAdded = event.source.addManapoints(manapointRegen);
+        this.simResult.addManapointsGained(event.source, "regen", manapointsAdded);
         // console.log("Added manapoints:", manapointsAdded);
 
         let regenTickEvent = new _events_regenTickEvent__WEBPACK_IMPORTED_MODULE_10__["default"](this.simulationTime + 10 * 1e9, event.source);
@@ -1423,14 +1430,18 @@ class CombatSimulator {
         let cooldownReadyEvent = new _events_cooldownReadyEvent__WEBPACK_IMPORTED_MODULE_6__["default"](this.simulationTime + consumable.cooldownDuration);
         this.eventQueue.addEvent(cooldownReadyEvent);
 
+        this.simResult.addConsumableUse(source, consumable);
+
         if (consumable.recoveryDuration == 0) {
             if (consumable.hitpointRestore > 0) {
                 let hitpointsAdded = source.addHitpoints(consumable.hitpointRestore);
+                this.simResult.addHitpointsGained(source, consumable.hrid, hitpointsAdded);
                 // console.log("Added hitpoints:", hitpointsAdded);
             }
 
             if (consumable.manapointRestore > 0) {
                 let manapointsAdded = source.addManapoints(consumable.manapointRestore);
+                this.simResult.addManapointsGained(source, consumable.hrid, manapointsAdded);
                 // console.log("Added manapoints:", manapointsAdded);
             }
         } else {
@@ -1504,6 +1515,7 @@ class CombatSimulator {
                         if (abilityEffect.bleedRatio > 0 && damageDone > 0) {
                             let bleedTickEvent = new _events_bleedTickEvent__WEBPACK_IMPORTED_MODULE_2__["default"](
                                 this.simulationTime + 2 * 1e9,
+                                source,
                                 target,
                                 damageDone * abilityEffect.bleedRatio,
                                 abilityEffect.duration / (2 * 1e9),
@@ -2074,9 +2086,11 @@ __webpack_require__.r(__webpack_exports__);
 class BleedTickEvent extends _combatEvent__WEBPACK_IMPORTED_MODULE_0__["default"] {
     static type = "bleedTick";
 
-    constructor(time, target, damage, totalTicks, currentTick) {
+    constructor(time, sourceRef, target, damage, totalTicks, currentTick) {
         super(BleedTickEvent.type, time);
 
+        // Calling it 'source' would wrongly clear bleeds when the source dies
+        this.sourceRef = sourceRef;
         this.target = target;
         this.damage = damage;
         this.totalTicks = totalTicks;
@@ -2514,6 +2528,9 @@ class SimResult {
         this.experienceGained = {};
         this.encounters = 0;
         this.attacks = {};
+        this.consumablesUsed = {};
+        this.hitpointsGained = {};
+        this.manapointsGained = {};
     }
 
     addDeath(unit) {
@@ -2562,6 +2579,39 @@ class SimResult {
         }
 
         this.attacks[source.hrid][target.hrid][ability][hit] += 1;
+    }
+
+    addConsumableUse(unit, consumable) {
+        if (!this.consumablesUsed[unit.hrid]) {
+            this.consumablesUsed[unit.hrid] = {};
+        }
+        if (!this.consumablesUsed[unit.hrid][consumable.hrid]) {
+            this.consumablesUsed[unit.hrid][consumable.hrid] = 0;
+        }
+
+        this.consumablesUsed[unit.hrid][consumable.hrid] += 1;
+    }
+
+    addHitpointsGained(unit, source, amount) {
+        if (!this.hitpointsGained[unit.hrid]) {
+            this.hitpointsGained[unit.hrid] = {};
+        }
+        if (!this.hitpointsGained[unit.hrid][source]) {
+            this.hitpointsGained[unit.hrid][source] = 0;
+        }
+
+        this.hitpointsGained[unit.hrid][source] += amount;
+    }
+
+    addManapointsGained(unit, source, amount) {
+        if (!this.manapointsGained[unit.hrid]) {
+            this.manapointsGained[unit.hrid] = {};
+        }
+        if (!this.manapointsGained[unit.hrid][source]) {
+            this.manapointsGained[unit.hrid][source] = 0;
+        }
+
+        this.manapointsGained[unit.hrid][source] += amount;
     }
 }
 
@@ -3082,7 +3132,7 @@ for (const [key, value] of Object.entries(counts)) {
 }
 
 let ability1 = new _combatsimulator_ability_js__WEBPACK_IMPORTED_MODULE_7__["default"]("/abilities/sweep", 12);
-let ability2 = new _combatsimulator_ability_js__WEBPACK_IMPORTED_MODULE_7__["default"]("/abilities/cleave", 1);
+let ability2 = new _combatsimulator_ability_js__WEBPACK_IMPORTED_MODULE_7__["default"]("/abilities/maim", 1);
 let ability3 = new _combatsimulator_ability_js__WEBPACK_IMPORTED_MODULE_7__["default"]("/abilities/berserk", 13);
 
 let trigger1 = new _combatsimulator_trigger_js__WEBPACK_IMPORTED_MODULE_6__["default"](
@@ -3136,7 +3186,7 @@ for (const [source, targets] of Object.entries(simResult.attacks)) {
         console.log("   Against", target);
         for (const [ability, attacks] of Object.entries(abilities)) {
             console.log("       ", ability);
-            let misses = attacks["miss"];
+            let misses = attacks["miss"] ?? 0;
             let attempts = Object.values(attacks).reduce((prev, cur) => prev + cur);
             console.log("           Casts:", attempts);
             console.log("           Hitchance:", 1 - misses / attempts);

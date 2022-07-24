@@ -4,6 +4,9 @@ class SimResult {
         this.experienceGained = {};
         this.encounters = 0;
         this.attacks = {};
+        this.consumablesUsed = {};
+        this.hitpointsGained = {};
+        this.manapointsGained = {};
     }
 
     addDeath(unit) {
@@ -52,6 +55,39 @@ class SimResult {
         }
 
         this.attacks[source.hrid][target.hrid][ability][hit] += 1;
+    }
+
+    addConsumableUse(unit, consumable) {
+        if (!this.consumablesUsed[unit.hrid]) {
+            this.consumablesUsed[unit.hrid] = {};
+        }
+        if (!this.consumablesUsed[unit.hrid][consumable.hrid]) {
+            this.consumablesUsed[unit.hrid][consumable.hrid] = 0;
+        }
+
+        this.consumablesUsed[unit.hrid][consumable.hrid] += 1;
+    }
+
+    addHitpointsGained(unit, source, amount) {
+        if (!this.hitpointsGained[unit.hrid]) {
+            this.hitpointsGained[unit.hrid] = {};
+        }
+        if (!this.hitpointsGained[unit.hrid][source]) {
+            this.hitpointsGained[unit.hrid][source] = 0;
+        }
+
+        this.hitpointsGained[unit.hrid][source] += amount;
+    }
+
+    addManapointsGained(unit, source, amount) {
+        if (!this.manapointsGained[unit.hrid]) {
+            this.manapointsGained[unit.hrid] = {};
+        }
+        if (!this.manapointsGained[unit.hrid][source]) {
+            this.manapointsGained[unit.hrid][source] = 0;
+        }
+
+        this.manapointsGained[unit.hrid][source] += amount;
     }
 }
 

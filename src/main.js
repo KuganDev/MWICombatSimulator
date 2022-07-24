@@ -109,7 +109,7 @@ for (const [key, value] of Object.entries(counts)) {
 }
 
 let ability1 = new Ability("/abilities/sweep", 12);
-let ability2 = new Ability("/abilities/cleave", 1);
+let ability2 = new Ability("/abilities/maim", 1);
 let ability3 = new Ability("/abilities/berserk", 13);
 
 let trigger1 = new Trigger(
@@ -163,7 +163,7 @@ for (const [source, targets] of Object.entries(simResult.attacks)) {
         console.log("   Against", target);
         for (const [ability, attacks] of Object.entries(abilities)) {
             console.log("       ", ability);
-            let misses = attacks["miss"];
+            let misses = attacks["miss"] ?? 0;
             let attempts = Object.values(attacks).reduce((prev, cur) => prev + cur);
             console.log("           Casts:", attempts);
             console.log("           Hitchance:", 1 - misses / attempts);
