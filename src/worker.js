@@ -1,9 +1,19 @@
+import CombatSimulator from "./combatsimulator/combatSimulator";
 import Player from "./combatsimulator/player";
-
+import Zone from "./combatsimulator/zone";
 
 onmessage = function (event) {
-    console.log(event.data.player);
-    let player = Player.createFromDTO(event.data.player);
-    player.updateCombatStats();
-    console.log(player);
+    switch (event.data.type) {
+        case "start_simulation":
+            let player = Player.createFromDTO(event.data.player);
+            let zone = new Zone(event.data.zoneHrid);
+            let simulationTimeLimit = event.data.simulationTimeLimit;
+
+            let combatSimulator = new CombatSimulator(player, zone);
+
+            let simResult = combatSimulator.simulate(simulationTimeLimit);
+
+            this.postMessage({ type: "simulation_result", simResult: simResult });
+            break;
+    }
 };

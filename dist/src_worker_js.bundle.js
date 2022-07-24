@@ -127,6 +127,525 @@ class Buff {
 
 /***/ }),
 
+/***/ "./src/combatsimulator/combatSimulator.js":
+/*!************************************************!*\
+  !*** ./src/combatsimulator/combatSimulator.js ***!
+  \************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _combatUtilities__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./combatUtilities */ "./src/combatsimulator/combatUtilities.js");
+/* harmony import */ var _events_autoAttackEvent__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./events/autoAttackEvent */ "./src/combatsimulator/events/autoAttackEvent.js");
+/* harmony import */ var _events_bleedTickEvent__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./events/bleedTickEvent */ "./src/combatsimulator/events/bleedTickEvent.js");
+/* harmony import */ var _events_checkBuffExpirationEvent__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./events/checkBuffExpirationEvent */ "./src/combatsimulator/events/checkBuffExpirationEvent.js");
+/* harmony import */ var _events_combatStartEvent__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./events/combatStartEvent */ "./src/combatsimulator/events/combatStartEvent.js");
+/* harmony import */ var _events_consumableTickEvent__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./events/consumableTickEvent */ "./src/combatsimulator/events/consumableTickEvent.js");
+/* harmony import */ var _events_cooldownReadyEvent__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./events/cooldownReadyEvent */ "./src/combatsimulator/events/cooldownReadyEvent.js");
+/* harmony import */ var _events_enemyRespawnEvent__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./events/enemyRespawnEvent */ "./src/combatsimulator/events/enemyRespawnEvent.js");
+/* harmony import */ var _events_eventQueue__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./events/eventQueue */ "./src/combatsimulator/events/eventQueue.js");
+/* harmony import */ var _events_playerRespawnEvent__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./events/playerRespawnEvent */ "./src/combatsimulator/events/playerRespawnEvent.js");
+/* harmony import */ var _events_regenTickEvent__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./events/regenTickEvent */ "./src/combatsimulator/events/regenTickEvent.js");
+/* harmony import */ var _simResult__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./simResult */ "./src/combatsimulator/simResult.js");
+
+
+
+
+
+
+
+
+
+
+
+
+
+class CombatSimulator {
+    constructor(player, zone) {
+        this.players = [player];
+        this.zone = zone;
+
+        this.eventQueue = new _events_eventQueue__WEBPACK_IMPORTED_MODULE_8__["default"]();
+        this.simResult = new _simResult__WEBPACK_IMPORTED_MODULE_11__["default"]();
+    }
+
+    simulate(simulationTimeLimit) {
+        this.reset();
+
+        let combatStartEvent = new _events_combatStartEvent__WEBPACK_IMPORTED_MODULE_4__["default"](0);
+        this.eventQueue.addEvent(combatStartEvent);
+
+        while (this.simulationTime < simulationTimeLimit) {
+            let nextEvent = this.eventQueue.getNextEvent();
+            this.processEvent(nextEvent);
+        }
+
+        this.simResult.simulatedTime = this.simulationTime;
+
+        return this.simResult;
+    }
+
+    reset() {
+        this.simulationTime = 0;
+        this.eventQueue.clear();
+        this.simResult = new _simResult__WEBPACK_IMPORTED_MODULE_11__["default"]();
+    }
+
+    processEvent(event) {
+        this.simulationTime = event.time;
+
+        // console.log(this.simulationTime / 1e9, event.type, event);
+
+        switch (event.type) {
+            case _events_combatStartEvent__WEBPACK_IMPORTED_MODULE_4__["default"].type:
+                this.processCombatStartEvent(event);
+                break;
+            case _events_playerRespawnEvent__WEBPACK_IMPORTED_MODULE_9__["default"].type:
+                this.processPlayerRespawnEvent(event);
+                break;
+            case _events_enemyRespawnEvent__WEBPACK_IMPORTED_MODULE_7__["default"].type:
+                this.processEnemyRespawnEvent(event);
+                break;
+            case _events_autoAttackEvent__WEBPACK_IMPORTED_MODULE_1__["default"].type:
+                this.processAutoAttackEvent(event);
+                break;
+            case _events_consumableTickEvent__WEBPACK_IMPORTED_MODULE_5__["default"].type:
+                this.processConsumableTickEvent(event);
+                break;
+            case _events_bleedTickEvent__WEBPACK_IMPORTED_MODULE_2__["default"].type:
+                this.processBleedTickEvent(event);
+                break;
+            case _events_checkBuffExpirationEvent__WEBPACK_IMPORTED_MODULE_3__["default"].type:
+                this.processCheckBuffExpirationEvent(event);
+                break;
+            case _events_regenTickEvent__WEBPACK_IMPORTED_MODULE_10__["default"].type:
+                this.processRegenTickEvent(event);
+                break;
+            case _events_cooldownReadyEvent__WEBPACK_IMPORTED_MODULE_6__["default"].type:
+                // Only used to check triggers
+                break;
+        }
+
+        this.checkTriggers();
+    }
+
+    processCombatStartEvent(event) {
+        this.players[0].reset(this.simulationTime);
+
+        this.players[0].abilities
+            .filter((ability) => ability != null)
+            .forEach((ability) => {
+                let cooldownReadyEvent = new _events_cooldownReadyEvent__WEBPACK_IMPORTED_MODULE_6__["default"](ability.lastUsed + ability.cooldownDuration);
+                this.eventQueue.addEvent(cooldownReadyEvent);
+            });
+
+        let regenTickEvent = new _events_regenTickEvent__WEBPACK_IMPORTED_MODULE_10__["default"](this.simulationTime + 10 * 1e9, this.players[0]);
+        this.eventQueue.addEvent(regenTickEvent);
+
+        this.startNewEncounter();
+    }
+
+    processPlayerRespawnEvent(event) {
+        this.players[0].combatStats.currentHitpoints = this.players[0].combatStats.maxHitpoints / 2;
+        this.players[0].clearBuffs();
+
+        this.players[0].resetCooldowns(this.simulationTime);
+        this.players[0].abilities
+            .filter((ability) => ability != null)
+            .forEach((ability) => {
+                let cooldownReadyEvent = new _events_cooldownReadyEvent__WEBPACK_IMPORTED_MODULE_6__["default"](ability.lastUsed + ability.cooldownDuration);
+                this.eventQueue.addEvent(cooldownReadyEvent);
+            });
+
+        let regenTickEvent = new _events_regenTickEvent__WEBPACK_IMPORTED_MODULE_10__["default"](this.simulationTime + 10 * 1e9, this.players[0]);
+        this.eventQueue.addEvent(regenTickEvent);
+
+        this.startNewEncounter();
+    }
+
+    processEnemyRespawnEvent(event) {
+        this.startNewEncounter();
+    }
+
+    startNewEncounter() {
+        this.enemies = this.zone.getRandomEncounter();
+
+        this.enemies.forEach((enemy) => {
+            enemy.reset(this.simulationTime);
+            enemy.abilities
+                .filter((ability) => ability != null)
+                .forEach((ability) => {
+                    let cooldownReadyEvent = new _events_cooldownReadyEvent__WEBPACK_IMPORTED_MODULE_6__["default"](ability.lastUsed + ability.cooldownDuration);
+                    this.eventQueue.addEvent(cooldownReadyEvent);
+                });
+            // console.log(enemy.hrid, "spawned");
+        });
+
+        this.addNextAutoAttackEvent(this.players[0]);
+
+        this.enemies.forEach((enemy) => this.addNextAutoAttackEvent(enemy));
+    }
+
+    processAutoAttackEvent(event) {
+        // console.log("source:", event.source.hrid, "target:", event.target.hrid);
+
+        let target;
+        if (event.source.isPlayer) {
+            target = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].getTarget(this.enemies);
+        } else {
+            target = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].getTarget(this.players);
+        }
+
+        let { damageDone, damagePrevented, maxDamage, didHit } = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].processAttack(
+            event.source,
+            target
+        );
+        // console.log("Hit for", damageDone);
+
+        if (event.source.combatStats.lifeSteal > 0) {
+            let lifeStealHeal = Math.floor(damageDone * event.source.combatStats.lifeSteal);
+            let hitpointsAdded = event.source.addHitpoints(lifeStealHeal);
+            this.simResult.addHitpointsGained(event.source, "lifesteal", hitpointsAdded);
+            // console.log("Added hitpoints from life steal:", hitpointsAdded);
+        }
+
+        this.simResult.addAttack(event.source, target, "autoAttack", didHit ? damageDone : "miss");
+
+        let targetStaminaExperience = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].calculateStaminaExperience(damagePrevented, damageDone);
+        let targetDefenseExperience = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].calculateDefenseExperience(damagePrevented);
+        let sourceAttackExperience = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].calculateAttackExperience(damageDone);
+        let sourcePowerExperience = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].calculatePowerExperience(maxDamage);
+
+        this.simResult.addExperienceGain(target, "stamina", targetStaminaExperience);
+        this.simResult.addExperienceGain(target, "defense", targetDefenseExperience);
+        this.simResult.addExperienceGain(event.source, "attack", sourceAttackExperience);
+        this.simResult.addExperienceGain(event.source, "power", sourcePowerExperience);
+
+        if (target.combatStats.currentHitpoints == 0) {
+            this.eventQueue.clearEventsForUnit(target);
+            this.simResult.addDeath(target);
+            // console.log(event.target.hrid, "died");
+        }
+
+        if (!this.checkEncounterEnd()) {
+            this.addNextAutoAttackEvent(event.source);
+        }
+    }
+
+    checkEncounterEnd() {
+        if (this.enemies && !this.enemies.find((enemy) => enemy.combatStats.currentHitpoints > 0)) {
+            this.eventQueue.clearEventsOfType(_events_autoAttackEvent__WEBPACK_IMPORTED_MODULE_1__["default"].type);
+            let enemyRespawnEvent = new _events_enemyRespawnEvent__WEBPACK_IMPORTED_MODULE_7__["default"](this.simulationTime + 3 * 1e9);
+            this.eventQueue.addEvent(enemyRespawnEvent);
+            this.enemies = null;
+
+            this.simResult.addEncounterEnd();
+            // console.log("All enemies died");
+
+            return true;
+        } else if (!this.players.find((player) => player.combatStats.currentHitpoints > 0)) {
+            this.eventQueue.clear();
+            // 120 seconds respawn and 30 seconds traveling to battle
+            let playerRespawnEvent = new _events_playerRespawnEvent__WEBPACK_IMPORTED_MODULE_9__["default"](this.simulationTime + 150 * 1e9);
+            this.eventQueue.addEvent(playerRespawnEvent);
+            this.enemies = null;
+
+            this.simResult.addEncounterEnd();
+            // console.log("Player died");
+
+            return true;
+        }
+
+        return false;
+    }
+
+    addNextAutoAttackEvent(source) {
+        let autoAttackEvent = new _events_autoAttackEvent__WEBPACK_IMPORTED_MODULE_1__["default"](
+            this.simulationTime + source.combatStats.attackInterval,
+            source
+        );
+        this.eventQueue.addEvent(autoAttackEvent);
+    }
+
+    processConsumableTickEvent(event) {
+        if (event.consumable.hitpointRestore > 0) {
+            let tickValue = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].calculateTickValue(
+                event.consumable.hitpointRestore,
+                event.totalTicks,
+                event.currentTick
+            );
+            let hitpointsAdded = event.source.addHitpoints(tickValue);
+            this.simResult.addHitpointsGained(event.source, event.consumable.hrid, hitpointsAdded);
+            // console.log("Added hitpoints:", hitpointsAdded);
+        }
+
+        if (event.consumable.manapointRestore > 0) {
+            let tickValue = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].calculateTickValue(
+                event.consumable.manapointRestore,
+                event.totalTicks,
+                event.currentTick
+            );
+            let manapointsAdded = event.source.addManapoints(tickValue);
+            this.simResult.addManapointsGained(event.source, event.consumable.hrid, manapointsAdded);
+            // console.log("Added manapoints:", manapointsAdded);
+        }
+
+        if (event.currentTick < event.totalTicks) {
+            let consumableTickEvent = new _events_consumableTickEvent__WEBPACK_IMPORTED_MODULE_5__["default"](
+                this.simulationTime + 2 * 1e9,
+                event.source,
+                event.consumable,
+                event.totalTicks,
+                event.currentTick + 1
+            );
+            this.eventQueue.addEvent(consumableTickEvent);
+        }
+    }
+
+    processBleedTickEvent(event) {
+        let tickDamage = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].calculateTickValue(event.damage, event.totalTicks, event.currentTick);
+        let damage = Math.min(tickDamage, event.target.combatStats.currentHitpoints);
+
+        event.target.combatStats.currentHitpoints -= damage;
+        this.simResult.addAttack(event.sourceRef, event.target, "bleed", damage);
+        // console.log(event.target.hrid, "bleed for", damage);
+
+        if (event.currentTick < event.totalTicks) {
+            let bleedTickEvent = new _events_bleedTickEvent__WEBPACK_IMPORTED_MODULE_2__["default"](
+                this.simulationTime + 2 * 1e9,
+                event.sourceRef,
+                event.target,
+                event.damage,
+                event.totalTicks,
+                event.currentTick + 1
+            );
+            this.eventQueue.addEvent(bleedTickEvent);
+        }
+
+        if (event.target.combatStats.currentHitpoints == 0) {
+            this.eventQueue.clearEventsForUnit(event.target);
+            this.simResult.addDeath(event.target);
+        }
+
+        this.checkEncounterEnd();
+    }
+
+    processRegenTickEvent(event) {
+        let hitpointRegen = Math.floor(event.source.combatStats.maxHitpoints * event.source.combatStats.HPRegen);
+        let hitpointsAdded = event.source.addHitpoints(hitpointRegen);
+        this.simResult.addHitpointsGained(event.source, "regen", hitpointsAdded);
+        // console.log("Added hitpoints:", hitpointsAdded);
+
+        let manapointRegen = Math.floor(event.source.combatStats.maxManapoints * event.source.combatStats.MPRegen);
+        let manapointsAdded = event.source.addManapoints(manapointRegen);
+        this.simResult.addManapointsGained(event.source, "regen", manapointsAdded);
+        // console.log("Added manapoints:", manapointsAdded);
+
+        let regenTickEvent = new _events_regenTickEvent__WEBPACK_IMPORTED_MODULE_10__["default"](this.simulationTime + 10 * 1e9, event.source);
+        this.eventQueue.addEvent(regenTickEvent);
+    }
+
+    processCheckBuffExpirationEvent(event) {
+        event.source.removeExpiredBuffs(this.simulationTime);
+    }
+
+    checkTriggers() {
+        let triggeredSomething;
+
+        do {
+            triggeredSomething = false;
+
+            this.players
+                .filter((player) => player.combatStats.currentHitpoints > 0)
+                .forEach((player) => {
+                    if (this.checkTriggersForUnit(player, this.players, this.enemies)) {
+                        triggeredSomething = true;
+                    }
+                });
+
+            if (this.enemies) {
+                this.enemies
+                    .filter((enemy) => enemy.combatStats.currentHitpoints > 0)
+                    .forEach((enemy) => {
+                        if (this.checkTriggersForUnit(enemy, this.enemies, this.players)) {
+                            triggeredSomething = true;
+                        }
+                    });
+            }
+        } while (triggeredSomething);
+    }
+
+    checkTriggersForUnit(unit, friendlies, enemies) {
+        console.assert(unit.combatStats.currentHitpoints > 0, "Checking triggers for a dead unit");
+
+        let triggeredSomething = false;
+        let target = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].getTarget(enemies);
+
+        for (const food of unit.food) {
+            if (food && food.shouldTrigger(this.simulationTime, unit, target, friendlies, enemies)) {
+                this.useConsumable(unit, food);
+                triggeredSomething = true;
+            }
+        }
+
+        for (const drink of unit.drinks) {
+            if (drink && drink.shouldTrigger(this.simulationTime, unit, target, friendlies, enemies)) {
+                this.useConsumable(unit, drink);
+                triggeredSomething = true;
+            }
+        }
+
+        for (const ability of unit.abilities) {
+            if (ability && ability.shouldTrigger(this.simulationTime, unit, target, friendlies, enemies)) {
+                this.useAbility(unit, ability);
+                triggeredSomething = true;
+            }
+        }
+
+        return triggeredSomething;
+    }
+
+    useConsumable(source, consumable) {
+        // console.log("Consuming:", consumable);
+
+        console.assert(source.combatStats.currentHitpoints > 0, "Dead unit is trying to use a consumable");
+
+        consumable.lastUsed = this.simulationTime;
+        let cooldownReadyEvent = new _events_cooldownReadyEvent__WEBPACK_IMPORTED_MODULE_6__["default"](this.simulationTime + consumable.cooldownDuration);
+        this.eventQueue.addEvent(cooldownReadyEvent);
+
+        this.simResult.addConsumableUse(source, consumable);
+
+        if (consumable.recoveryDuration == 0) {
+            if (consumable.hitpointRestore > 0) {
+                let hitpointsAdded = source.addHitpoints(consumable.hitpointRestore);
+                this.simResult.addHitpointsGained(source, consumable.hrid, hitpointsAdded);
+                // console.log("Added hitpoints:", hitpointsAdded);
+            }
+
+            if (consumable.manapointRestore > 0) {
+                let manapointsAdded = source.addManapoints(consumable.manapointRestore);
+                this.simResult.addManapointsGained(source, consumable.hrid, manapointsAdded);
+                // console.log("Added manapoints:", manapointsAdded);
+            }
+        } else {
+            let consumableTickEvent = new _events_consumableTickEvent__WEBPACK_IMPORTED_MODULE_5__["default"](
+                this.simulationTime + 2 * 1e9,
+                source,
+                consumable,
+                consumable.recoveryDuration / (2 * 1e9),
+                1
+            );
+            this.eventQueue.addEvent(consumableTickEvent);
+        }
+
+        for (const buff of consumable.buffs) {
+            source.addBuff(buff, this.simulationTime);
+            // console.log("Added buff:", buff);
+            let checkBuffExpirationEvent = new _events_checkBuffExpirationEvent__WEBPACK_IMPORTED_MODULE_3__["default"](this.simulationTime + buff.duration, source);
+            this.eventQueue.addEvent(checkBuffExpirationEvent);
+        }
+    }
+
+    useAbility(source, ability) {
+        console.assert(source.combatStats.currentHitpoints > 0, "Dead unit is trying to cast an ability");
+
+        if (source.combatStats.currentManapoints < ability.manaCost) {
+            return;
+        }
+
+        // console.log("Casting:", ability);
+
+        source.combatStats.currentManapoints -= ability.manaCost;
+
+        let sourceIntelligenceExperience = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].calculateIntelligenceExperience(ability.manaCost);
+        this.simResult.addExperienceGain(source, "intelligence", sourceIntelligenceExperience);
+
+        ability.lastUsed = this.simulationTime;
+        let cooldownReadyEvent = new _events_cooldownReadyEvent__WEBPACK_IMPORTED_MODULE_6__["default"](this.simulationTime + ability.cooldownDuration);
+        this.eventQueue.addEvent(cooldownReadyEvent);
+
+        for (const abilityEffect of ability.abilityEffects) {
+            switch (abilityEffect.effectType) {
+                case "/ability_effect_types/buff":
+                    source.addBuff(abilityEffect.buff, this.simulationTime);
+                    // console.log("Added buff:", abilityEffect.buff);
+                    let checkBuffExpirationEvent = new _events_checkBuffExpirationEvent__WEBPACK_IMPORTED_MODULE_3__["default"](
+                        this.simulationTime + abilityEffect.buff.duration,
+                        source
+                    );
+                    this.eventQueue.addEvent(checkBuffExpirationEvent);
+                    break;
+                case "/ability_effect_types/damage":
+                    let targets;
+                    switch (abilityEffect.targetType) {
+                        case "enemy":
+                            targets = source.isPlayer
+                                ? [_combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].getTarget(this.enemies)]
+                                : [_combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].getTarget(this.players)];
+                            break;
+                        case "all enemies":
+                            targets = source.isPlayer ? this.enemies : this.players;
+                            break;
+                    }
+
+                    for (const target of targets.filter((unit) => unit.combatStats.currentHitpoints > 0)) {
+                        let { damageDone, damagePrevented, maxDamage, didHit } = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].processAttack(
+                            source,
+                            target,
+                            abilityEffect
+                        );
+
+                        if (abilityEffect.bleedRatio > 0 && damageDone > 0) {
+                            let bleedTickEvent = new _events_bleedTickEvent__WEBPACK_IMPORTED_MODULE_2__["default"](
+                                this.simulationTime + 2 * 1e9,
+                                source,
+                                target,
+                                damageDone * abilityEffect.bleedRatio,
+                                abilityEffect.duration / (2 * 1e9),
+                                1
+                            );
+                            this.eventQueue.addEvent(bleedTickEvent);
+                        }
+
+                        // console.log("Ability hit", target.hrid, "for", damageDone);
+
+                        this.simResult.addAttack(source, target, ability.hrid, didHit ? damageDone : "miss");
+
+                        let targetStaminaExperience = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].calculateStaminaExperience(
+                            damagePrevented,
+                            damageDone
+                        );
+                        let targetDefenseExperience = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].calculateDefenseExperience(damagePrevented);
+                        let sourceAttackExperience = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].calculateAttackExperience(damageDone);
+                        let sourcePowerExperience = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].calculatePowerExperience(maxDamage);
+
+                        this.simResult.addExperienceGain(target, "stamina", targetStaminaExperience);
+                        this.simResult.addExperienceGain(target, "defense", targetDefenseExperience);
+                        this.simResult.addExperienceGain(source, "attack", sourceAttackExperience);
+                        this.simResult.addExperienceGain(source, "power", sourcePowerExperience);
+
+                        if (target.combatStats.currentHitpoints == 0) {
+                            this.eventQueue.clearEventsForUnit(target);
+                            this.simResult.addDeath(target);
+                            // console.log(target.hrid, "died");
+                        }
+                    }
+                    break;
+            }
+        }
+
+        this.checkEncounterEnd();
+    }
+}
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (CombatSimulator);
+
+
+/***/ }),
+
 /***/ "./src/combatsimulator/combatUnit.js":
 /*!*******************************************!*\
   !*** ./src/combatsimulator/combatUnit.js ***!
@@ -348,6 +867,137 @@ class CombatUnit {
 
 /***/ }),
 
+/***/ "./src/combatsimulator/combatUtilities.js":
+/*!************************************************!*\
+  !*** ./src/combatsimulator/combatUtilities.js ***!
+  \************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+class CombatUtilities {
+    static getTarget(enemies) {
+        if (!enemies) {
+            return null;
+        }
+        let target = enemies.find((enemy) => enemy.combatStats.currentHitpoints > 0);
+
+        return target ?? null;
+    }
+
+    static randomInt(min, max) {
+        if (max < min) {
+            let temp = min;
+            min = max;
+            max = temp;
+        }
+
+        let minCeil = Math.ceil(min);
+        let maxFloor = Math.floor(max);
+
+        if (Math.floor(min) == maxFloor) {
+            return Math.floor((min + max) / 2 + Math.random());
+        }
+
+        let minTail = -1 * (min - minCeil);
+        let maxTail = max - maxFloor;
+
+        let balancedWeight = 2 * minTail + (maxFloor - minCeil);
+        let balancedAverage = (maxFloor + minCeil) / 2;
+        let average = (max + min) / 2;
+        let extraTailWeight = (balancedWeight * (average - balancedAverage)) / (maxFloor + 1 - average);
+        let extraTailChance = Math.abs(extraTailWeight / (extraTailWeight + balancedWeight));
+
+        if (Math.random() < extraTailChance) {
+            if (maxTail > minTail) {
+                return Math.floor(maxFloor + 1);
+            } else {
+                return Math.floor(minCeil - 1);
+            }
+        }
+
+        if (maxTail > minTail) {
+            return Math.floor(min + Math.random() * (maxFloor + minTail - min + 1));
+        } else {
+            return Math.floor(minCeil - maxTail + Math.random() * (max - (minCeil - maxTail) + 1));
+        }
+    }
+
+    static calculateHitChance(source, target, combatStyle) {
+        let sourceAccuracy = source.combatStats[combatStyle + "AccuracyRating"];
+        let targetEvasion = target.combatStats[combatStyle + "EvasionRating"];
+
+        let hitChance = Math.pow(sourceAccuracy, 1.4) / (Math.pow(sourceAccuracy, 1.4) + Math.pow(targetEvasion, 1.4));
+
+        return hitChance;
+    }
+
+    static processAttack(source, target, abilityEffect) {
+        let combatStyle = abilityEffect ? abilityEffect.combatStyleHrid : source.combatStats.combatStyleHrid;
+        let minDamage = 1;
+        let maxDamage = source.combatStats[combatStyle + "MaxDamage"];
+
+        if (abilityEffect) {
+            minDamage += abilityEffect.damageFlat;
+            maxDamage *= abilityEffect.damageRatio;
+            maxDamage += abilityEffect.damageFlat;
+        }
+
+        let damageRoll = CombatUtilities.randomInt(minDamage, maxDamage);
+        let premitigatedDamage = Math.min(damageRoll, target.combatStats.currentHitpoints);
+
+        let damageDone = 0;
+        let hitChance = CombatUtilities.calculateHitChance(source, target, combatStyle);
+
+        let didHit = false;
+        if (Math.random() < hitChance) {
+            didHit = true;
+            let damageTakenRatio = 100 / (100 + target.combatStats.armor);
+            let mitigatedDamage = damageTakenRatio * premitigatedDamage;
+            damageDone = CombatUtilities.randomInt(mitigatedDamage, mitigatedDamage);
+            target.combatStats.currentHitpoints -= damageDone;
+        }
+
+        let damagePrevented = premitigatedDamage - damageDone;
+
+        return { damageDone, damagePrevented, maxDamage, didHit };
+    }
+
+    static calculateTickValue(totalValue, totalTicks, currentTick) {
+        let currentSum = Math.floor((currentTick * totalValue) / totalTicks);
+        let previousSum = Math.floor(((currentTick - 1) * totalValue) / totalTicks);
+
+        return currentSum - previousSum;
+    }
+
+    static calculateStaminaExperience(damagePrevented, damageTaken) {
+        return 0.05 * damagePrevented + 0.5 * damageTaken;
+    }
+
+    static calculateIntelligenceExperience(manaUsed) {
+        return 0.5 * manaUsed;
+    }
+
+    static calculateAttackExperience(damageDone) {
+        return 0.45 + 0.125 * damageDone;
+    }
+
+    static calculatePowerExperience(maxDamage) {
+        return 0.3 + 0.04 * maxDamage;
+    }
+
+    static calculateDefenseExperience(damagePrevented) {
+        return 0.4 + 0.15 * damagePrevented;
+    }
+}
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (CombatUtilities);
+
+
+/***/ }),
+
 /***/ "./src/combatsimulator/consumable.js":
 /*!*******************************************!*\
   !*** ./src/combatsimulator/consumable.js ***!
@@ -491,6 +1141,389 @@ class Equipment {
 
 /***/ }),
 
+/***/ "./src/combatsimulator/events/autoAttackEvent.js":
+/*!*******************************************************!*\
+  !*** ./src/combatsimulator/events/autoAttackEvent.js ***!
+  \*******************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _combatEvent__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./combatEvent */ "./src/combatsimulator/events/combatEvent.js");
+
+
+class AutoAttackEvent extends _combatEvent__WEBPACK_IMPORTED_MODULE_0__["default"] {
+    static type = "autoAttack";
+
+    constructor(time, source) {
+        super(AutoAttackEvent.type, time);
+
+        this.source = source;
+    }
+}
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (AutoAttackEvent);
+
+
+/***/ }),
+
+/***/ "./src/combatsimulator/events/bleedTickEvent.js":
+/*!******************************************************!*\
+  !*** ./src/combatsimulator/events/bleedTickEvent.js ***!
+  \******************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _combatEvent__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./combatEvent */ "./src/combatsimulator/events/combatEvent.js");
+
+
+class BleedTickEvent extends _combatEvent__WEBPACK_IMPORTED_MODULE_0__["default"] {
+    static type = "bleedTick";
+
+    constructor(time, sourceRef, target, damage, totalTicks, currentTick) {
+        super(BleedTickEvent.type, time);
+
+        // Calling it 'source' would wrongly clear bleeds when the source dies
+        this.sourceRef = sourceRef;
+        this.target = target;
+        this.damage = damage;
+        this.totalTicks = totalTicks;
+        this.currentTick = currentTick;
+    }
+}
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (BleedTickEvent);
+
+
+/***/ }),
+
+/***/ "./src/combatsimulator/events/checkBuffExpirationEvent.js":
+/*!****************************************************************!*\
+  !*** ./src/combatsimulator/events/checkBuffExpirationEvent.js ***!
+  \****************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _combatEvent__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./combatEvent */ "./src/combatsimulator/events/combatEvent.js");
+
+
+class CheckBuffExpirationEvent extends _combatEvent__WEBPACK_IMPORTED_MODULE_0__["default"] {
+    static type = "checkBuffExpiration";
+
+    constructor(time, source) {
+        super(CheckBuffExpirationEvent.type, time);
+
+        this.source = source;
+    }
+}
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (CheckBuffExpirationEvent);
+
+
+/***/ }),
+
+/***/ "./src/combatsimulator/events/combatEvent.js":
+/*!***************************************************!*\
+  !*** ./src/combatsimulator/events/combatEvent.js ***!
+  \***************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+class CombatEvent {
+    constructor(type, time) {
+        this.type = type;
+        this.time = time;
+    }
+}
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (CombatEvent);
+
+
+/***/ }),
+
+/***/ "./src/combatsimulator/events/combatStartEvent.js":
+/*!********************************************************!*\
+  !*** ./src/combatsimulator/events/combatStartEvent.js ***!
+  \********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _combatEvent__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./combatEvent */ "./src/combatsimulator/events/combatEvent.js");
+
+
+class CombatStartEvent extends _combatEvent__WEBPACK_IMPORTED_MODULE_0__["default"] {
+    static type = "combatStart";
+
+    constructor(time) {
+        super(CombatStartEvent.type, time);
+    }
+}
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (CombatStartEvent);
+
+
+/***/ }),
+
+/***/ "./src/combatsimulator/events/consumableTickEvent.js":
+/*!***********************************************************!*\
+  !*** ./src/combatsimulator/events/consumableTickEvent.js ***!
+  \***********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _combatEvent__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./combatEvent */ "./src/combatsimulator/events/combatEvent.js");
+
+
+class ConsumableTickEvent extends _combatEvent__WEBPACK_IMPORTED_MODULE_0__["default"] {
+    static type = "consumableTick";
+
+    constructor(time, source, consumable, totalTicks, currentTick) {
+        super(ConsumableTickEvent.type, time);
+
+        this.source = source;
+        this.consumable = consumable;
+        this.totalTicks = totalTicks;
+        this.currentTick = currentTick;
+    }
+}
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (ConsumableTickEvent);
+
+
+/***/ }),
+
+/***/ "./src/combatsimulator/events/cooldownReadyEvent.js":
+/*!**********************************************************!*\
+  !*** ./src/combatsimulator/events/cooldownReadyEvent.js ***!
+  \**********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _combatEvent__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./combatEvent */ "./src/combatsimulator/events/combatEvent.js");
+
+
+class CooldownReadyEvent extends _combatEvent__WEBPACK_IMPORTED_MODULE_0__["default"] {
+    static type = "cooldownReady";
+
+    constructor(time) {
+        super(CooldownReadyEvent.type, time);
+    }
+}
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (CooldownReadyEvent);
+
+
+/***/ }),
+
+/***/ "./src/combatsimulator/events/enemyRespawnEvent.js":
+/*!*********************************************************!*\
+  !*** ./src/combatsimulator/events/enemyRespawnEvent.js ***!
+  \*********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _combatEvent__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./combatEvent */ "./src/combatsimulator/events/combatEvent.js");
+
+
+class EnemyRespawnEvent extends _combatEvent__WEBPACK_IMPORTED_MODULE_0__["default"] {
+    static type = "enemyRespawn";
+
+    constructor(time) {
+        super(EnemyRespawnEvent.type, time);
+    }
+}
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (EnemyRespawnEvent);
+
+
+/***/ }),
+
+/***/ "./src/combatsimulator/events/eventQueue.js":
+/*!**************************************************!*\
+  !*** ./src/combatsimulator/events/eventQueue.js ***!
+  \**************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var heap_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! heap-js */ "./node_modules/heap-js/dist/heap-js.es5.js");
+
+
+class EventQueue {
+    constructor() {
+        this.minHeap = new heap_js__WEBPACK_IMPORTED_MODULE_0__["default"]((a, b) => a.time - b.time);
+    }
+
+    addEvent(event) {
+        this.minHeap.push(event);
+    }
+
+    getNextEvent() {
+        return this.minHeap.pop();
+    }
+
+    clear() {
+        this.minHeap = new heap_js__WEBPACK_IMPORTED_MODULE_0__["default"]((a, b) => a.time - b.time);
+    }
+
+    clearEventsForUnit(unit) {
+        this.clearMatching((event) => event.source == unit || event.target == unit);
+    }
+
+    clearEventsOfType(type) {
+        this.clearMatching((event) => event.type == type);
+    }
+
+    clearMatching(fn) {
+        let heapEvents = this.minHeap.toArray();
+
+        for (const event of heapEvents) {
+            if (fn(event)) {
+                this.minHeap.remove(event);
+            }
+        }
+    }
+}
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (EventQueue);
+
+
+/***/ }),
+
+/***/ "./src/combatsimulator/events/playerRespawnEvent.js":
+/*!**********************************************************!*\
+  !*** ./src/combatsimulator/events/playerRespawnEvent.js ***!
+  \**********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _combatEvent__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./combatEvent */ "./src/combatsimulator/events/combatEvent.js");
+
+
+class PlayerRespawnEvent extends _combatEvent__WEBPACK_IMPORTED_MODULE_0__["default"] {
+    static type = "playerRespawn";
+
+    constructor(time) {
+        super(PlayerRespawnEvent.type, time);
+    }
+}
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (PlayerRespawnEvent);
+
+
+/***/ }),
+
+/***/ "./src/combatsimulator/events/regenTickEvent.js":
+/*!******************************************************!*\
+  !*** ./src/combatsimulator/events/regenTickEvent.js ***!
+  \******************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _combatEvent__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./combatEvent */ "./src/combatsimulator/events/combatEvent.js");
+
+
+class RegenTickEvent extends _combatEvent__WEBPACK_IMPORTED_MODULE_0__["default"] {
+    static type = "regenTick";
+
+    constructor(time, source) {
+        super(RegenTickEvent.type, time);
+
+        this.source = source;
+    }
+}
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (RegenTickEvent);
+
+
+/***/ }),
+
+/***/ "./src/combatsimulator/monster.js":
+/*!****************************************!*\
+  !*** ./src/combatsimulator/monster.js ***!
+  \****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _ability__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ability */ "./src/combatsimulator/ability.js");
+/* harmony import */ var _combatUnit__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./combatUnit */ "./src/combatsimulator/combatUnit.js");
+/* harmony import */ var _data_combatMonsterDetailMap_json__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./data/combatMonsterDetailMap.json */ "./src/combatsimulator/data/combatMonsterDetailMap.json");
+
+
+
+
+class Monster extends _combatUnit__WEBPACK_IMPORTED_MODULE_1__["default"] {
+    constructor(hrid) {
+        super();
+
+        this.isPlayer = false;
+        this.hrid = hrid;
+    }
+
+    updateCombatStats() {
+        let gameMonster = _data_combatMonsterDetailMap_json__WEBPACK_IMPORTED_MODULE_2__[this.hrid];
+        console.assert(gameMonster, "No monster found for hrid:" + this.hrid);
+
+        this.staminaLevel = gameMonster.combatDetails.staminaLevel;
+        this.intelligenceLevel = gameMonster.combatDetails.intelligenceLevel;
+        this.attackLevel = gameMonster.combatDetails.attackLevel;
+        this.powerLevel = gameMonster.combatDetails.powerLevel;
+        this.defenseLevel = gameMonster.combatDetails.defenseLevel;
+
+        let gameCombatStyle = gameMonster.combatDetails.combatStyleHrid;
+        this.combatStats.combatStyleHrid = gameCombatStyle.slice(gameCombatStyle.lastIndexOf("/") + 1);
+
+        for (const [key, value] of Object.entries(gameMonster.combatDetails.combatStats)) {
+            this.combatStats[key] = value;
+        }
+
+        for (let i = 0; i < gameMonster.abilities.length; i++) {
+            this.abilities[i] = new _ability__WEBPACK_IMPORTED_MODULE_0__["default"](gameMonster.abilities[i].abilityHrid, gameMonster.abilities[i].level);
+        }
+
+        super.updateCombatStats();
+    }
+}
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Monster);
+
+
+/***/ }),
+
 /***/ "./src/combatsimulator/player.js":
 /*!***************************************!*\
   !*** ./src/combatsimulator/player.js ***!
@@ -600,6 +1633,114 @@ class Player extends _combatUnit__WEBPACK_IMPORTED_MODULE_1__["default"] {
 }
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Player);
+
+
+/***/ }),
+
+/***/ "./src/combatsimulator/simResult.js":
+/*!******************************************!*\
+  !*** ./src/combatsimulator/simResult.js ***!
+  \******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+class SimResult {
+    constructor() {
+        this.deaths = {};
+        this.experienceGained = {};
+        this.encounters = 0;
+        this.attacks = {};
+        this.consumablesUsed = {};
+        this.hitpointsGained = {};
+        this.manapointsGained = {};
+    }
+
+    addDeath(unit) {
+        if (!this.deaths[unit.hrid]) {
+            this.deaths[unit.hrid] = 0;
+        }
+
+        this.deaths[unit.hrid] += 1;
+    }
+
+    addExperienceGain(unit, type, experience) {
+        if (!unit.isPlayer) {
+            return;
+        }
+
+        if (!this.experienceGained[unit.hrid]) {
+            this.experienceGained[unit.hrid] = {
+                stamina: 0,
+                intelligence: 0,
+                attack: 0,
+                power: 0,
+                defense: 0,
+            };
+        }
+
+        this.experienceGained[unit.hrid][type] += experience;
+    }
+
+    addEncounterEnd() {
+        this.encounters++;
+    }
+
+    addAttack(source, target, ability, hit) {
+        if (!this.attacks[source.hrid]) {
+            this.attacks[source.hrid] = {};
+        }
+        if (!this.attacks[source.hrid][target.hrid]) {
+            this.attacks[source.hrid][target.hrid] = {};
+        }
+        if (!this.attacks[source.hrid][target.hrid][ability]) {
+            this.attacks[source.hrid][target.hrid][ability] = {};
+        }
+
+        if (!this.attacks[source.hrid][target.hrid][ability][hit]) {
+            this.attacks[source.hrid][target.hrid][ability][hit] = 0;
+        }
+
+        this.attacks[source.hrid][target.hrid][ability][hit] += 1;
+    }
+
+    addConsumableUse(unit, consumable) {
+        if (!this.consumablesUsed[unit.hrid]) {
+            this.consumablesUsed[unit.hrid] = {};
+        }
+        if (!this.consumablesUsed[unit.hrid][consumable.hrid]) {
+            this.consumablesUsed[unit.hrid][consumable.hrid] = 0;
+        }
+
+        this.consumablesUsed[unit.hrid][consumable.hrid] += 1;
+    }
+
+    addHitpointsGained(unit, source, amount) {
+        if (!this.hitpointsGained[unit.hrid]) {
+            this.hitpointsGained[unit.hrid] = {};
+        }
+        if (!this.hitpointsGained[unit.hrid][source]) {
+            this.hitpointsGained[unit.hrid][source] = 0;
+        }
+
+        this.hitpointsGained[unit.hrid][source] += amount;
+    }
+
+    addManapointsGained(unit, source, amount) {
+        if (!this.manapointsGained[unit.hrid]) {
+            this.manapointsGained[unit.hrid] = {};
+        }
+        if (!this.manapointsGained[unit.hrid][source]) {
+            this.manapointsGained[unit.hrid][source] = 0;
+        }
+
+        this.manapointsGained[unit.hrid][source] += amount;
+    }
+}
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (SimResult);
 
 
 /***/ }),
@@ -749,6 +1890,97 @@ class Trigger {
 
 /***/ }),
 
+/***/ "./src/combatsimulator/zone.js":
+/*!*************************************!*\
+  !*** ./src/combatsimulator/zone.js ***!
+  \*************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _data_actionDetailMap_json__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./data/actionDetailMap.json */ "./src/combatsimulator/data/actionDetailMap.json");
+/* harmony import */ var _monster__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./monster */ "./src/combatsimulator/monster.js");
+
+
+
+class Zone {
+    constructor(hrid) {
+        this.hrid = hrid;
+
+        let gameZone = _data_actionDetailMap_json__WEBPACK_IMPORTED_MODULE_0__[this.hrid];
+        this.monsterSpawnRates = gameZone.monsterSpawnRates;
+
+        let totalProbability = this.monsterSpawnRates
+            .map((encounter) => encounter.rate * 100) // Avoid floating point inaccuracies
+            .reduce((prev, cur) => prev + cur, 0);
+        console.assert(
+            totalProbability / 100 == 1,
+            "Encounter probabilities do not add up to 1. Zone: " + this.hrid + " Probability:" + totalProbability
+        );
+    }
+
+    getRandomEncounter() {
+        let encounter = null;
+        let cumulativeProbability = 0;
+        let randomNumber = Math.random();
+
+        for (let i = 0; i < this.monsterSpawnRates.length; i++) {
+            cumulativeProbability += this.monsterSpawnRates[i].rate;
+            if (cumulativeProbability > randomNumber) {
+                encounter = this.monsterSpawnRates[i];
+                break;
+            }
+        }
+
+        // This could happen very rarely due to floating point inaccuracies
+        if (encounter == null) {
+            encounter = this.monsterSpawnRates[this.monsterSpawnRates.length - 1];
+        }
+
+        return encounter.combatMonsterHrids.map((hrid) => new _monster__WEBPACK_IMPORTED_MODULE_1__["default"](hrid));
+    }
+}
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Zone);
+
+
+/***/ }),
+
+/***/ "./src/worker.js":
+/*!***********************!*\
+  !*** ./src/worker.js ***!
+  \***********************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _combatsimulator_combatSimulator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./combatsimulator/combatSimulator */ "./src/combatsimulator/combatSimulator.js");
+/* harmony import */ var _combatsimulator_player__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./combatsimulator/player */ "./src/combatsimulator/player.js");
+/* harmony import */ var _combatsimulator_zone__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./combatsimulator/zone */ "./src/combatsimulator/zone.js");
+
+
+
+
+onmessage = function (event) {
+    switch (event.data.type) {
+        case "start_simulation":
+            let player = _combatsimulator_player__WEBPACK_IMPORTED_MODULE_1__["default"].createFromDTO(event.data.player);
+            let zone = new _combatsimulator_zone__WEBPACK_IMPORTED_MODULE_2__["default"](event.data.zoneHrid);
+            let simulationTimeLimit = event.data.simulationTimeLimit;
+
+            let combatSimulator = new _combatsimulator_combatSimulator__WEBPACK_IMPORTED_MODULE_0__["default"](player, zone);
+
+            let simResult = combatSimulator.simulate(simulationTimeLimit);
+
+            this.postMessage({ type: "simulation_result", simResult: simResult });
+            break;
+    }
+};
+
+
+/***/ }),
+
 /***/ "./src/combatsimulator/data/abilityDetailMap.json":
 /*!********************************************************!*\
   !*** ./src/combatsimulator/data/abilityDetailMap.json ***!
@@ -756,6 +1988,26 @@ class Trigger {
 /***/ ((module) => {
 
 module.exports = JSON.parse('{"/abilities/berserk":{"hrid":"/abilities/berserk","name":"Berserk","description":"Greatly increases damages for a short time","manaCost":60,"cooldownDuration":30000000000,"hasSpecialEffects":false,"abilityEffects":[{"targetType":"self","effectType":"/ability_effect_types/buff","combatStyleHrid":"","baseDamageFlat":0,"baseDamageFlatLevelBonus":0,"baseDamageRatio":0,"baseDamageRatioLevelBonus":0,"bonusAccuracyRatio":0,"bonusAccuracyRatioLevelBonus":0,"bleedRatio":0,"duration":0,"buff":{"sourceHrid":"/buff_sources/berserk","typeHrid":"/buff_types/damage","ratioBoost":0.25,"ratioBoostLevelBonus":0.0025,"flatBoost":0,"flatBoostLevelBonus":0,"startTime":"0001-01-01T00:00:00Z","duration":15000000000}}],"defaultCombatTriggers":[{"dependencyHrid":"/combat_trigger_dependencies/self","conditionHrid":"/combat_trigger_conditions/berserk","comparatorHrid":"/combat_trigger_comparators/is_inactive","value":0}],"sortIndex":10},"/abilities/cleave":{"hrid":"/abilities/cleave","name":"Cleave","description":"Cleaves all enemies","manaCost":30,"cooldownDuration":20000000000,"hasSpecialEffects":false,"abilityEffects":[{"targetType":"all enemies","effectType":"/ability_effect_types/damage","combatStyleHrid":"/combat_styles/slash","baseDamageFlat":20,"baseDamageFlatLevelBonus":0.2,"baseDamageRatio":0.3,"baseDamageRatioLevelBonus":0.003,"bonusAccuracyRatio":0,"bonusAccuracyRatioLevelBonus":0,"bleedRatio":0,"duration":0,"buff":{"sourceHrid":"","typeHrid":"","ratioBoost":0,"ratioBoostLevelBonus":0,"flatBoost":0,"flatBoostLevelBonus":0,"startTime":"0001-01-01T00:00:00Z","duration":0}}],"defaultCombatTriggers":[{"dependencyHrid":"/combat_trigger_dependencies/all_enemies","conditionHrid":"/combat_trigger_conditions/number_of_active_units","comparatorHrid":"/combat_trigger_comparators/greater_than_equal","value":1},{"dependencyHrid":"/combat_trigger_dependencies/targeted_enemy","conditionHrid":"/combat_trigger_conditions/current_hp","comparatorHrid":"/combat_trigger_comparators/greater_than_equal","value":1}],"sortIndex":5},"/abilities/frenzy":{"hrid":"/abilities/frenzy","name":"Frenzy","description":"Greatly increases attack speed for a short time","manaCost":60,"cooldownDuration":30000000000,"hasSpecialEffects":false,"abilityEffects":[{"targetType":"self","effectType":"/ability_effect_types/buff","combatStyleHrid":"","baseDamageFlat":0,"baseDamageFlatLevelBonus":0,"baseDamageRatio":0,"baseDamageRatioLevelBonus":0,"bonusAccuracyRatio":0,"bonusAccuracyRatioLevelBonus":0,"bleedRatio":0,"duration":0,"buff":{"sourceHrid":"/buff_sources/frenzy","typeHrid":"/buff_types/attack_speed","ratioBoost":0.25,"ratioBoostLevelBonus":0.0025,"flatBoost":0,"flatBoostLevelBonus":0,"startTime":"0001-01-01T00:00:00Z","duration":15000000000}}],"defaultCombatTriggers":[{"dependencyHrid":"/combat_trigger_dependencies/self","conditionHrid":"/combat_trigger_conditions/frenzy","comparatorHrid":"/combat_trigger_comparators/is_inactive","value":0}],"sortIndex":11},"/abilities/maim":{"hrid":"/abilities/maim","name":"Maim","description":"Maims the targeted enemy and causes bleeding","manaCost":60,"cooldownDuration":20000000000,"hasSpecialEffects":false,"abilityEffects":[{"targetType":"enemy","effectType":"/ability_effect_types/damage","combatStyleHrid":"/combat_styles/slash","baseDamageFlat":20,"baseDamageFlatLevelBonus":0.2,"baseDamageRatio":0.35,"baseDamageRatioLevelBonus":0.0035,"bonusAccuracyRatio":0,"bonusAccuracyRatioLevelBonus":0,"bleedRatio":2,"duration":12000000000,"buff":{"sourceHrid":"","typeHrid":"","ratioBoost":0,"ratioBoostLevelBonus":0,"flatBoost":0,"flatBoostLevelBonus":0,"startTime":"0001-01-01T00:00:00Z","duration":0}}],"defaultCombatTriggers":[{"dependencyHrid":"/combat_trigger_dependencies/targeted_enemy","conditionHrid":"/combat_trigger_conditions/current_hp","comparatorHrid":"/combat_trigger_comparators/greater_than_equal","value":1}],"sortIndex":7},"/abilities/pierce":{"hrid":"/abilities/pierce","name":"Pierce","description":"Pierce the targeted enemy","manaCost":30,"cooldownDuration":20000000000,"hasSpecialEffects":false,"abilityEffects":[{"targetType":"enemy","effectType":"/ability_effect_types/damage","combatStyleHrid":"/combat_styles/stab","baseDamageFlat":20,"baseDamageFlatLevelBonus":0.2,"baseDamageRatio":0.7,"baseDamageRatioLevelBonus":0.007,"bonusAccuracyRatio":0,"bonusAccuracyRatioLevelBonus":0,"bleedRatio":0,"duration":0,"buff":{"sourceHrid":"","typeHrid":"","ratioBoost":0,"ratioBoostLevelBonus":0,"flatBoost":0,"flatBoostLevelBonus":0,"startTime":"0001-01-01T00:00:00Z","duration":0}}],"defaultCombatTriggers":[{"dependencyHrid":"/combat_trigger_dependencies/targeted_enemy","conditionHrid":"/combat_trigger_conditions/current_hp","comparatorHrid":"/combat_trigger_comparators/greater_than_equal","value":1}],"sortIndex":4},"/abilities/poke":{"hrid":"/abilities/poke","name":"Poke","description":"Poke the targeted enemy","manaCost":20,"cooldownDuration":15000000000,"hasSpecialEffects":false,"abilityEffects":[{"targetType":"enemy","effectType":"/ability_effect_types/damage","combatStyleHrid":"/combat_styles/stab","baseDamageFlat":10,"baseDamageFlatLevelBonus":0.1,"baseDamageRatio":0.4,"baseDamageRatioLevelBonus":0.004,"bonusAccuracyRatio":0,"bonusAccuracyRatioLevelBonus":0,"bleedRatio":0,"duration":0,"buff":{"sourceHrid":"","typeHrid":"","ratioBoost":0,"ratioBoostLevelBonus":0,"flatBoost":0,"flatBoostLevelBonus":0,"startTime":"0001-01-01T00:00:00Z","duration":0}}],"defaultCombatTriggers":[{"dependencyHrid":"/combat_trigger_dependencies/targeted_enemy","conditionHrid":"/combat_trigger_conditions/current_hp","comparatorHrid":"/combat_trigger_comparators/greater_than_equal","value":1}],"sortIndex":1},"/abilities/precision":{"hrid":"/abilities/precision","name":"Precision","description":"Greatly increases accuracy for a short time","manaCost":60,"cooldownDuration":30000000000,"hasSpecialEffects":false,"abilityEffects":[{"targetType":"self","effectType":"/ability_effect_types/buff","combatStyleHrid":"","baseDamageFlat":0,"baseDamageFlatLevelBonus":0,"baseDamageRatio":0,"baseDamageRatioLevelBonus":0,"bonusAccuracyRatio":0,"bonusAccuracyRatioLevelBonus":0,"bleedRatio":0,"duration":0,"buff":{"sourceHrid":"/buff_sources/precision","typeHrid":"/buff_types/accuracy","ratioBoost":0.25,"ratioBoostLevelBonus":0.0025,"flatBoost":0,"flatBoostLevelBonus":0,"startTime":"0001-01-01T00:00:00Z","duration":15000000000}}],"defaultCombatTriggers":[{"dependencyHrid":"/combat_trigger_dependencies/self","conditionHrid":"/combat_trigger_conditions/precision","comparatorHrid":"/combat_trigger_comparators/is_inactive","value":0}],"sortIndex":9},"/abilities/scratch":{"hrid":"/abilities/scratch","name":"Scratch","description":"Scratch the targeted enemy","manaCost":20,"cooldownDuration":15000000000,"hasSpecialEffects":false,"abilityEffects":[{"targetType":"enemy","effectType":"/ability_effect_types/damage","combatStyleHrid":"/combat_styles/slash","baseDamageFlat":10,"baseDamageFlatLevelBonus":0.1,"baseDamageRatio":0.4,"baseDamageRatioLevelBonus":0.004,"bonusAccuracyRatio":0,"bonusAccuracyRatioLevelBonus":0,"bleedRatio":0,"duration":0,"buff":{"sourceHrid":"","typeHrid":"","ratioBoost":0,"ratioBoostLevelBonus":0,"flatBoost":0,"flatBoostLevelBonus":0,"startTime":"0001-01-01T00:00:00Z","duration":0}}],"defaultCombatTriggers":[{"dependencyHrid":"/combat_trigger_dependencies/targeted_enemy","conditionHrid":"/combat_trigger_conditions/current_hp","comparatorHrid":"/combat_trigger_comparators/greater_than_equal","value":1}],"sortIndex":2},"/abilities/smack":{"hrid":"/abilities/smack","name":"Smack","description":"Smack the targeted enemy","manaCost":20,"cooldownDuration":15000000000,"hasSpecialEffects":false,"abilityEffects":[{"targetType":"enemy","effectType":"/ability_effect_types/damage","combatStyleHrid":"/combat_styles/smash","baseDamageFlat":10,"baseDamageFlatLevelBonus":0.1,"baseDamageRatio":0.4,"baseDamageRatioLevelBonus":0.004,"bonusAccuracyRatio":0,"bonusAccuracyRatioLevelBonus":0,"bleedRatio":0,"duration":0,"buff":{"sourceHrid":"","typeHrid":"","ratioBoost":0,"ratioBoostLevelBonus":0,"flatBoost":0,"flatBoostLevelBonus":0,"startTime":"0001-01-01T00:00:00Z","duration":0}}],"defaultCombatTriggers":[{"dependencyHrid":"/combat_trigger_dependencies/targeted_enemy","conditionHrid":"/combat_trigger_conditions/current_hp","comparatorHrid":"/combat_trigger_comparators/greater_than_equal","value":1}],"sortIndex":3},"/abilities/sweep":{"hrid":"/abilities/sweep","name":"Sweep","description":"Sweeping attack on all enemies","manaCost":30,"cooldownDuration":20000000000,"hasSpecialEffects":false,"abilityEffects":[{"targetType":"all enemies","effectType":"/ability_effect_types/damage","combatStyleHrid":"/combat_styles/smash","baseDamageFlat":20,"baseDamageFlatLevelBonus":0.2,"baseDamageRatio":0.3,"baseDamageRatioLevelBonus":0.003,"bonusAccuracyRatio":0,"bonusAccuracyRatioLevelBonus":0,"bleedRatio":0,"duration":0,"buff":{"sourceHrid":"","typeHrid":"","ratioBoost":0,"ratioBoostLevelBonus":0,"flatBoost":0,"flatBoostLevelBonus":0,"startTime":"0001-01-01T00:00:00Z","duration":0}}],"defaultCombatTriggers":[{"dependencyHrid":"/combat_trigger_dependencies/all_enemies","conditionHrid":"/combat_trigger_conditions/number_of_active_units","comparatorHrid":"/combat_trigger_comparators/greater_than_equal","value":1},{"dependencyHrid":"/combat_trigger_dependencies/targeted_enemy","conditionHrid":"/combat_trigger_conditions/current_hp","comparatorHrid":"/combat_trigger_comparators/greater_than_equal","value":1}],"sortIndex":6},"/abilities/toughness":{"hrid":"/abilities/toughness","name":"Toughness","description":"Greatly increases armor for a short time","manaCost":60,"cooldownDuration":30000000000,"hasSpecialEffects":false,"abilityEffects":[{"targetType":"self","effectType":"/ability_effect_types/buff","combatStyleHrid":"","baseDamageFlat":0,"baseDamageFlatLevelBonus":0,"baseDamageRatio":0,"baseDamageRatioLevelBonus":0,"bonusAccuracyRatio":0,"bonusAccuracyRatioLevelBonus":0,"bleedRatio":0,"duration":0,"buff":{"sourceHrid":"/buff_sources/toughness","typeHrid":"/buff_types/armor","ratioBoost":0,"ratioBoostLevelBonus":0,"flatBoost":30,"flatBoostLevelBonus":0.3,"startTime":"0001-01-01T00:00:00Z","duration":15000000000}}],"defaultCombatTriggers":[{"dependencyHrid":"/combat_trigger_dependencies/self","conditionHrid":"/combat_trigger_conditions/toughness","comparatorHrid":"/combat_trigger_comparators/is_inactive","value":0}],"sortIndex":8},"/abilities/vampirism":{"hrid":"/abilities/vampirism","name":"Vampirism","description":"Gains lifesteal for a short time","manaCost":60,"cooldownDuration":30000000000,"hasSpecialEffects":false,"abilityEffects":[{"targetType":"self","effectType":"/ability_effect_types/buff","combatStyleHrid":"","baseDamageFlat":0,"baseDamageFlatLevelBonus":0,"baseDamageRatio":0,"baseDamageRatioLevelBonus":0,"bonusAccuracyRatio":0,"bonusAccuracyRatioLevelBonus":0,"bleedRatio":0,"duration":0,"buff":{"sourceHrid":"/buff_sources/vampirism","typeHrid":"/buff_types/life_steal","ratioBoost":0,"ratioBoostLevelBonus":0,"flatBoost":0.1,"flatBoostLevelBonus":0.001,"startTime":"0001-01-01T00:00:00Z","duration":15000000000}}],"defaultCombatTriggers":[{"dependencyHrid":"/combat_trigger_dependencies/self","conditionHrid":"/combat_trigger_conditions/vampirism","comparatorHrid":"/combat_trigger_comparators/is_inactive","value":0}],"sortIndex":12}}');
+
+/***/ }),
+
+/***/ "./src/combatsimulator/data/actionDetailMap.json":
+/*!*******************************************************!*\
+  !*** ./src/combatsimulator/data/actionDetailMap.json ***!
+  \*******************************************************/
+/***/ ((module) => {
+
+module.exports = JSON.parse('{"/actions/brewing/artisan_tea":{"hrid":"/actions/brewing/artisan_tea","function":"/action_functions/production","type":"/action_types/brewing","category":"/action_categories/brewing/tea","name":"Artisan Tea","levelRequirement":{"skillHrid":"/skills/brewing","level":78},"baseTimeCost":16000000000,"experienceGain":{"skillHrid":"/skills/brewing","value":53},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/emp_tea_leaf","count":2},{"itemHrid":"/items/mooberry","count":2},{"itemHrid":"/items/crimson_milk","count":1}],"outputItems":[{"itemHrid":"/items/artisan_tea","count":1}],"monsterSpawnRates":null,"sortIndex":30},"/actions/brewing/attack_coffee":{"hrid":"/actions/brewing/attack_coffee","function":"/action_functions/production","type":"/action_types/brewing","category":"/action_categories/brewing/coffee","name":"Attack Coffee","levelRequirement":{"skillHrid":"/skills/brewing","level":20},"baseTimeCost":9000000000,"experienceGain":{"skillHrid":"/skills/brewing","value":18},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/robusta_coffee_bean","count":1},{"itemHrid":"/items/blackberry","count":1}],"outputItems":[{"itemHrid":"/items/attack_coffee","count":1}],"monsterSpawnRates":null,"sortIndex":8},"/actions/brewing/blessed_tea":{"hrid":"/actions/brewing/blessed_tea","function":"/action_functions/production","type":"/action_types/brewing","category":"/action_categories/brewing/tea","name":"Blessed Tea","levelRequirement":{"skillHrid":"/skills/brewing","level":88},"baseTimeCost":16000000000,"experienceGain":{"skillHrid":"/skills/brewing","value":59},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/emp_tea_leaf","count":2},{"itemHrid":"/items/spaceberry","count":2},{"itemHrid":"/items/holy_milk","count":1}],"outputItems":[{"itemHrid":"/items/blessed_tea","count":1}],"monsterSpawnRates":null,"sortIndex":31},"/actions/brewing/brewing_tea":{"hrid":"/actions/brewing/brewing_tea","function":"/action_functions/production","type":"/action_types/brewing","category":"/action_categories/brewing/tea","name":"Brewing Tea","levelRequirement":{"skillHrid":"/skills/brewing","level":20},"baseTimeCost":9000000000,"experienceGain":{"skillHrid":"/skills/brewing","value":18},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/black_tea_leaf","count":1},{"itemHrid":"/items/orange","count":1}],"outputItems":[{"itemHrid":"/items/brewing_tea","count":1}],"monsterSpawnRates":null,"sortIndex":9},"/actions/brewing/cheesesmithing_tea":{"hrid":"/actions/brewing/cheesesmithing_tea","function":"/action_functions/production","type":"/action_types/brewing","category":"/action_categories/brewing/tea","name":"Cheesesmithing Tea","levelRequirement":{"skillHrid":"/skills/brewing","level":30},"baseTimeCost":10000000000,"experienceGain":{"skillHrid":"/skills/brewing","value":24},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/burble_tea_leaf","count":1},{"itemHrid":"/items/orange","count":1}],"outputItems":[{"itemHrid":"/items/cheesesmithing_tea","count":1}],"monsterSpawnRates":null,"sortIndex":13},"/actions/brewing/cooking_tea":{"hrid":"/actions/brewing/cooking_tea","function":"/action_functions/production","type":"/action_types/brewing","category":"/action_categories/brewing/tea","name":"Cooking Tea","levelRequirement":{"skillHrid":"/skills/brewing","level":15},"baseTimeCost":9000000000,"experienceGain":{"skillHrid":"/skills/brewing","value":15},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/black_tea_leaf","count":1},{"itemHrid":"/items/apple","count":1}],"outputItems":[{"itemHrid":"/items/cooking_tea","count":1}],"monsterSpawnRates":null,"sortIndex":7},"/actions/brewing/defense_coffee":{"hrid":"/actions/brewing/defense_coffee","function":"/action_functions/production","type":"/action_types/brewing","category":"/action_categories/brewing/coffee","name":"Defense Coffee","levelRequirement":{"skillHrid":"/skills/brewing","level":15},"baseTimeCost":9000000000,"experienceGain":{"skillHrid":"/skills/brewing","value":15},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/robusta_coffee_bean","count":1},{"itemHrid":"/items/blueberry","count":1}],"outputItems":[{"itemHrid":"/items/defense_coffee","count":1}],"monsterSpawnRates":null,"sortIndex":6},"/actions/brewing/efficiency_tea":{"hrid":"/actions/brewing/efficiency_tea","function":"/action_functions/production","type":"/action_types/brewing","category":"/action_categories/brewing/tea","name":"Efficiency Tea","levelRequirement":{"skillHrid":"/skills/brewing","level":68},"baseTimeCost":14000000000,"experienceGain":{"skillHrid":"/skills/brewing","value":47},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/red_tea_leaf","count":2},{"itemHrid":"/items/marsberry","count":2},{"itemHrid":"/items/rainbow_milk","count":1}],"outputItems":[{"itemHrid":"/items/efficiency_tea","count":1}],"monsterSpawnRates":null,"sortIndex":26},"/actions/brewing/enhancing_tea":{"hrid":"/actions/brewing/enhancing_tea","function":"/action_functions/production","type":"/action_types/brewing","category":"/action_categories/brewing/tea","name":"Enhancing Tea","levelRequirement":{"skillHrid":"/skills/brewing","level":25},"baseTimeCost":9000000000,"experienceGain":{"skillHrid":"/skills/brewing","value":21},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/black_tea_leaf","count":1},{"itemHrid":"/items/plum","count":1}],"outputItems":[{"itemHrid":"/items/enhancing_tea","count":1}],"monsterSpawnRates":null,"sortIndex":11},"/actions/brewing/fermenting_tea":{"hrid":"/actions/brewing/fermenting_tea","function":"/action_functions/production","type":"/action_types/brewing","category":"/action_categories/brewing/tea","name":"Fermenting Tea","levelRequirement":{"skillHrid":"/skills/brewing","level":53},"baseTimeCost":12000000000,"experienceGain":{"skillHrid":"/skills/brewing","value":38},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/moolong_tea_leaf","count":2},{"itemHrid":"/items/mooberry","count":2},{"itemHrid":"/items/rainbow_cheese","count":1}],"outputItems":[{"itemHrid":"/items/fermenting_tea","count":1}],"monsterSpawnRates":null,"sortIndex":20},"/actions/brewing/foraging_tea":{"hrid":"/actions/brewing/foraging_tea","function":"/action_functions/production","type":"/action_types/brewing","category":"/action_categories/brewing/tea","name":"Foraging Tea","levelRequirement":{"skillHrid":"/skills/brewing","level":5},"baseTimeCost":8000000000,"experienceGain":{"skillHrid":"/skills/brewing","value":9},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/green_tea_leaf","count":1},{"itemHrid":"/items/orange","count":1}],"outputItems":[{"itemHrid":"/items/foraging_tea","count":1}],"monsterSpawnRates":null,"sortIndex":4},"/actions/brewing/gathering_tea":{"hrid":"/actions/brewing/gathering_tea","function":"/action_functions/production","type":"/action_types/brewing","category":"/action_categories/brewing/tea","name":"Gathering Tea","levelRequirement":{"skillHrid":"/skills/brewing","level":8},"baseTimeCost":8000000000,"experienceGain":{"skillHrid":"/skills/brewing","value":11},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/green_tea_leaf","count":2},{"itemHrid":"/items/blueberry","count":2},{"itemHrid":"/items/verdant_milk","count":1}],"outputItems":[{"itemHrid":"/items/gathering_tea","count":1}],"monsterSpawnRates":null,"sortIndex":5},"/actions/brewing/gourmet_tea":{"hrid":"/actions/brewing/gourmet_tea","function":"/action_functions/production","type":"/action_types/brewing","category":"/action_categories/brewing/tea","name":"Gourmet Tea","levelRequirement":{"skillHrid":"/skills/brewing","level":23},"baseTimeCost":9000000000,"experienceGain":{"skillHrid":"/skills/brewing","value":20},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/black_tea_leaf","count":2},{"itemHrid":"/items/blackberry","count":2},{"itemHrid":"/items/azure_milk","count":1}],"outputItems":[{"itemHrid":"/items/gourmet_tea","count":1}],"monsterSpawnRates":null,"sortIndex":10},"/actions/brewing/intelligence_coffee":{"hrid":"/actions/brewing/intelligence_coffee","function":"/action_functions/production","type":"/action_types/brewing","category":"/action_categories/brewing/coffee","name":"Intelligence Coffee","levelRequirement":{"skillHrid":"/skills/brewing","level":5},"baseTimeCost":8000000000,"experienceGain":{"skillHrid":"/skills/brewing","value":9},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/arabica_coffee_bean","count":1},{"itemHrid":"/items/blackberry","count":1}],"outputItems":[{"itemHrid":"/items/intelligence_coffee","count":1}],"monsterSpawnRates":null,"sortIndex":3},"/actions/brewing/lucky_coffee":{"hrid":"/actions/brewing/lucky_coffee","function":"/action_functions/production","type":"/action_types/brewing","category":"/action_categories/brewing/coffee","name":"Lucky Coffee","levelRequirement":{"skillHrid":"/skills/brewing","level":53},"baseTimeCost":12000000000,"experienceGain":{"skillHrid":"/skills/brewing","value":38},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/excelsa_coffee_bean","count":2},{"itemHrid":"/items/peach","count":1},{"itemHrid":"/items/crimson_milk","count":1}],"outputItems":[{"itemHrid":"/items/lucky_coffee","count":1}],"monsterSpawnRates":null,"sortIndex":19},"/actions/brewing/milking_tea":{"hrid":"/actions/brewing/milking_tea","function":"/action_functions/production","type":"/action_types/brewing","category":"/action_categories/brewing/tea","name":"Milking Tea","levelRequirement":{"skillHrid":"/skills/brewing","level":1},"baseTimeCost":8000000000,"experienceGain":{"skillHrid":"/skills/brewing","value":6},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/green_tea_leaf","count":1},{"itemHrid":"/items/apple","count":1}],"outputItems":[{"itemHrid":"/items/milking_tea","count":1}],"monsterSpawnRates":null,"sortIndex":2},"/actions/brewing/power_coffee":{"hrid":"/actions/brewing/power_coffee","function":"/action_functions/production","type":"/action_types/brewing","category":"/action_categories/brewing/coffee","name":"Power Coffee","levelRequirement":{"skillHrid":"/skills/brewing","level":30},"baseTimeCost":10000000000,"experienceGain":{"skillHrid":"/skills/brewing","value":24},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/liberica_coffee_bean","count":1},{"itemHrid":"/items/blackberry","count":1}],"outputItems":[{"itemHrid":"/items/power_coffee","count":1}],"monsterSpawnRates":null,"sortIndex":12},"/actions/brewing/stamina_coffee":{"hrid":"/actions/brewing/stamina_coffee","function":"/action_functions/production","type":"/action_types/brewing","category":"/action_categories/brewing/coffee","name":"Stamina Coffee","levelRequirement":{"skillHrid":"/skills/brewing","level":1},"baseTimeCost":8000000000,"experienceGain":{"skillHrid":"/skills/brewing","value":6},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/arabica_coffee_bean","count":1},{"itemHrid":"/items/blueberry","count":1}],"outputItems":[{"itemHrid":"/items/stamina_coffee","count":1}],"monsterSpawnRates":null,"sortIndex":1},"/actions/brewing/super_attack_coffee":{"hrid":"/actions/brewing/super_attack_coffee","function":"/action_functions/production","type":"/action_types/brewing","category":"/action_categories/brewing/coffee","name":"Super Attack Coffee","levelRequirement":{"skillHrid":"/skills/brewing","level":65},"baseTimeCost":14000000000,"experienceGain":{"skillHrid":"/skills/brewing","value":45},"dropTable":null,"upgradeItemHrid":"/items/attack_coffee","inputItems":[{"itemHrid":"/items/fieriosa_coffee_bean","count":1},{"itemHrid":"/items/marsberry","count":1}],"outputItems":[{"itemHrid":"/items/super_attack_coffee","count":1}],"monsterSpawnRates":null,"sortIndex":23},"/actions/brewing/super_brewing_tea":{"hrid":"/actions/brewing/super_brewing_tea","function":"/action_functions/production","type":"/action_types/brewing","category":"/action_categories/brewing/tea","name":"Super Brewing Tea","levelRequirement":{"skillHrid":"/skills/brewing","level":65},"baseTimeCost":14000000000,"experienceGain":{"skillHrid":"/skills/brewing","value":45},"dropTable":null,"upgradeItemHrid":"/items/brewing_tea","inputItems":[{"itemHrid":"/items/red_tea_leaf","count":1},{"itemHrid":"/items/dragon_fruit","count":1}],"outputItems":[{"itemHrid":"/items/super_brewing_tea","count":1}],"monsterSpawnRates":null,"sortIndex":24},"/actions/brewing/super_cheesesmithing_tea":{"hrid":"/actions/brewing/super_cheesesmithing_tea","function":"/action_functions/production","type":"/action_types/brewing","category":"/action_categories/brewing/tea","name":"Super Cheesesmithing Tea","levelRequirement":{"skillHrid":"/skills/brewing","level":75},"baseTimeCost":16000000000,"experienceGain":{"skillHrid":"/skills/brewing","value":51},"dropTable":null,"upgradeItemHrid":"/items/cheesesmithing_tea","inputItems":[{"itemHrid":"/items/emp_tea_leaf","count":1},{"itemHrid":"/items/peach","count":1}],"outputItems":[{"itemHrid":"/items/super_cheesesmithing_tea","count":1}],"monsterSpawnRates":null,"sortIndex":29},"/actions/brewing/super_cooking_tea":{"hrid":"/actions/brewing/super_cooking_tea","function":"/action_functions/production","type":"/action_types/brewing","category":"/action_categories/brewing/tea","name":"Super Cooking Tea","levelRequirement":{"skillHrid":"/skills/brewing","level":60},"baseTimeCost":14000000000,"experienceGain":{"skillHrid":"/skills/brewing","value":42},"dropTable":null,"upgradeItemHrid":"/items/cooking_tea","inputItems":[{"itemHrid":"/items/red_tea_leaf","count":1},{"itemHrid":"/items/peach","count":1}],"outputItems":[{"itemHrid":"/items/super_cooking_tea","count":1}],"monsterSpawnRates":null,"sortIndex":22},"/actions/brewing/super_defense_coffee":{"hrid":"/actions/brewing/super_defense_coffee","function":"/action_functions/production","type":"/action_types/brewing","category":"/action_categories/brewing/coffee","name":"Super Defense Coffee","levelRequirement":{"skillHrid":"/skills/brewing","level":60},"baseTimeCost":14000000000,"experienceGain":{"skillHrid":"/skills/brewing","value":42},"dropTable":null,"upgradeItemHrid":"/items/defense_coffee","inputItems":[{"itemHrid":"/items/fieriosa_coffee_bean","count":1},{"itemHrid":"/items/mooberry","count":1}],"outputItems":[{"itemHrid":"/items/super_defense_coffee","count":1}],"monsterSpawnRates":null,"sortIndex":21},"/actions/brewing/super_enhancing_tea":{"hrid":"/actions/brewing/super_enhancing_tea","function":"/action_functions/production","type":"/action_types/brewing","category":"/action_categories/brewing/tea","name":"Super Enhancing Tea","levelRequirement":{"skillHrid":"/skills/brewing","level":70},"baseTimeCost":14000000000,"experienceGain":{"skillHrid":"/skills/brewing","value":48},"dropTable":null,"upgradeItemHrid":"/items/enhancing_tea","inputItems":[{"itemHrid":"/items/red_tea_leaf","count":1},{"itemHrid":"/items/star_fruit","count":1}],"outputItems":[{"itemHrid":"/items/super_enhancing_tea","count":1}],"monsterSpawnRates":null,"sortIndex":27},"/actions/brewing/super_foraging_tea":{"hrid":"/actions/brewing/super_foraging_tea","function":"/action_functions/production","type":"/action_types/brewing","category":"/action_categories/brewing/tea","name":"Super Foraging Tea","levelRequirement":{"skillHrid":"/skills/brewing","level":50},"baseTimeCost":12000000000,"experienceGain":{"skillHrid":"/skills/brewing","value":36},"dropTable":null,"upgradeItemHrid":"/items/foraging_tea","inputItems":[{"itemHrid":"/items/moolong_tea_leaf","count":1},{"itemHrid":"/items/peach","count":1}],"outputItems":[{"itemHrid":"/items/super_foraging_tea","count":1}],"monsterSpawnRates":null,"sortIndex":18},"/actions/brewing/super_intelligence_coffee":{"hrid":"/actions/brewing/super_intelligence_coffee","function":"/action_functions/production","type":"/action_types/brewing","category":"/action_categories/brewing/coffee","name":"Super Intelligence Coffee","levelRequirement":{"skillHrid":"/skills/brewing","level":50},"baseTimeCost":12000000000,"experienceGain":{"skillHrid":"/skills/brewing","value":36},"dropTable":null,"upgradeItemHrid":"/items/intelligence_coffee","inputItems":[{"itemHrid":"/items/excelsa_coffee_bean","count":1},{"itemHrid":"/items/mooberry","count":1}],"outputItems":[{"itemHrid":"/items/super_intelligence_coffee","count":1}],"monsterSpawnRates":null,"sortIndex":17},"/actions/brewing/super_milking_tea":{"hrid":"/actions/brewing/super_milking_tea","function":"/action_functions/production","type":"/action_types/brewing","category":"/action_categories/brewing/tea","name":"Super Milking Tea","levelRequirement":{"skillHrid":"/skills/brewing","level":45},"baseTimeCost":12000000000,"experienceGain":{"skillHrid":"/skills/brewing","value":33},"dropTable":null,"upgradeItemHrid":"/items/milking_tea","inputItems":[{"itemHrid":"/items/moolong_tea_leaf","count":1},{"itemHrid":"/items/plum","count":1}],"outputItems":[{"itemHrid":"/items/super_milking_tea","count":1}],"monsterSpawnRates":null,"sortIndex":16},"/actions/brewing/super_power_coffee":{"hrid":"/actions/brewing/super_power_coffee","function":"/action_functions/production","type":"/action_types/brewing","category":"/action_categories/brewing/coffee","name":"Super Power Coffee","levelRequirement":{"skillHrid":"/skills/brewing","level":75},"baseTimeCost":16000000000,"experienceGain":{"skillHrid":"/skills/brewing","value":51},"dropTable":null,"upgradeItemHrid":"/items/power_coffee","inputItems":[{"itemHrid":"/items/spacia_coffee_bean","count":1},{"itemHrid":"/items/mooberry","count":1}],"outputItems":[{"itemHrid":"/items/super_power_coffee","count":1}],"monsterSpawnRates":null,"sortIndex":28},"/actions/brewing/super_stamina_coffee":{"hrid":"/actions/brewing/super_stamina_coffee","function":"/action_functions/production","type":"/action_types/brewing","category":"/action_categories/brewing/coffee","name":"Super Stamina Coffee","levelRequirement":{"skillHrid":"/skills/brewing","level":45},"baseTimeCost":12000000000,"experienceGain":{"skillHrid":"/skills/brewing","value":33},"dropTable":null,"upgradeItemHrid":"/items/stamina_coffee","inputItems":[{"itemHrid":"/items/excelsa_coffee_bean","count":1},{"itemHrid":"/items/strawberry","count":1}],"outputItems":[{"itemHrid":"/items/super_stamina_coffee","count":1}],"monsterSpawnRates":null,"sortIndex":15},"/actions/brewing/swiftness_coffee":{"hrid":"/actions/brewing/swiftness_coffee","function":"/action_functions/production","type":"/action_types/brewing","category":"/action_categories/brewing/coffee","name":"Swiftness Coffee","levelRequirement":{"skillHrid":"/skills/brewing","level":68},"baseTimeCost":14000000000,"experienceGain":{"skillHrid":"/skills/brewing","value":48},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/fieriosa_coffee_bean","count":2},{"itemHrid":"/items/dragon_fruit","count":1},{"itemHrid":"/items/rainbow_milk","count":1}],"outputItems":[{"itemHrid":"/items/swiftness_coffee","count":1}],"monsterSpawnRates":null,"sortIndex":25},"/actions/brewing/wisdom_tea":{"hrid":"/actions/brewing/wisdom_tea","function":"/action_functions/production","type":"/action_types/brewing","category":"/action_categories/brewing/tea","name":"Wisdom Tea","levelRequirement":{"skillHrid":"/skills/brewing","level":36},"baseTimeCost":10000000000,"experienceGain":{"skillHrid":"/skills/brewing","value":29},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/burble_tea_leaf","count":2},{"itemHrid":"/items/strawberry","count":2},{"itemHrid":"/items/burble_milk","count":1}],"outputItems":[{"itemHrid":"/items/wisdom_tea","count":1}],"monsterSpawnRates":null,"sortIndex":14},"/actions/cheesesmithing/azure_boots":{"hrid":"/actions/cheesesmithing/azure_boots","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/azure","name":"Azure Boots","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":20},"baseTimeCost":20000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":192},"dropTable":null,"upgradeItemHrid":"/items/verdant_boots","inputItems":[{"itemHrid":"/items/azure_cheese","count":16}],"outputItems":[{"itemHrid":"/items/azure_boots","count":1}],"monsterSpawnRates":null,"sortIndex":36},"/actions/cheesesmithing/azure_brush":{"hrid":"/actions/cheesesmithing/azure_brush","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/azure","name":"Azure Brush","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":25},"baseTimeCost":20000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":240},"dropTable":null,"upgradeItemHrid":"/items/verdant_brush","inputItems":[{"itemHrid":"/items/azure_cheese","count":20}],"outputItems":[{"itemHrid":"/items/azure_brush","count":1}],"monsterSpawnRates":null,"sortIndex":42},"/actions/cheesesmithing/azure_buckler":{"hrid":"/actions/cheesesmithing/azure_buckler","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/azure","name":"Azure Buckler","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":27},"baseTimeCost":20000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":288},"dropTable":null,"upgradeItemHrid":"/items/verdant_buckler","inputItems":[{"itemHrid":"/items/azure_cheese","count":24}],"outputItems":[{"itemHrid":"/items/azure_buckler","count":1}],"monsterSpawnRates":null,"sortIndex":50},"/actions/cheesesmithing/azure_bulwark":{"hrid":"/actions/cheesesmithing/azure_bulwark","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/azure","name":"Azure Bulwark","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":30},"baseTimeCost":20000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":480},"dropTable":null,"upgradeItemHrid":"/items/verdant_bulwark","inputItems":[{"itemHrid":"/items/azure_cheese","count":40}],"outputItems":[{"itemHrid":"/items/azure_bulwark","count":1}],"monsterSpawnRates":null,"sortIndex":54},"/actions/cheesesmithing/azure_cheese":{"hrid":"/actions/cheesesmithing/azure_cheese","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/azure","name":"Azure Cheese","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":20},"baseTimeCost":10000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":12},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/azure_milk","count":2}],"outputItems":[{"itemHrid":"/items/azure_cheese","count":1}],"monsterSpawnRates":null,"sortIndex":35},"/actions/cheesesmithing/azure_enhancer":{"hrid":"/actions/cheesesmithing/azure_enhancer","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/azure","name":"Azure Enhancer","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":25},"baseTimeCost":20000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":240},"dropTable":null,"upgradeItemHrid":"/items/verdant_enhancer","inputItems":[{"itemHrid":"/items/azure_cheese","count":20}],"outputItems":[{"itemHrid":"/items/azure_enhancer","count":1}],"monsterSpawnRates":null,"sortIndex":47},"/actions/cheesesmithing/azure_gauntlets":{"hrid":"/actions/cheesesmithing/azure_gauntlets","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/azure","name":"Azure Gauntlets","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":21},"baseTimeCost":20000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":192},"dropTable":null,"upgradeItemHrid":"/items/verdant_gauntlets","inputItems":[{"itemHrid":"/items/azure_cheese","count":16}],"outputItems":[{"itemHrid":"/items/azure_gauntlets","count":1}],"monsterSpawnRates":null,"sortIndex":38},"/actions/cheesesmithing/azure_hammer":{"hrid":"/actions/cheesesmithing/azure_hammer","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/azure","name":"Azure Hammer","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":25},"baseTimeCost":20000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":240},"dropTable":null,"upgradeItemHrid":"/items/verdant_hammer","inputItems":[{"itemHrid":"/items/azure_cheese","count":20}],"outputItems":[{"itemHrid":"/items/azure_hammer","count":1}],"monsterSpawnRates":null,"sortIndex":44},"/actions/cheesesmithing/azure_helmet":{"hrid":"/actions/cheesesmithing/azure_helmet","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/azure","name":"Azure Helmet","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":26},"baseTimeCost":20000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":240},"dropTable":null,"upgradeItemHrid":"/items/verdant_helmet","inputItems":[{"itemHrid":"/items/azure_cheese","count":20}],"outputItems":[{"itemHrid":"/items/azure_helmet","count":1}],"monsterSpawnRates":null,"sortIndex":48},"/actions/cheesesmithing/azure_mace":{"hrid":"/actions/cheesesmithing/azure_mace","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/azure","name":"Azure Mace","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":24},"baseTimeCost":20000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":288},"dropTable":null,"upgradeItemHrid":"/items/verdant_mace","inputItems":[{"itemHrid":"/items/azure_cheese","count":24}],"outputItems":[{"itemHrid":"/items/azure_mace","count":1}],"monsterSpawnRates":null,"sortIndex":41},"/actions/cheesesmithing/azure_plate_body":{"hrid":"/actions/cheesesmithing/azure_plate_body","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/azure","name":"Azure Plate Body","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":29},"baseTimeCost":20000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":432},"dropTable":null,"upgradeItemHrid":"/items/verdant_plate_body","inputItems":[{"itemHrid":"/items/azure_cheese","count":36}],"outputItems":[{"itemHrid":"/items/azure_plate_body","count":1}],"monsterSpawnRates":null,"sortIndex":53},"/actions/cheesesmithing/azure_plate_legs":{"hrid":"/actions/cheesesmithing/azure_plate_legs","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/azure","name":"Azure Plate Legs","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":28},"baseTimeCost":20000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":336},"dropTable":null,"upgradeItemHrid":"/items/verdant_plate_legs","inputItems":[{"itemHrid":"/items/azure_cheese","count":28}],"outputItems":[{"itemHrid":"/items/azure_plate_legs","count":1}],"monsterSpawnRates":null,"sortIndex":51},"/actions/cheesesmithing/azure_pot":{"hrid":"/actions/cheesesmithing/azure_pot","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/azure","name":"Azure Pot","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":25},"baseTimeCost":20000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":240},"dropTable":null,"upgradeItemHrid":"/items/verdant_pot","inputItems":[{"itemHrid":"/items/azure_cheese","count":20}],"outputItems":[{"itemHrid":"/items/azure_pot","count":1}],"monsterSpawnRates":null,"sortIndex":46},"/actions/cheesesmithing/azure_shears":{"hrid":"/actions/cheesesmithing/azure_shears","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/azure","name":"Azure Shears","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":25},"baseTimeCost":20000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":240},"dropTable":null,"upgradeItemHrid":"/items/verdant_shears","inputItems":[{"itemHrid":"/items/azure_cheese","count":20}],"outputItems":[{"itemHrid":"/items/azure_shears","count":1}],"monsterSpawnRates":null,"sortIndex":43},"/actions/cheesesmithing/azure_spatula":{"hrid":"/actions/cheesesmithing/azure_spatula","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/azure","name":"Azure Spatula","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":25},"baseTimeCost":20000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":240},"dropTable":null,"upgradeItemHrid":"/items/verdant_spatula","inputItems":[{"itemHrid":"/items/azure_cheese","count":20}],"outputItems":[{"itemHrid":"/items/azure_spatula","count":1}],"monsterSpawnRates":null,"sortIndex":45},"/actions/cheesesmithing/azure_spear":{"hrid":"/actions/cheesesmithing/azure_spear","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/azure","name":"Azure Spear","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":22},"baseTimeCost":20000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":288},"dropTable":null,"upgradeItemHrid":"/items/verdant_spear","inputItems":[{"itemHrid":"/items/azure_cheese","count":24}],"outputItems":[{"itemHrid":"/items/azure_spear","count":1}],"monsterSpawnRates":null,"sortIndex":39},"/actions/cheesesmithing/azure_sword":{"hrid":"/actions/cheesesmithing/azure_sword","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/azure","name":"Azure Sword","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":23},"baseTimeCost":20000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":288},"dropTable":null,"upgradeItemHrid":"/items/verdant_sword","inputItems":[{"itemHrid":"/items/azure_cheese","count":24}],"outputItems":[{"itemHrid":"/items/azure_sword","count":1}],"monsterSpawnRates":null,"sortIndex":40},"/actions/cheesesmithing/black_bear_gloves":{"hrid":"/actions/cheesesmithing/black_bear_gloves","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/special","name":"Black Bear Shoes","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":70},"baseTimeCost":30000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":10000},"dropTable":null,"upgradeItemHrid":"/items/rainbow_boots","inputItems":[{"itemHrid":"/items/black_bear_fluff","count":10}],"outputItems":[{"itemHrid":"/items/black_bear_shoes","count":1}],"monsterSpawnRates":null,"sortIndex":106},"/actions/cheesesmithing/burble_boots":{"hrid":"/actions/cheesesmithing/burble_boots","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/burble","name":"Burble Boots","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":35},"baseTimeCost":24000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":432},"dropTable":null,"upgradeItemHrid":"/items/azure_boots","inputItems":[{"itemHrid":"/items/burble_cheese","count":24}],"outputItems":[{"itemHrid":"/items/burble_boots","count":1}],"monsterSpawnRates":null,"sortIndex":58},"/actions/cheesesmithing/burble_brush":{"hrid":"/actions/cheesesmithing/burble_brush","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/burble","name":"Burble Brush","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":40},"baseTimeCost":24000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":540},"dropTable":null,"upgradeItemHrid":"/items/azure_brush","inputItems":[{"itemHrid":"/items/burble_cheese","count":30}],"outputItems":[{"itemHrid":"/items/burble_brush","count":1}],"monsterSpawnRates":null,"sortIndex":63},"/actions/cheesesmithing/burble_buckler":{"hrid":"/actions/cheesesmithing/burble_buckler","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/burble","name":"Burble Buckler","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":42},"baseTimeCost":24000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":648},"dropTable":null,"upgradeItemHrid":"/items/azure_buckler","inputItems":[{"itemHrid":"/items/burble_cheese","count":36}],"outputItems":[{"itemHrid":"/items/burble_buckler","count":1}],"monsterSpawnRates":null,"sortIndex":70},"/actions/cheesesmithing/burble_bulwark":{"hrid":"/actions/cheesesmithing/burble_bulwark","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/burble","name":"Burble Bulwark","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":45},"baseTimeCost":24000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":1080},"dropTable":null,"upgradeItemHrid":"/items/azure_bulwark","inputItems":[{"itemHrid":"/items/burble_cheese","count":60}],"outputItems":[{"itemHrid":"/items/burble_bulwark","count":1}],"monsterSpawnRates":null,"sortIndex":73},"/actions/cheesesmithing/burble_cheese":{"hrid":"/actions/cheesesmithing/burble_cheese","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/burble","name":"Burble Cheese","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":35},"baseTimeCost":12000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":18},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/burble_milk","count":2}],"outputItems":[{"itemHrid":"/items/burble_cheese","count":1}],"monsterSpawnRates":null,"sortIndex":57},"/actions/cheesesmithing/burble_enhancer":{"hrid":"/actions/cheesesmithing/burble_enhancer","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/burble","name":"Burble Enhancer","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":40},"baseTimeCost":24000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":540},"dropTable":null,"upgradeItemHrid":"/items/azure_enhancer","inputItems":[{"itemHrid":"/items/burble_cheese","count":30}],"outputItems":[{"itemHrid":"/items/burble_enhancer","count":1}],"monsterSpawnRates":null,"sortIndex":68},"/actions/cheesesmithing/burble_gauntlets":{"hrid":"/actions/cheesesmithing/burble_gauntlets","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/burble","name":"Burble Gauntlets","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":36},"baseTimeCost":24000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":432},"dropTable":null,"upgradeItemHrid":"/items/azure_gauntlets","inputItems":[{"itemHrid":"/items/burble_cheese","count":24}],"outputItems":[{"itemHrid":"/items/burble_gauntlets","count":1}],"monsterSpawnRates":null,"sortIndex":59},"/actions/cheesesmithing/burble_hammer":{"hrid":"/actions/cheesesmithing/burble_hammer","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/burble","name":"Burble Hammer","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":40},"baseTimeCost":24000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":540},"dropTable":null,"upgradeItemHrid":"/items/azure_hammer","inputItems":[{"itemHrid":"/items/burble_cheese","count":30}],"outputItems":[{"itemHrid":"/items/burble_hammer","count":1}],"monsterSpawnRates":null,"sortIndex":65},"/actions/cheesesmithing/burble_helmet":{"hrid":"/actions/cheesesmithing/burble_helmet","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/burble","name":"Burble Helmet","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":41},"baseTimeCost":24000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":540},"dropTable":null,"upgradeItemHrid":"/items/azure_helmet","inputItems":[{"itemHrid":"/items/burble_cheese","count":30}],"outputItems":[{"itemHrid":"/items/burble_helmet","count":1}],"monsterSpawnRates":null,"sortIndex":69},"/actions/cheesesmithing/burble_mace":{"hrid":"/actions/cheesesmithing/burble_mace","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/burble","name":"Burble Mace","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":39},"baseTimeCost":24000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":648},"dropTable":null,"upgradeItemHrid":"/items/azure_mace","inputItems":[{"itemHrid":"/items/burble_cheese","count":36}],"outputItems":[{"itemHrid":"/items/burble_mace","count":1}],"monsterSpawnRates":null,"sortIndex":62},"/actions/cheesesmithing/burble_plate_body":{"hrid":"/actions/cheesesmithing/burble_plate_body","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/burble","name":"Burble Plate Body","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":44},"baseTimeCost":24000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":972},"dropTable":null,"upgradeItemHrid":"/items/azure_plate_body","inputItems":[{"itemHrid":"/items/burble_cheese","count":54}],"outputItems":[{"itemHrid":"/items/burble_plate_body","count":1}],"monsterSpawnRates":null,"sortIndex":72},"/actions/cheesesmithing/burble_plate_legs":{"hrid":"/actions/cheesesmithing/burble_plate_legs","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/burble","name":"Burble Plate Legs","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":43},"baseTimeCost":24000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":756},"dropTable":null,"upgradeItemHrid":"/items/azure_plate_legs","inputItems":[{"itemHrid":"/items/burble_cheese","count":42}],"outputItems":[{"itemHrid":"/items/burble_plate_legs","count":1}],"monsterSpawnRates":null,"sortIndex":71},"/actions/cheesesmithing/burble_pot":{"hrid":"/actions/cheesesmithing/burble_pot","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/burble","name":"Burble Pot","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":40},"baseTimeCost":24000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":540},"dropTable":null,"upgradeItemHrid":"/items/azure_pot","inputItems":[{"itemHrid":"/items/burble_cheese","count":30}],"outputItems":[{"itemHrid":"/items/burble_pot","count":1}],"monsterSpawnRates":null,"sortIndex":67},"/actions/cheesesmithing/burble_shears":{"hrid":"/actions/cheesesmithing/burble_shears","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/burble","name":"Burble Shears","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":40},"baseTimeCost":24000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":540},"dropTable":null,"upgradeItemHrid":"/items/azure_shears","inputItems":[{"itemHrid":"/items/burble_cheese","count":30}],"outputItems":[{"itemHrid":"/items/burble_shears","count":1}],"monsterSpawnRates":null,"sortIndex":64},"/actions/cheesesmithing/burble_spatula":{"hrid":"/actions/cheesesmithing/burble_spatula","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/burble","name":"Burble Spatula","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":40},"baseTimeCost":24000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":540},"dropTable":null,"upgradeItemHrid":"/items/azure_spatula","inputItems":[{"itemHrid":"/items/burble_cheese","count":30}],"outputItems":[{"itemHrid":"/items/burble_spatula","count":1}],"monsterSpawnRates":null,"sortIndex":66},"/actions/cheesesmithing/burble_spear":{"hrid":"/actions/cheesesmithing/burble_spear","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/burble","name":"Burble Spear","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":37},"baseTimeCost":24000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":648},"dropTable":null,"upgradeItemHrid":"/items/azure_spear","inputItems":[{"itemHrid":"/items/burble_cheese","count":36}],"outputItems":[{"itemHrid":"/items/burble_spear","count":1}],"monsterSpawnRates":null,"sortIndex":60},"/actions/cheesesmithing/burble_sword":{"hrid":"/actions/cheesesmithing/burble_sword","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/burble","name":"Burble Sword","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":38},"baseTimeCost":24000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":648},"dropTable":null,"upgradeItemHrid":"/items/azure_sword","inputItems":[{"itemHrid":"/items/burble_cheese","count":36}],"outputItems":[{"itemHrid":"/items/burble_sword","count":1}],"monsterSpawnRates":null,"sortIndex":61},"/actions/cheesesmithing/cheese":{"hrid":"/actions/cheesesmithing/cheese","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/cheese","name":"Cheese","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":1},"baseTimeCost":8000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":3},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/milk","count":2}],"outputItems":[{"itemHrid":"/items/cheese","count":1}],"monsterSpawnRates":null,"sortIndex":1},"/actions/cheesesmithing/cheese_boots":{"hrid":"/actions/cheesesmithing/cheese_boots","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/cheese","name":"Cheese Boots","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":1},"baseTimeCost":16000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":24},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/cheese","count":8}],"outputItems":[{"itemHrid":"/items/cheese_boots","count":1}],"monsterSpawnRates":null,"sortIndex":2},"/actions/cheesesmithing/cheese_brush":{"hrid":"/actions/cheesesmithing/cheese_brush","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/cheese","name":"Cheese Brush","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":5},"baseTimeCost":16000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":30},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/cheese","count":10}],"outputItems":[{"itemHrid":"/items/cheese_brush","count":1}],"monsterSpawnRates":null,"sortIndex":7},"/actions/cheesesmithing/cheese_buckler":{"hrid":"/actions/cheesesmithing/cheese_buckler","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/cheese","name":"Cheese Buckler","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":7},"baseTimeCost":16000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":36},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/cheese","count":12}],"outputItems":[{"itemHrid":"/items/cheese_buckler","count":1}],"monsterSpawnRates":null,"sortIndex":14},"/actions/cheesesmithing/cheese_bulwark":{"hrid":"/actions/cheesesmithing/cheese_bulwark","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/cheese","name":"Cheese Bulwark","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":10},"baseTimeCost":16000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":60},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/cheese","count":20}],"outputItems":[{"itemHrid":"/items/cheese_bulwark","count":1}],"monsterSpawnRates":null,"sortIndex":19},"/actions/cheesesmithing/cheese_enhancer":{"hrid":"/actions/cheesesmithing/cheese_enhancer","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/cheese","name":"Cheese Enhancer","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":5},"baseTimeCost":16000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":30},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/cheese","count":10}],"outputItems":[{"itemHrid":"/items/cheese_enhancer","count":1}],"monsterSpawnRates":null,"sortIndex":12},"/actions/cheesesmithing/cheese_gauntlets":{"hrid":"/actions/cheesesmithing/cheese_gauntlets","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/cheese","name":"Cheese Gauntlets","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":1},"baseTimeCost":16000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":24},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/cheese","count":8}],"outputItems":[{"itemHrid":"/items/cheese_gauntlets","count":1}],"monsterSpawnRates":null,"sortIndex":3},"/actions/cheesesmithing/cheese_hammer":{"hrid":"/actions/cheesesmithing/cheese_hammer","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/cheese","name":"Cheese Hammer","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":5},"baseTimeCost":16000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":30},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/cheese","count":10}],"outputItems":[{"itemHrid":"/items/cheese_hammer","count":1}],"monsterSpawnRates":null,"sortIndex":9},"/actions/cheesesmithing/cheese_helmet":{"hrid":"/actions/cheesesmithing/cheese_helmet","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/cheese","name":"Cheese Helmet","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":6},"baseTimeCost":16000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":30},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/cheese","count":10}],"outputItems":[{"itemHrid":"/items/cheese_helmet","count":1}],"monsterSpawnRates":null,"sortIndex":13},"/actions/cheesesmithing/cheese_mace":{"hrid":"/actions/cheesesmithing/cheese_mace","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/cheese","name":"Cheese Mace","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":4},"baseTimeCost":16000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":36},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/cheese","count":12}],"outputItems":[{"itemHrid":"/items/cheese_mace","count":1}],"monsterSpawnRates":null,"sortIndex":6},"/actions/cheesesmithing/cheese_plate_body":{"hrid":"/actions/cheesesmithing/cheese_plate_body","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/cheese","name":"Cheese Plate Body","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":9},"baseTimeCost":16000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":54},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/cheese","count":18}],"outputItems":[{"itemHrid":"/items/cheese_plate_body","count":1}],"monsterSpawnRates":null,"sortIndex":16},"/actions/cheesesmithing/cheese_plate_legs":{"hrid":"/actions/cheesesmithing/cheese_plate_legs","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/cheese","name":"Cheese Plate Legs","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":8},"baseTimeCost":16000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":42},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/cheese","count":14}],"outputItems":[{"itemHrid":"/items/cheese_plate_legs","count":1}],"monsterSpawnRates":null,"sortIndex":15},"/actions/cheesesmithing/cheese_pot":{"hrid":"/actions/cheesesmithing/cheese_pot","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/cheese","name":"Cheese Pot","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":5},"baseTimeCost":16000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":30},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/cheese","count":10}],"outputItems":[{"itemHrid":"/items/cheese_pot","count":1}],"monsterSpawnRates":null,"sortIndex":11},"/actions/cheesesmithing/cheese_shears":{"hrid":"/actions/cheesesmithing/cheese_shears","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/cheese","name":"Cheese Shears","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":5},"baseTimeCost":16000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":30},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/cheese","count":10}],"outputItems":[{"itemHrid":"/items/cheese_shears","count":1}],"monsterSpawnRates":null,"sortIndex":8},"/actions/cheesesmithing/cheese_spatula":{"hrid":"/actions/cheesesmithing/cheese_spatula","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/cheese","name":"Cheese Spatula","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":5},"baseTimeCost":16000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":30},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/cheese","count":10}],"outputItems":[{"itemHrid":"/items/cheese_spatula","count":1}],"monsterSpawnRates":null,"sortIndex":10},"/actions/cheesesmithing/cheese_spear":{"hrid":"/actions/cheesesmithing/cheese_spear","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/cheese","name":"Cheese Spear","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":2},"baseTimeCost":16000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":36},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/cheese","count":12}],"outputItems":[{"itemHrid":"/items/cheese_spear","count":1}],"monsterSpawnRates":null,"sortIndex":4},"/actions/cheesesmithing/cheese_sword":{"hrid":"/actions/cheesesmithing/cheese_sword","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/cheese","name":"Cheese Sword","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":3},"baseTimeCost":16000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":36},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/cheese","count":12}],"outputItems":[{"itemHrid":"/items/cheese_sword","count":1}],"monsterSpawnRates":null,"sortIndex":5},"/actions/cheesesmithing/crimson_boots":{"hrid":"/actions/cheesesmithing/crimson_boots","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/crimson","name":"Crimson Boots","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":50},"baseTimeCost":28000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":864},"dropTable":null,"upgradeItemHrid":"/items/burble_boots","inputItems":[{"itemHrid":"/items/crimson_cheese","count":36}],"outputItems":[{"itemHrid":"/items/crimson_boots","count":1}],"monsterSpawnRates":null,"sortIndex":75},"/actions/cheesesmithing/crimson_brush":{"hrid":"/actions/cheesesmithing/crimson_brush","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/crimson","name":"Crimson Brush","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":55},"baseTimeCost":28000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":1080},"dropTable":null,"upgradeItemHrid":"/items/burble_brush","inputItems":[{"itemHrid":"/items/crimson_cheese","count":45}],"outputItems":[{"itemHrid":"/items/crimson_brush","count":1}],"monsterSpawnRates":null,"sortIndex":80},"/actions/cheesesmithing/crimson_buckler":{"hrid":"/actions/cheesesmithing/crimson_buckler","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/crimson","name":"Crimson Buckler","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":57},"baseTimeCost":28000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":1296},"dropTable":null,"upgradeItemHrid":"/items/burble_buckler","inputItems":[{"itemHrid":"/items/crimson_cheese","count":54}],"outputItems":[{"itemHrid":"/items/crimson_buckler","count":1}],"monsterSpawnRates":null,"sortIndex":89},"/actions/cheesesmithing/crimson_bulwark":{"hrid":"/actions/cheesesmithing/crimson_bulwark","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/crimson","name":"Crimson Bulwark","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":60},"baseTimeCost":28000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":2160},"dropTable":null,"upgradeItemHrid":"/items/burble_bulwark","inputItems":[{"itemHrid":"/items/crimson_cheese","count":90}],"outputItems":[{"itemHrid":"/items/crimson_bulwark","count":1}],"monsterSpawnRates":null,"sortIndex":92},"/actions/cheesesmithing/crimson_cheese":{"hrid":"/actions/cheesesmithing/crimson_cheese","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/crimson","name":"Crimson Cheese","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":50},"baseTimeCost":14000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":24},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/crimson_milk","count":2}],"outputItems":[{"itemHrid":"/items/crimson_cheese","count":1}],"monsterSpawnRates":null,"sortIndex":74},"/actions/cheesesmithing/crimson_enhancer":{"hrid":"/actions/cheesesmithing/crimson_enhancer","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/crimson","name":"Crimson Enhancer","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":55},"baseTimeCost":28000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":1080},"dropTable":null,"upgradeItemHrid":"/items/burble_enhancer","inputItems":[{"itemHrid":"/items/crimson_cheese","count":45}],"outputItems":[{"itemHrid":"/items/crimson_enhancer","count":1}],"monsterSpawnRates":null,"sortIndex":85},"/actions/cheesesmithing/crimson_gauntlets":{"hrid":"/actions/cheesesmithing/crimson_gauntlets","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/crimson","name":"Crimson Gauntlets","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":51},"baseTimeCost":28000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":864},"dropTable":null,"upgradeItemHrid":"/items/burble_gauntlets","inputItems":[{"itemHrid":"/items/crimson_cheese","count":36}],"outputItems":[{"itemHrid":"/items/crimson_gauntlets","count":1}],"monsterSpawnRates":null,"sortIndex":76},"/actions/cheesesmithing/crimson_hammer":{"hrid":"/actions/cheesesmithing/crimson_hammer","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/crimson","name":"Crimson Hammer","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":55},"baseTimeCost":28000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":1080},"dropTable":null,"upgradeItemHrid":"/items/burble_hammer","inputItems":[{"itemHrid":"/items/crimson_cheese","count":45}],"outputItems":[{"itemHrid":"/items/crimson_hammer","count":1}],"monsterSpawnRates":null,"sortIndex":82},"/actions/cheesesmithing/crimson_helmet":{"hrid":"/actions/cheesesmithing/crimson_helmet","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/crimson","name":"Crimson Helmet","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":56},"baseTimeCost":28000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":1080},"dropTable":null,"upgradeItemHrid":"/items/burble_helmet","inputItems":[{"itemHrid":"/items/crimson_cheese","count":45}],"outputItems":[{"itemHrid":"/items/crimson_helmet","count":1}],"monsterSpawnRates":null,"sortIndex":86},"/actions/cheesesmithing/crimson_mace":{"hrid":"/actions/cheesesmithing/crimson_mace","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/crimson","name":"Crimson Mace","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":54},"baseTimeCost":28000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":1296},"dropTable":null,"upgradeItemHrid":"/items/burble_mace","inputItems":[{"itemHrid":"/items/crimson_cheese","count":54}],"outputItems":[{"itemHrid":"/items/crimson_mace","count":1}],"monsterSpawnRates":null,"sortIndex":79},"/actions/cheesesmithing/crimson_plate_body":{"hrid":"/actions/cheesesmithing/crimson_plate_body","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/crimson","name":"Crimson Plate Body","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":59},"baseTimeCost":28000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":1944},"dropTable":null,"upgradeItemHrid":"/items/burble_plate_body","inputItems":[{"itemHrid":"/items/crimson_cheese","count":81}],"outputItems":[{"itemHrid":"/items/crimson_plate_body","count":1}],"monsterSpawnRates":null,"sortIndex":91},"/actions/cheesesmithing/crimson_plate_legs":{"hrid":"/actions/cheesesmithing/crimson_plate_legs","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/crimson","name":"Crimson Plate Legs","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":58},"baseTimeCost":28000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":1512},"dropTable":null,"upgradeItemHrid":"/items/burble_plate_legs","inputItems":[{"itemHrid":"/items/crimson_cheese","count":63}],"outputItems":[{"itemHrid":"/items/crimson_plate_legs","count":1}],"monsterSpawnRates":null,"sortIndex":90},"/actions/cheesesmithing/crimson_pot":{"hrid":"/actions/cheesesmithing/crimson_pot","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/crimson","name":"Crimson Pot","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":55},"baseTimeCost":28000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":1080},"dropTable":null,"upgradeItemHrid":"/items/burble_pot","inputItems":[{"itemHrid":"/items/crimson_cheese","count":45}],"outputItems":[{"itemHrid":"/items/crimson_pot","count":1}],"monsterSpawnRates":null,"sortIndex":84},"/actions/cheesesmithing/crimson_shears":{"hrid":"/actions/cheesesmithing/crimson_shears","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/crimson","name":"Crimson Shears","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":55},"baseTimeCost":28000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":1080},"dropTable":null,"upgradeItemHrid":"/items/burble_shears","inputItems":[{"itemHrid":"/items/crimson_cheese","count":45}],"outputItems":[{"itemHrid":"/items/crimson_shears","count":1}],"monsterSpawnRates":null,"sortIndex":81},"/actions/cheesesmithing/crimson_spatula":{"hrid":"/actions/cheesesmithing/crimson_spatula","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/crimson","name":"Crimson Spatula","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":55},"baseTimeCost":28000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":1080},"dropTable":null,"upgradeItemHrid":"/items/burble_spatula","inputItems":[{"itemHrid":"/items/crimson_cheese","count":45}],"outputItems":[{"itemHrid":"/items/crimson_spatula","count":1}],"monsterSpawnRates":null,"sortIndex":83},"/actions/cheesesmithing/crimson_spear":{"hrid":"/actions/cheesesmithing/crimson_spear","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/crimson","name":"Crimson Spear","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":52},"baseTimeCost":28000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":1296},"dropTable":null,"upgradeItemHrid":"/items/burble_spear","inputItems":[{"itemHrid":"/items/crimson_cheese","count":54}],"outputItems":[{"itemHrid":"/items/crimson_spear","count":1}],"monsterSpawnRates":null,"sortIndex":77},"/actions/cheesesmithing/crimson_sword":{"hrid":"/actions/cheesesmithing/crimson_sword","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/crimson","name":"Crimson Sword","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":53},"baseTimeCost":28000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":1296},"dropTable":null,"upgradeItemHrid":"/items/burble_sword","inputItems":[{"itemHrid":"/items/crimson_cheese","count":54}],"outputItems":[{"itemHrid":"/items/crimson_sword","count":1}],"monsterSpawnRates":null,"sortIndex":78},"/actions/cheesesmithing/grizzly_bear_gloves":{"hrid":"/actions/cheesesmithing/grizzly_bear_gloves","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/special","name":"Grizzly Bear Shoes","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":70},"baseTimeCost":30000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":10000},"dropTable":null,"upgradeItemHrid":"/items/rainbow_boots","inputItems":[{"itemHrid":"/items/grizzly_bear_fluff","count":10}],"outputItems":[{"itemHrid":"/items/grizzly_bear_shoes","count":1}],"monsterSpawnRates":null,"sortIndex":107},"/actions/cheesesmithing/holy_boots":{"hrid":"/actions/cheesesmithing/holy_boots","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/holy","name":"Holy Boots","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":80},"baseTimeCost":48000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":2592},"dropTable":null,"upgradeItemHrid":"/items/rainbow_boots","inputItems":[{"itemHrid":"/items/holy_cheese","count":72}],"outputItems":[{"itemHrid":"/items/holy_boots","count":1}],"monsterSpawnRates":null,"sortIndex":115},"/actions/cheesesmithing/holy_brush":{"hrid":"/actions/cheesesmithing/holy_brush","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/holy","name":"Holy Brush","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":85},"baseTimeCost":48000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":3240},"dropTable":null,"upgradeItemHrid":"/items/rainbow_brush","inputItems":[{"itemHrid":"/items/holy_cheese","count":90}],"outputItems":[{"itemHrid":"/items/holy_brush","count":1}],"monsterSpawnRates":null,"sortIndex":120},"/actions/cheesesmithing/holy_buckler":{"hrid":"/actions/cheesesmithing/holy_buckler","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/holy","name":"Holy Buckler","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":87},"baseTimeCost":48000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":3888},"dropTable":null,"upgradeItemHrid":"/items/rainbow_buckler","inputItems":[{"itemHrid":"/items/holy_cheese","count":108}],"outputItems":[{"itemHrid":"/items/holy_buckler","count":1}],"monsterSpawnRates":null,"sortIndex":129},"/actions/cheesesmithing/holy_bulwark":{"hrid":"/actions/cheesesmithing/holy_bulwark","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/holy","name":"Holy Bulwark","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":90},"baseTimeCost":48000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":6480},"dropTable":null,"upgradeItemHrid":"/items/rainbow_bulwark","inputItems":[{"itemHrid":"/items/holy_cheese","count":180}],"outputItems":[{"itemHrid":"/items/holy_bulwark","count":1}],"monsterSpawnRates":null,"sortIndex":132},"/actions/cheesesmithing/holy_cheese":{"hrid":"/actions/cheesesmithing/holy_cheese","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/holy","name":"Holy Cheese","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":80},"baseTimeCost":24000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":36},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/holy_milk","count":2}],"outputItems":[{"itemHrid":"/items/holy_cheese","count":1}],"monsterSpawnRates":null,"sortIndex":114},"/actions/cheesesmithing/holy_enhancer":{"hrid":"/actions/cheesesmithing/holy_enhancer","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/holy","name":"Holy Enhancer","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":85},"baseTimeCost":48000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":3240},"dropTable":null,"upgradeItemHrid":"/items/rainbow_enhancer","inputItems":[{"itemHrid":"/items/holy_cheese","count":90}],"outputItems":[{"itemHrid":"/items/holy_enhancer","count":1}],"monsterSpawnRates":null,"sortIndex":125},"/actions/cheesesmithing/holy_gauntlets":{"hrid":"/actions/cheesesmithing/holy_gauntlets","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/holy","name":"Holy Gauntlets","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":81},"baseTimeCost":48000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":2592},"dropTable":null,"upgradeItemHrid":"/items/rainbow_gauntlets","inputItems":[{"itemHrid":"/items/holy_cheese","count":72}],"outputItems":[{"itemHrid":"/items/holy_gauntlets","count":1}],"monsterSpawnRates":null,"sortIndex":116},"/actions/cheesesmithing/holy_hammer":{"hrid":"/actions/cheesesmithing/holy_hammer","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/holy","name":"Holy Hammer","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":85},"baseTimeCost":48000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":3240},"dropTable":null,"upgradeItemHrid":"/items/rainbow_hammer","inputItems":[{"itemHrid":"/items/holy_cheese","count":90}],"outputItems":[{"itemHrid":"/items/holy_hammer","count":1}],"monsterSpawnRates":null,"sortIndex":122},"/actions/cheesesmithing/holy_helmet":{"hrid":"/actions/cheesesmithing/holy_helmet","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/holy","name":"Holy Helmet","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":86},"baseTimeCost":48000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":3240},"dropTable":null,"upgradeItemHrid":"/items/rainbow_helmet","inputItems":[{"itemHrid":"/items/holy_cheese","count":90}],"outputItems":[{"itemHrid":"/items/holy_helmet","count":1}],"monsterSpawnRates":null,"sortIndex":128},"/actions/cheesesmithing/holy_mace":{"hrid":"/actions/cheesesmithing/holy_mace","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/holy","name":"Holy Mace","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":84},"baseTimeCost":48000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":3888},"dropTable":null,"upgradeItemHrid":"/items/rainbow_mace","inputItems":[{"itemHrid":"/items/holy_cheese","count":108}],"outputItems":[{"itemHrid":"/items/holy_mace","count":1}],"monsterSpawnRates":null,"sortIndex":119},"/actions/cheesesmithing/holy_plate_body":{"hrid":"/actions/cheesesmithing/holy_plate_body","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/holy","name":"Holy Plate Body","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":89},"baseTimeCost":48000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":5832},"dropTable":null,"upgradeItemHrid":"/items/rainbow_plate_body","inputItems":[{"itemHrid":"/items/holy_cheese","count":162}],"outputItems":[{"itemHrid":"/items/holy_plate_body","count":1}],"monsterSpawnRates":null,"sortIndex":131},"/actions/cheesesmithing/holy_plate_legs":{"hrid":"/actions/cheesesmithing/holy_plate_legs","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/holy","name":"Holy Plate Legs","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":88},"baseTimeCost":48000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":4536},"dropTable":null,"upgradeItemHrid":"/items/rainbow_plate_legs","inputItems":[{"itemHrid":"/items/holy_cheese","count":126}],"outputItems":[{"itemHrid":"/items/holy_plate_legs","count":1}],"monsterSpawnRates":null,"sortIndex":130},"/actions/cheesesmithing/holy_pot":{"hrid":"/actions/cheesesmithing/holy_pot","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/holy","name":"Holy Pot","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":85},"baseTimeCost":48000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":3240},"dropTable":null,"upgradeItemHrid":"/items/rainbow_pot","inputItems":[{"itemHrid":"/items/holy_cheese","count":90}],"outputItems":[{"itemHrid":"/items/holy_pot","count":1}],"monsterSpawnRates":null,"sortIndex":124},"/actions/cheesesmithing/holy_shears":{"hrid":"/actions/cheesesmithing/holy_shears","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/holy","name":"Holy Shears","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":85},"baseTimeCost":48000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":3240},"dropTable":null,"upgradeItemHrid":"/items/rainbow_shears","inputItems":[{"itemHrid":"/items/holy_cheese","count":90}],"outputItems":[{"itemHrid":"/items/holy_shears","count":1}],"monsterSpawnRates":null,"sortIndex":121},"/actions/cheesesmithing/holy_spatula":{"hrid":"/actions/cheesesmithing/holy_spatula","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/holy","name":"Holy Spatula","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":85},"baseTimeCost":48000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":3240},"dropTable":null,"upgradeItemHrid":"/items/rainbow_spatula","inputItems":[{"itemHrid":"/items/holy_cheese","count":90}],"outputItems":[{"itemHrid":"/items/holy_spatula","count":1}],"monsterSpawnRates":null,"sortIndex":123},"/actions/cheesesmithing/holy_spear":{"hrid":"/actions/cheesesmithing/holy_spear","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/holy","name":"Holy Spear","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":82},"baseTimeCost":48000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":3888},"dropTable":null,"upgradeItemHrid":"/items/rainbow_spear","inputItems":[{"itemHrid":"/items/holy_cheese","count":108}],"outputItems":[{"itemHrid":"/items/holy_spear","count":1}],"monsterSpawnRates":null,"sortIndex":117},"/actions/cheesesmithing/holy_sword":{"hrid":"/actions/cheesesmithing/holy_sword","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/holy","name":"Holy Sword","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":83},"baseTimeCost":48000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":3888},"dropTable":null,"upgradeItemHrid":"/items/rainbow_sword","inputItems":[{"itemHrid":"/items/holy_cheese","count":108}],"outputItems":[{"itemHrid":"/items/holy_sword","count":1}],"monsterSpawnRates":null,"sortIndex":118},"/actions/cheesesmithing/panda_gloves":{"hrid":"/actions/cheesesmithing/panda_gloves","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/special","name":"Panda Gloves","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":70},"baseTimeCost":30000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":10000},"dropTable":null,"upgradeItemHrid":"/items/rainbow_gauntlets","inputItems":[{"itemHrid":"/items/panda_fluff","count":10}],"outputItems":[{"itemHrid":"/items/panda_gloves","count":1}],"monsterSpawnRates":null,"sortIndex":105},"/actions/cheesesmithing/pincer_gloves":{"hrid":"/actions/cheesesmithing/pincer_gloves","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/special","name":"Pincer Gloves","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":28},"baseTimeCost":30000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":1600},"dropTable":null,"upgradeItemHrid":"/items/azure_gauntlets","inputItems":[{"itemHrid":"/items/crab_pincer","count":2}],"outputItems":[{"itemHrid":"/items/pincer_gloves","count":1}],"monsterSpawnRates":null,"sortIndex":52},"/actions/cheesesmithing/polar_bear_gloves":{"hrid":"/actions/cheesesmithing/polar_bear_gloves","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/special","name":"Polar Bear Shoes","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":70},"baseTimeCost":30000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":10000},"dropTable":null,"upgradeItemHrid":"/items/rainbow_boots","inputItems":[{"itemHrid":"/items/polar_bear_fluff","count":10}],"outputItems":[{"itemHrid":"/items/polar_bear_shoes","count":1}],"monsterSpawnRates":null,"sortIndex":108},"/actions/cheesesmithing/rainbow_boots":{"hrid":"/actions/cheesesmithing/rainbow_boots","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/rainbow","name":"Rainbow Boots","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":65},"baseTimeCost":32000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":1560},"dropTable":null,"upgradeItemHrid":"/items/crimson_boots","inputItems":[{"itemHrid":"/items/rainbow_cheese","count":52}],"outputItems":[{"itemHrid":"/items/rainbow_boots","count":1}],"monsterSpawnRates":null,"sortIndex":94},"/actions/cheesesmithing/rainbow_brush":{"hrid":"/actions/cheesesmithing/rainbow_brush","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/rainbow","name":"Rainbow Brush","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":70},"baseTimeCost":32000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":1950},"dropTable":null,"upgradeItemHrid":"/items/crimson_brush","inputItems":[{"itemHrid":"/items/rainbow_cheese","count":65}],"outputItems":[{"itemHrid":"/items/rainbow_brush","count":1}],"monsterSpawnRates":null,"sortIndex":99},"/actions/cheesesmithing/rainbow_buckler":{"hrid":"/actions/cheesesmithing/rainbow_buckler","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/rainbow","name":"Rainbow Buckler","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":72},"baseTimeCost":32000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":2340},"dropTable":null,"upgradeItemHrid":"/items/crimson_buckler","inputItems":[{"itemHrid":"/items/rainbow_cheese","count":78}],"outputItems":[{"itemHrid":"/items/rainbow_buckler","count":1}],"monsterSpawnRates":null,"sortIndex":110},"/actions/cheesesmithing/rainbow_bulwark":{"hrid":"/actions/cheesesmithing/rainbow_bulwark","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/rainbow","name":"Rainbow Bulwark","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":75},"baseTimeCost":32000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":3900},"dropTable":null,"upgradeItemHrid":"/items/crimson_bulwark","inputItems":[{"itemHrid":"/items/rainbow_cheese","count":130}],"outputItems":[{"itemHrid":"/items/rainbow_bulwark","count":1}],"monsterSpawnRates":null,"sortIndex":113},"/actions/cheesesmithing/rainbow_cheese":{"hrid":"/actions/cheesesmithing/rainbow_cheese","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/rainbow","name":"Rainbow Cheese","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":65},"baseTimeCost":16000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":30},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/rainbow_milk","count":2}],"outputItems":[{"itemHrid":"/items/rainbow_cheese","count":1}],"monsterSpawnRates":null,"sortIndex":93},"/actions/cheesesmithing/rainbow_enhancer":{"hrid":"/actions/cheesesmithing/rainbow_enhancer","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/rainbow","name":"Rainbow Enhancer","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":70},"baseTimeCost":32000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":1950},"dropTable":null,"upgradeItemHrid":"/items/crimson_enhancer","inputItems":[{"itemHrid":"/items/rainbow_cheese","count":65}],"outputItems":[{"itemHrid":"/items/rainbow_enhancer","count":1}],"monsterSpawnRates":null,"sortIndex":104},"/actions/cheesesmithing/rainbow_gauntlets":{"hrid":"/actions/cheesesmithing/rainbow_gauntlets","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/rainbow","name":"Rainbow Gauntlets","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":66},"baseTimeCost":32000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":1560},"dropTable":null,"upgradeItemHrid":"/items/crimson_gauntlets","inputItems":[{"itemHrid":"/items/rainbow_cheese","count":52}],"outputItems":[{"itemHrid":"/items/rainbow_gauntlets","count":1}],"monsterSpawnRates":null,"sortIndex":95},"/actions/cheesesmithing/rainbow_hammer":{"hrid":"/actions/cheesesmithing/rainbow_hammer","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/rainbow","name":"Rainbow Hammer","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":70},"baseTimeCost":32000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":1950},"dropTable":null,"upgradeItemHrid":"/items/crimson_hammer","inputItems":[{"itemHrid":"/items/rainbow_cheese","count":65}],"outputItems":[{"itemHrid":"/items/rainbow_hammer","count":1}],"monsterSpawnRates":null,"sortIndex":101},"/actions/cheesesmithing/rainbow_helmet":{"hrid":"/actions/cheesesmithing/rainbow_helmet","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/rainbow","name":"Rainbow Helmet","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":71},"baseTimeCost":32000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":1950},"dropTable":null,"upgradeItemHrid":"/items/crimson_helmet","inputItems":[{"itemHrid":"/items/rainbow_cheese","count":65}],"outputItems":[{"itemHrid":"/items/rainbow_helmet","count":1}],"monsterSpawnRates":null,"sortIndex":109},"/actions/cheesesmithing/rainbow_mace":{"hrid":"/actions/cheesesmithing/rainbow_mace","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/rainbow","name":"Rainbow Mace","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":69},"baseTimeCost":32000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":2340},"dropTable":null,"upgradeItemHrid":"/items/crimson_mace","inputItems":[{"itemHrid":"/items/rainbow_cheese","count":78}],"outputItems":[{"itemHrid":"/items/rainbow_mace","count":1}],"monsterSpawnRates":null,"sortIndex":98},"/actions/cheesesmithing/rainbow_plate_body":{"hrid":"/actions/cheesesmithing/rainbow_plate_body","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/rainbow","name":"Rainbow Plate Body","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":74},"baseTimeCost":32000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":3510},"dropTable":null,"upgradeItemHrid":"/items/crimson_plate_body","inputItems":[{"itemHrid":"/items/rainbow_cheese","count":117}],"outputItems":[{"itemHrid":"/items/rainbow_plate_body","count":1}],"monsterSpawnRates":null,"sortIndex":112},"/actions/cheesesmithing/rainbow_plate_legs":{"hrid":"/actions/cheesesmithing/rainbow_plate_legs","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/rainbow","name":"Rainbow Plate Legs","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":73},"baseTimeCost":32000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":2730},"dropTable":null,"upgradeItemHrid":"/items/crimson_plate_legs","inputItems":[{"itemHrid":"/items/rainbow_cheese","count":91}],"outputItems":[{"itemHrid":"/items/rainbow_plate_legs","count":1}],"monsterSpawnRates":null,"sortIndex":111},"/actions/cheesesmithing/rainbow_pot":{"hrid":"/actions/cheesesmithing/rainbow_pot","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/rainbow","name":"Rainbow Pot","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":70},"baseTimeCost":32000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":1950},"dropTable":null,"upgradeItemHrid":"/items/crimson_pot","inputItems":[{"itemHrid":"/items/rainbow_cheese","count":65}],"outputItems":[{"itemHrid":"/items/rainbow_pot","count":1}],"monsterSpawnRates":null,"sortIndex":103},"/actions/cheesesmithing/rainbow_shears":{"hrid":"/actions/cheesesmithing/rainbow_shears","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/rainbow","name":"Rainbow Shears","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":70},"baseTimeCost":32000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":1950},"dropTable":null,"upgradeItemHrid":"/items/crimson_shears","inputItems":[{"itemHrid":"/items/rainbow_cheese","count":65}],"outputItems":[{"itemHrid":"/items/rainbow_shears","count":1}],"monsterSpawnRates":null,"sortIndex":100},"/actions/cheesesmithing/rainbow_spatula":{"hrid":"/actions/cheesesmithing/rainbow_spatula","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/rainbow","name":"Rainbow Spatula","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":70},"baseTimeCost":32000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":1950},"dropTable":null,"upgradeItemHrid":"/items/crimson_spatula","inputItems":[{"itemHrid":"/items/rainbow_cheese","count":65}],"outputItems":[{"itemHrid":"/items/rainbow_spatula","count":1}],"monsterSpawnRates":null,"sortIndex":102},"/actions/cheesesmithing/rainbow_spear":{"hrid":"/actions/cheesesmithing/rainbow_spear","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/rainbow","name":"Rainbow Spear","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":67},"baseTimeCost":32000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":2340},"dropTable":null,"upgradeItemHrid":"/items/crimson_spear","inputItems":[{"itemHrid":"/items/rainbow_cheese","count":78}],"outputItems":[{"itemHrid":"/items/rainbow_spear","count":1}],"monsterSpawnRates":null,"sortIndex":96},"/actions/cheesesmithing/rainbow_sword":{"hrid":"/actions/cheesesmithing/rainbow_sword","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/rainbow","name":"Rainbow Sword","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":68},"baseTimeCost":32000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":2340},"dropTable":null,"upgradeItemHrid":"/items/crimson_sword","inputItems":[{"itemHrid":"/items/rainbow_cheese","count":78}],"outputItems":[{"itemHrid":"/items/rainbow_sword","count":1}],"monsterSpawnRates":null,"sortIndex":97},"/actions/cheesesmithing/snail_shell_helmet":{"hrid":"/actions/cheesesmithing/snail_shell_helmet","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/special","name":"Snail Shell Helmet","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":26},"baseTimeCost":30000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":1600},"dropTable":null,"upgradeItemHrid":"/items/azure_helmet","inputItems":[{"itemHrid":"/items/snail_shell","count":2}],"outputItems":[{"itemHrid":"/items/snail_shell_helmet","count":1}],"monsterSpawnRates":null,"sortIndex":49},"/actions/cheesesmithing/snake_fang_dirk":{"hrid":"/actions/cheesesmithing/snake_fang_dirk","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/special","name":"Snake Fang Dirk","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":15},"baseTimeCost":30000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":600},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/verdant_cheese","count":30},{"itemHrid":"/items/snake_fang","count":10}],"outputItems":[{"itemHrid":"/items/snake_fang_dirk","count":1}],"monsterSpawnRates":null,"sortIndex":30},"/actions/cheesesmithing/turtle_shell_body":{"hrid":"/actions/cheesesmithing/turtle_shell_body","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/special","name":"Turtle Shell Body","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":32},"baseTimeCost":30000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":3000},"dropTable":null,"upgradeItemHrid":"/items/azure_plate_body","inputItems":[{"itemHrid":"/items/turtle_shell","count":3}],"outputItems":[{"itemHrid":"/items/turtle_shell_body","count":1}],"monsterSpawnRates":null,"sortIndex":56},"/actions/cheesesmithing/turtle_shell_legs":{"hrid":"/actions/cheesesmithing/turtle_shell_legs","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/special","name":"Turtle Shell Legs","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":32},"baseTimeCost":30000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":2000},"dropTable":null,"upgradeItemHrid":"/items/azure_plate_legs","inputItems":[{"itemHrid":"/items/turtle_shell","count":2}],"outputItems":[{"itemHrid":"/items/turtle_shell_legs","count":1}],"monsterSpawnRates":null,"sortIndex":55},"/actions/cheesesmithing/vampire_fang_dirk":{"hrid":"/actions/cheesesmithing/vampire_fang_dirk","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/special","name":"Vampire Fang Dirk","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":85},"baseTimeCost":30000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":48000},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/holy_cheese","count":400},{"itemHrid":"/items/vampire_fang","count":20}],"outputItems":[{"itemHrid":"/items/vampire_fang_dirk","count":1}],"monsterSpawnRates":null,"sortIndex":126},"/actions/cheesesmithing/verdant_boots":{"hrid":"/actions/cheesesmithing/verdant_boots","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/verdant","name":"Verdant Boots","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":10},"baseTimeCost":18000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":72},"dropTable":null,"upgradeItemHrid":"/items/cheese_boots","inputItems":[{"itemHrid":"/items/verdant_cheese","count":12}],"outputItems":[{"itemHrid":"/items/verdant_boots","count":1}],"monsterSpawnRates":null,"sortIndex":18},"/actions/cheesesmithing/verdant_brush":{"hrid":"/actions/cheesesmithing/verdant_brush","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/verdant","name":"Verdant Brush","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":15},"baseTimeCost":18000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":90},"dropTable":null,"upgradeItemHrid":"/items/cheese_brush","inputItems":[{"itemHrid":"/items/verdant_cheese","count":15}],"outputItems":[{"itemHrid":"/items/verdant_brush","count":1}],"monsterSpawnRates":null,"sortIndex":24},"/actions/cheesesmithing/verdant_buckler":{"hrid":"/actions/cheesesmithing/verdant_buckler","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/verdant","name":"Verdant Buckler","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":17},"baseTimeCost":18000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":108},"dropTable":null,"upgradeItemHrid":"/items/cheese_buckler","inputItems":[{"itemHrid":"/items/verdant_cheese","count":18}],"outputItems":[{"itemHrid":"/items/verdant_buckler","count":1}],"monsterSpawnRates":null,"sortIndex":32},"/actions/cheesesmithing/verdant_bulwark":{"hrid":"/actions/cheesesmithing/verdant_bulwark","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/verdant","name":"Verdant Bulwark","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":20},"baseTimeCost":18000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":180},"dropTable":null,"upgradeItemHrid":"/items/cheese_bulwark","inputItems":[{"itemHrid":"/items/verdant_cheese","count":30}],"outputItems":[{"itemHrid":"/items/verdant_bulwark","count":1}],"monsterSpawnRates":null,"sortIndex":37},"/actions/cheesesmithing/verdant_cheese":{"hrid":"/actions/cheesesmithing/verdant_cheese","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/verdant","name":"Verdant Cheese","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":10},"baseTimeCost":9000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":6},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/verdant_milk","count":2}],"outputItems":[{"itemHrid":"/items/verdant_cheese","count":1}],"monsterSpawnRates":null,"sortIndex":17},"/actions/cheesesmithing/verdant_enhancer":{"hrid":"/actions/cheesesmithing/verdant_enhancer","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/verdant","name":"Verdant Enhancer","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":15},"baseTimeCost":18000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":90},"dropTable":null,"upgradeItemHrid":"/items/cheese_enhancer","inputItems":[{"itemHrid":"/items/verdant_cheese","count":15}],"outputItems":[{"itemHrid":"/items/verdant_enhancer","count":1}],"monsterSpawnRates":null,"sortIndex":29},"/actions/cheesesmithing/verdant_gauntlets":{"hrid":"/actions/cheesesmithing/verdant_gauntlets","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/verdant","name":"Verdant Gauntlets","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":11},"baseTimeCost":18000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":72},"dropTable":null,"upgradeItemHrid":"/items/cheese_gauntlets","inputItems":[{"itemHrid":"/items/verdant_cheese","count":12}],"outputItems":[{"itemHrid":"/items/verdant_gauntlets","count":1}],"monsterSpawnRates":null,"sortIndex":20},"/actions/cheesesmithing/verdant_hammer":{"hrid":"/actions/cheesesmithing/verdant_hammer","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/verdant","name":"Verdant Hammer","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":15},"baseTimeCost":18000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":90},"dropTable":null,"upgradeItemHrid":"/items/cheese_hammer","inputItems":[{"itemHrid":"/items/verdant_cheese","count":15}],"outputItems":[{"itemHrid":"/items/verdant_hammer","count":1}],"monsterSpawnRates":null,"sortIndex":26},"/actions/cheesesmithing/verdant_helmet":{"hrid":"/actions/cheesesmithing/verdant_helmet","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/verdant","name":"Verdant Helmet","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":16},"baseTimeCost":18000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":90},"dropTable":null,"upgradeItemHrid":"/items/cheese_helmet","inputItems":[{"itemHrid":"/items/verdant_cheese","count":15}],"outputItems":[{"itemHrid":"/items/verdant_helmet","count":1}],"monsterSpawnRates":null,"sortIndex":31},"/actions/cheesesmithing/verdant_mace":{"hrid":"/actions/cheesesmithing/verdant_mace","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/verdant","name":"Verdant Mace","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":14},"baseTimeCost":18000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":108},"dropTable":null,"upgradeItemHrid":"/items/cheese_mace","inputItems":[{"itemHrid":"/items/verdant_cheese","count":18}],"outputItems":[{"itemHrid":"/items/verdant_mace","count":1}],"monsterSpawnRates":null,"sortIndex":23},"/actions/cheesesmithing/verdant_plate_body":{"hrid":"/actions/cheesesmithing/verdant_plate_body","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/verdant","name":"Verdant Plate Body","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":19},"baseTimeCost":18000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":162},"dropTable":null,"upgradeItemHrid":"/items/cheese_plate_body","inputItems":[{"itemHrid":"/items/verdant_cheese","count":27}],"outputItems":[{"itemHrid":"/items/verdant_plate_body","count":1}],"monsterSpawnRates":null,"sortIndex":34},"/actions/cheesesmithing/verdant_plate_legs":{"hrid":"/actions/cheesesmithing/verdant_plate_legs","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/verdant","name":"Verdant Plate Legs","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":18},"baseTimeCost":18000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":126},"dropTable":null,"upgradeItemHrid":"/items/cheese_plate_legs","inputItems":[{"itemHrid":"/items/verdant_cheese","count":21}],"outputItems":[{"itemHrid":"/items/verdant_plate_legs","count":1}],"monsterSpawnRates":null,"sortIndex":33},"/actions/cheesesmithing/verdant_pot":{"hrid":"/actions/cheesesmithing/verdant_pot","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/verdant","name":"Verdant Pot","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":15},"baseTimeCost":18000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":90},"dropTable":null,"upgradeItemHrid":"/items/cheese_pot","inputItems":[{"itemHrid":"/items/verdant_cheese","count":15}],"outputItems":[{"itemHrid":"/items/verdant_pot","count":1}],"monsterSpawnRates":null,"sortIndex":28},"/actions/cheesesmithing/verdant_shears":{"hrid":"/actions/cheesesmithing/verdant_shears","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/verdant","name":"Verdant Shears","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":15},"baseTimeCost":18000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":90},"dropTable":null,"upgradeItemHrid":"/items/cheese_shears","inputItems":[{"itemHrid":"/items/verdant_cheese","count":15}],"outputItems":[{"itemHrid":"/items/verdant_shears","count":1}],"monsterSpawnRates":null,"sortIndex":25},"/actions/cheesesmithing/verdant_spatula":{"hrid":"/actions/cheesesmithing/verdant_spatula","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/verdant","name":"Verdant Spatula","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":15},"baseTimeCost":18000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":90},"dropTable":null,"upgradeItemHrid":"/items/cheese_spatula","inputItems":[{"itemHrid":"/items/verdant_cheese","count":15}],"outputItems":[{"itemHrid":"/items/verdant_spatula","count":1}],"monsterSpawnRates":null,"sortIndex":27},"/actions/cheesesmithing/verdant_spear":{"hrid":"/actions/cheesesmithing/verdant_spear","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/verdant","name":"Verdant Spear","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":12},"baseTimeCost":18000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":108},"dropTable":null,"upgradeItemHrid":"/items/cheese_spear","inputItems":[{"itemHrid":"/items/verdant_cheese","count":18}],"outputItems":[{"itemHrid":"/items/verdant_spear","count":1}],"monsterSpawnRates":null,"sortIndex":21},"/actions/cheesesmithing/verdant_sword":{"hrid":"/actions/cheesesmithing/verdant_sword","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/verdant","name":"Verdant Sword","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":13},"baseTimeCost":18000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":108},"dropTable":null,"upgradeItemHrid":"/items/cheese_sword","inputItems":[{"itemHrid":"/items/verdant_cheese","count":18}],"outputItems":[{"itemHrid":"/items/verdant_sword","count":1}],"monsterSpawnRates":null,"sortIndex":22},"/actions/cheesesmithing/vision_helmet":{"hrid":"/actions/cheesesmithing/vision_helmet","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/special","name":"Vision Helmet","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":56},"baseTimeCost":30000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":6000},"dropTable":null,"upgradeItemHrid":"/items/crimson_helmet","inputItems":[{"itemHrid":"/items/goggles","count":1}],"outputItems":[{"itemHrid":"/items/vision_helmet","count":1}],"monsterSpawnRates":null,"sortIndex":87},"/actions/cheesesmithing/vision_shield":{"hrid":"/actions/cheesesmithing/vision_shield","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/special","name":"Vision Shield","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":56},"baseTimeCost":30000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":7200},"dropTable":null,"upgradeItemHrid":"/items/crimson_buckler","inputItems":[{"itemHrid":"/items/magnifying_glass","count":1}],"outputItems":[{"itemHrid":"/items/vision_shield","count":1}],"monsterSpawnRates":null,"sortIndex":88},"/actions/cheesesmithing/werewolf_slasher":{"hrid":"/actions/cheesesmithing/werewolf_slasher","function":"/action_functions/production","type":"/action_types/cheesesmithing","category":"/action_categories/cheesesmithing/special","name":"Werewolf Slasher","levelRequirement":{"skillHrid":"/skills/cheesesmithing","level":85},"baseTimeCost":30000000000,"experienceGain":{"skillHrid":"/skills/cheesesmithing","value":48000},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/holy_cheese","count":400},{"itemHrid":"/items/werewolf_claw","count":20}],"outputItems":[{"itemHrid":"/items/werewolf_slasher","count":1}],"monsterSpawnRates":null,"sortIndex":127},"/actions/combat/alligator":{"hrid":"/actions/combat/alligator","function":"/action_functions/combat","type":"/action_types/combat","category":"/action_categories/combat/swamp_planet","name":"Sherlock","levelRequirement":{"skillHrid":"","level":0},"baseTimeCost":30000000000,"experienceGain":{"skillHrid":"","value":0},"dropTable":null,"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":[{"combatMonsterHrids":["/combat_monsters/alligator"],"rate":1}],"sortIndex":9},"/actions/combat/aqua_planet":{"hrid":"/actions/combat/aqua_planet","function":"/action_functions/combat","type":"/action_types/combat","category":"/action_categories/combat/aqua_planet","name":"Aqua Planet","levelRequirement":{"skillHrid":"","level":0},"baseTimeCost":30000000000,"experienceGain":{"skillHrid":"","value":0},"dropTable":null,"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":[{"combatMonsterHrids":["/combat_monsters/sea_snail","/combat_monsters/sea_snail","/combat_monsters/sea_snail"],"rate":0.2},{"combatMonsterHrids":["/combat_monsters/sea_snail","/combat_monsters/sea_snail","/combat_monsters/crab"],"rate":0.1},{"combatMonsterHrids":["/combat_monsters/crab","/combat_monsters/crab"],"rate":0.1},{"combatMonsterHrids":["/combat_monsters/crab","/combat_monsters/crab","/combat_monsters/crab"],"rate":0.1},{"combatMonsterHrids":["/combat_monsters/sea_snail","/combat_monsters/crab","/combat_monsters/nom_nom"],"rate":0.1},{"combatMonsterHrids":["/combat_monsters/nom_nom","/combat_monsters/nom_nom"],"rate":0.1},{"combatMonsterHrids":["/combat_monsters/sea_snail","/combat_monsters/crab","/combat_monsters/turtle"],"rate":0.1},{"combatMonsterHrids":["/combat_monsters/nom_nom","/combat_monsters/turtle"],"rate":0.1},{"combatMonsterHrids":["/combat_monsters/turtle","/combat_monsters/turtle"],"rate":0.1}],"sortIndex":15},"/actions/combat/bear_with_it":{"hrid":"/actions/combat/bear_with_it","function":"/action_functions/combat","type":"/action_types/combat","category":"/action_categories/combat/bear_with_it","name":"Bear With It","levelRequirement":{"skillHrid":"","level":0},"baseTimeCost":30000000000,"experienceGain":{"skillHrid":"","value":0},"dropTable":null,"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":[{"combatMonsterHrids":["/combat_monsters/gummy_bear","/combat_monsters/gummy_bear","/combat_monsters/gummy_bear"],"rate":0.2},{"combatMonsterHrids":["/combat_monsters/panda","/combat_monsters/panda"],"rate":0.2},{"combatMonsterHrids":["/combat_monsters/black_bear","/combat_monsters/black_bear"],"rate":0.125},{"combatMonsterHrids":["/combat_monsters/black_bear","/combat_monsters/grizzly_bear"],"rate":0.125},{"combatMonsterHrids":["/combat_monsters/grizzly_bear","/combat_monsters/grizzly_bear"],"rate":0.125},{"combatMonsterHrids":["/combat_monsters/polar_bear","/combat_monsters/polar_bear"],"rate":0.125},{"combatMonsterHrids":["/combat_monsters/gummy_bear","/combat_monsters/polar_bear","/combat_monsters/gummy_bear"],"rate":0.1}],"sortIndex":29},"/actions/combat/black_bear":{"hrid":"/actions/combat/black_bear","function":"/action_functions/combat","type":"/action_types/combat","category":"/action_categories/combat/bear_with_it","name":"Black Bear","levelRequirement":{"skillHrid":"","level":0},"baseTimeCost":30000000000,"experienceGain":{"skillHrid":"","value":0},"dropTable":null,"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":[{"combatMonsterHrids":["/combat_monsters/black_bear"],"rate":1}],"sortIndex":26},"/actions/combat/crab":{"hrid":"/actions/combat/crab","function":"/action_functions/combat","type":"/action_types/combat","category":"/action_categories/combat/aqua_planet","name":"I Pinch","levelRequirement":{"skillHrid":"","level":0},"baseTimeCost":30000000000,"experienceGain":{"skillHrid":"","value":0},"dropTable":null,"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":[{"combatMonsterHrids":["/combat_monsters/crab"],"rate":1}],"sortIndex":12},"/actions/combat/eye":{"hrid":"/actions/combat/eye","function":"/action_functions/combat","type":"/action_types/combat","category":"/action_categories/combat/planet_of_the_eyes","name":"Eye","levelRequirement":{"skillHrid":"","level":0},"baseTimeCost":30000000000,"experienceGain":{"skillHrid":"","value":0},"dropTable":null,"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":[{"combatMonsterHrids":["/combat_monsters/eye"],"rate":1}],"sortIndex":20},"/actions/combat/eyes":{"hrid":"/actions/combat/eyes","function":"/action_functions/combat","type":"/action_types/combat","category":"/action_categories/combat/planet_of_the_eyes","name":"Eyes","levelRequirement":{"skillHrid":"","level":0},"baseTimeCost":30000000000,"experienceGain":{"skillHrid":"","value":0},"dropTable":null,"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":[{"combatMonsterHrids":["/combat_monsters/eyes"],"rate":1}],"sortIndex":21},"/actions/combat/fly":{"hrid":"/actions/combat/fly","function":"/action_functions/combat","type":"/action_types/combat","category":"/action_categories/combat/smelly_planet","name":"Fly","levelRequirement":{"skillHrid":"","level":0},"baseTimeCost":30000000000,"experienceGain":{"skillHrid":"","value":0},"dropTable":null,"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":[{"combatMonsterHrids":["/combat_monsters/fly"],"rate":1}],"sortIndex":1},"/actions/combat/frog":{"hrid":"/actions/combat/frog","function":"/action_functions/combat","type":"/action_types/combat","category":"/action_categories/combat/swamp_planet","name":"Frogger","levelRequirement":{"skillHrid":"","level":0},"baseTimeCost":30000000000,"experienceGain":{"skillHrid":"","value":0},"dropTable":null,"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":[{"combatMonsterHrids":["/combat_monsters/frog"],"rate":1}],"sortIndex":6},"/actions/combat/gobo_planet":{"hrid":"/actions/combat/gobo_planet","function":"/action_functions/combat","type":"/action_types/combat","category":"/action_categories/combat/gobo_planet","name":"Gobo Planet","levelRequirement":{"skillHrid":"","level":0},"baseTimeCost":30000000000,"experienceGain":{"skillHrid":"","value":0},"dropTable":null,"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":[{"combatMonsterHrids":["/combat_monsters/gobo_stabby","/combat_monsters/gobo_slashy"],"rate":0.3},{"combatMonsterHrids":["/combat_monsters/gobo_slashy","/combat_monsters/gobo_smashy"],"rate":0.3},{"combatMonsterHrids":["/combat_monsters/gobo_smashy","/combat_monsters/gobo_stabby"],"rate":0.3},{"combatMonsterHrids":["/combat_monsters/gobo_stabby","/combat_monsters/gobo_slashy","/combat_monsters/gobo_smashy"],"rate":0.1}],"sortIndex":19},"/actions/combat/gobo_slashy":{"hrid":"/actions/combat/gobo_slashy","function":"/action_functions/combat","type":"/action_types/combat","category":"/action_categories/combat/gobo_planet","name":"Slashy","levelRequirement":{"skillHrid":"","level":0},"baseTimeCost":30000000000,"experienceGain":{"skillHrid":"","value":0},"dropTable":null,"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":[{"combatMonsterHrids":["/combat_monsters/gobo_slashy"],"rate":1}],"sortIndex":17},"/actions/combat/gobo_smashy":{"hrid":"/actions/combat/gobo_smashy","function":"/action_functions/combat","type":"/action_types/combat","category":"/action_categories/combat/gobo_planet","name":"Smashy","levelRequirement":{"skillHrid":"","level":0},"baseTimeCost":30000000000,"experienceGain":{"skillHrid":"","value":0},"dropTable":null,"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":[{"combatMonsterHrids":["/combat_monsters/gobo_smashy"],"rate":1}],"sortIndex":18},"/actions/combat/gobo_stabby":{"hrid":"/actions/combat/gobo_stabby","function":"/action_functions/combat","type":"/action_types/combat","category":"/action_categories/combat/gobo_planet","name":"Stabby","levelRequirement":{"skillHrid":"","level":0},"baseTimeCost":30000000000,"experienceGain":{"skillHrid":"","value":0},"dropTable":null,"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":[{"combatMonsterHrids":["/combat_monsters/gobo_stabby"],"rate":1}],"sortIndex":16},"/actions/combat/grizzly_bear":{"hrid":"/actions/combat/grizzly_bear","function":"/action_functions/combat","type":"/action_types/combat","category":"/action_categories/combat/bear_with_it","name":"Grizzly Bear","levelRequirement":{"skillHrid":"","level":0},"baseTimeCost":30000000000,"experienceGain":{"skillHrid":"","value":0},"dropTable":null,"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":[{"combatMonsterHrids":["/combat_monsters/grizzly_bear"],"rate":1}],"sortIndex":27},"/actions/combat/gummy_bear":{"hrid":"/actions/combat/gummy_bear","function":"/action_functions/combat","type":"/action_types/combat","category":"/action_categories/combat/bear_with_it","name":"Gummy Bear","levelRequirement":{"skillHrid":"","level":0},"baseTimeCost":30000000000,"experienceGain":{"skillHrid":"","value":0},"dropTable":null,"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":[{"combatMonsterHrids":["/combat_monsters/gummy_bear"],"rate":1}],"sortIndex":24},"/actions/combat/nom_nom":{"hrid":"/actions/combat/nom_nom","function":"/action_functions/combat","type":"/action_types/combat","category":"/action_categories/combat/aqua_planet","name":"Nom Nom","levelRequirement":{"skillHrid":"","level":0},"baseTimeCost":30000000000,"experienceGain":{"skillHrid":"","value":0},"dropTable":null,"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":[{"combatMonsterHrids":["/combat_monsters/nom_nom"],"rate":1}],"sortIndex":13},"/actions/combat/panda":{"hrid":"/actions/combat/panda","function":"/action_functions/combat","type":"/action_types/combat","category":"/action_categories/combat/bear_with_it","name":"Panda","levelRequirement":{"skillHrid":"","level":0},"baseTimeCost":30000000000,"experienceGain":{"skillHrid":"","value":0},"dropTable":null,"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":[{"combatMonsterHrids":["/combat_monsters/panda"],"rate":1}],"sortIndex":25},"/actions/combat/planet_of_the_eyes":{"hrid":"/actions/combat/planet_of_the_eyes","function":"/action_functions/combat","type":"/action_types/combat","category":"/action_categories/combat/planet_of_the_eyes","name":"Planet Of The Eyes","levelRequirement":{"skillHrid":"","level":0},"baseTimeCost":30000000000,"experienceGain":{"skillHrid":"","value":0},"dropTable":null,"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":[{"combatMonsterHrids":["/combat_monsters/eye","/combat_monsters/eye","/combat_monsters/eye"],"rate":0.15},{"combatMonsterHrids":["/combat_monsters/eye","/combat_monsters/eyes"],"rate":0.15},{"combatMonsterHrids":["/combat_monsters/eyes","/combat_monsters/eyes"],"rate":0.2},{"combatMonsterHrids":["/combat_monsters/eye","/combat_monsters/veyes"],"rate":0.2},{"combatMonsterHrids":["/combat_monsters/eyes","/combat_monsters/veyes"],"rate":0.2},{"combatMonsterHrids":["/combat_monsters/eye","/combat_monsters/eyes","/combat_monsters/veyes"],"rate":0.1}],"sortIndex":23},"/actions/combat/polar_bear":{"hrid":"/actions/combat/polar_bear","function":"/action_functions/combat","type":"/action_types/combat","category":"/action_categories/combat/bear_with_it","name":"Polar Bear","levelRequirement":{"skillHrid":"","level":0},"baseTimeCost":30000000000,"experienceGain":{"skillHrid":"","value":0},"dropTable":null,"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":[{"combatMonsterHrids":["/combat_monsters/polar_bear"],"rate":1}],"sortIndex":28},"/actions/combat/rat":{"hrid":"/actions/combat/rat","function":"/action_functions/combat","type":"/action_types/combat","category":"/action_categories/combat/smelly_planet","name":"Jerry","levelRequirement":{"skillHrid":"","level":0},"baseTimeCost":30000000000,"experienceGain":{"skillHrid":"","value":0},"dropTable":null,"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":[{"combatMonsterHrids":["/combat_monsters/rat"],"rate":1}],"sortIndex":2},"/actions/combat/sea_snail":{"hrid":"/actions/combat/sea_snail","function":"/action_functions/combat","type":"/action_types/combat","category":"/action_categories/combat/aqua_planet","name":"Gary","levelRequirement":{"skillHrid":"","level":0},"baseTimeCost":30000000000,"experienceGain":{"skillHrid":"","value":0},"dropTable":null,"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":[{"combatMonsterHrids":["/combat_monsters/sea_snail"],"rate":1}],"sortIndex":11},"/actions/combat/skunk":{"hrid":"/actions/combat/skunk","function":"/action_functions/combat","type":"/action_types/combat","category":"/action_categories/combat/smelly_planet","name":"Skunk","levelRequirement":{"skillHrid":"","level":0},"baseTimeCost":30000000000,"experienceGain":{"skillHrid":"","value":0},"dropTable":null,"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":[{"combatMonsterHrids":["/combat_monsters/skunk"],"rate":1}],"sortIndex":3},"/actions/combat/slimy":{"hrid":"/actions/combat/slimy","function":"/action_functions/combat","type":"/action_types/combat","category":"/action_categories/combat/smelly_planet","name":"Slimy","levelRequirement":{"skillHrid":"","level":0},"baseTimeCost":30000000000,"experienceGain":{"skillHrid":"","value":0},"dropTable":null,"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":[{"combatMonsterHrids":["/combat_monsters/slimy"],"rate":1}],"sortIndex":4},"/actions/combat/smelly_planet":{"hrid":"/actions/combat/smelly_planet","function":"/action_functions/combat","type":"/action_types/combat","category":"/action_categories/combat/smelly_planet","name":"Smelly Planet","levelRequirement":{"skillHrid":"","level":0},"baseTimeCost":30000000000,"experienceGain":{"skillHrid":"","value":0},"dropTable":null,"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":[{"combatMonsterHrids":["/combat_monsters/fly","/combat_monsters/fly","/combat_monsters/fly"],"rate":0.2},{"combatMonsterHrids":["/combat_monsters/fly","/combat_monsters/rat","/combat_monsters/rat","/combat_monsters/fly"],"rate":0.2},{"combatMonsterHrids":["/combat_monsters/skunk","/combat_monsters/skunk"],"rate":0.2},{"combatMonsterHrids":["/combat_monsters/rat","/combat_monsters/rat","/combat_monsters/rat"],"rate":0.1},{"combatMonsterHrids":["/combat_monsters/skunk","/combat_monsters/skunk","/combat_monsters/skunk"],"rate":0.1},{"combatMonsterHrids":["/combat_monsters/fly","/combat_monsters/slimy","/combat_monsters/rat","/combat_monsters/fly"],"rate":0.1},{"combatMonsterHrids":["/combat_monsters/slimy","/combat_monsters/slimy"],"rate":0.1}],"sortIndex":5},"/actions/combat/snake":{"hrid":"/actions/combat/snake","function":"/action_functions/combat","type":"/action_types/combat","category":"/action_categories/combat/swamp_planet","name":"Thnake","levelRequirement":{"skillHrid":"","level":0},"baseTimeCost":30000000000,"experienceGain":{"skillHrid":"","value":0},"dropTable":null,"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":[{"combatMonsterHrids":["/combat_monsters/snake"],"rate":1}],"sortIndex":7},"/actions/combat/swamp_planet":{"hrid":"/actions/combat/swamp_planet","function":"/action_functions/combat","type":"/action_types/combat","category":"/action_categories/combat/swamp_planet","name":"Swamp Planet","levelRequirement":{"skillHrid":"","level":0},"baseTimeCost":30000000000,"experienceGain":{"skillHrid":"","value":0},"dropTable":null,"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":[{"combatMonsterHrids":["/combat_monsters/frog","/combat_monsters/frog","/combat_monsters/frog"],"rate":0.2},{"combatMonsterHrids":["/combat_monsters/snake","/combat_monsters/snake"],"rate":0.2},{"combatMonsterHrids":["/combat_monsters/frog","/combat_monsters/frog","/combat_monsters/snake"],"rate":0.1},{"combatMonsterHrids":["/combat_monsters/frog","/combat_monsters/snake","/combat_monsters/swampy"],"rate":0.1},{"combatMonsterHrids":["/combat_monsters/swampy","/combat_monsters/swampy"],"rate":0.1},{"combatMonsterHrids":["/combat_monsters/snake","/combat_monsters/alligator","/combat_monsters/snake"],"rate":0.1},{"combatMonsterHrids":["/combat_monsters/snake","/combat_monsters/swampy","/combat_monsters/alligator"],"rate":0.1},{"combatMonsterHrids":["/combat_monsters/frog","/combat_monsters/frog","/combat_monsters/frog","/combat_monsters/alligator"],"rate":0.1}],"sortIndex":10},"/actions/combat/swampy":{"hrid":"/actions/combat/swampy","function":"/action_functions/combat","type":"/action_types/combat","category":"/action_categories/combat/swamp_planet","name":"Swampy","levelRequirement":{"skillHrid":"","level":0},"baseTimeCost":30000000000,"experienceGain":{"skillHrid":"","value":0},"dropTable":null,"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":[{"combatMonsterHrids":["/combat_monsters/swampy"],"rate":1}],"sortIndex":8},"/actions/combat/turtle":{"hrid":"/actions/combat/turtle","function":"/action_functions/combat","type":"/action_types/combat","category":"/action_categories/combat/aqua_planet","name":"Turuto","levelRequirement":{"skillHrid":"","level":0},"baseTimeCost":30000000000,"experienceGain":{"skillHrid":"","value":0},"dropTable":null,"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":[{"combatMonsterHrids":["/combat_monsters/turtle"],"rate":1}],"sortIndex":14},"/actions/combat/twilight_zone":{"hrid":"/actions/combat/twilight_zone","function":"/action_functions/combat","type":"/action_types/combat","category":"/action_categories/combat/twilight_zone","name":"Twilight Zone","levelRequirement":{"skillHrid":"","level":0},"baseTimeCost":30000000000,"experienceGain":{"skillHrid":"","value":0},"dropTable":null,"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":[{"combatMonsterHrids":["/combat_monsters/zombie","/combat_monsters/zombie"],"rate":0.2},{"combatMonsterHrids":["/combat_monsters/zombie","/combat_monsters/zombie","/combat_monsters/zombie"],"rate":0.2},{"combatMonsterHrids":["/combat_monsters/vampire","/combat_monsters/vampire"],"rate":0.2},{"combatMonsterHrids":["/combat_monsters/vampire","/combat_monsters/werewolf"],"rate":0.2},{"combatMonsterHrids":["/combat_monsters/werewolf","/combat_monsters/werewolf"],"rate":0.2}],"sortIndex":33},"/actions/combat/vampire":{"hrid":"/actions/combat/vampire","function":"/action_functions/combat","type":"/action_types/combat","category":"/action_categories/combat/twilight_zone","name":"Vampire","levelRequirement":{"skillHrid":"","level":0},"baseTimeCost":30000000000,"experienceGain":{"skillHrid":"","value":0},"dropTable":null,"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":[{"combatMonsterHrids":["/combat_monsters/vampire"],"rate":1}],"sortIndex":31},"/actions/combat/veyes":{"hrid":"/actions/combat/veyes","function":"/action_functions/combat","type":"/action_types/combat","category":"/action_categories/combat/planet_of_the_eyes","name":"Veyes","levelRequirement":{"skillHrid":"","level":0},"baseTimeCost":30000000000,"experienceGain":{"skillHrid":"","value":0},"dropTable":null,"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":[{"combatMonsterHrids":["/combat_monsters/veyes"],"rate":1}],"sortIndex":22},"/actions/combat/werewolf":{"hrid":"/actions/combat/werewolf","function":"/action_functions/combat","type":"/action_types/combat","category":"/action_categories/combat/twilight_zone","name":"Werewolf","levelRequirement":{"skillHrid":"","level":0},"baseTimeCost":30000000000,"experienceGain":{"skillHrid":"","value":0},"dropTable":null,"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":[{"combatMonsterHrids":["/combat_monsters/werewolf"],"rate":1}],"sortIndex":32},"/actions/combat/zombie":{"hrid":"/actions/combat/zombie","function":"/action_functions/combat","type":"/action_types/combat","category":"/action_categories/combat/twilight_zone","name":"Zombie","levelRequirement":{"skillHrid":"","level":0},"baseTimeCost":30000000000,"experienceGain":{"skillHrid":"","value":0},"dropTable":null,"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":[{"combatMonsterHrids":["/combat_monsters/zombie"],"rate":1}],"sortIndex":30},"/actions/cooking/apple_gummy":{"hrid":"/actions/cooking/apple_gummy","function":"/action_functions/production","type":"/action_types/cooking","category":"/action_categories/cooking/instant_mana","name":"Apple Gummy","levelRequirement":{"skillHrid":"/skills/cooking","level":10},"baseTimeCost":6500000000,"experienceGain":{"skillHrid":"/skills/cooking","value":6},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/sugar","count":6},{"itemHrid":"/items/apple","count":1}],"outputItems":[{"itemHrid":"/items/apple_gummy","count":1}],"monsterSpawnRates":null,"sortIndex":7},"/actions/cooking/apple_yogurt":{"hrid":"/actions/cooking/apple_yogurt","function":"/action_functions/production","type":"/action_types/cooking","category":"/action_categories/cooking/mana_over_time","name":"Apple Yogurt","levelRequirement":{"skillHrid":"/skills/cooking","level":10},"baseTimeCost":8000000000,"experienceGain":{"skillHrid":"/skills/cooking","value":10},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/sugar","count":3},{"itemHrid":"/items/verdant_milk","count":1},{"itemHrid":"/items/apple","count":1}],"outputItems":[{"itemHrid":"/items/apple_yogurt","count":1}],"monsterSpawnRates":null,"sortIndex":8},"/actions/cooking/blackberry_cake":{"hrid":"/actions/cooking/blackberry_cake","function":"/action_functions/production","type":"/action_types/cooking","category":"/action_categories/cooking/heal_over_time","name":"Blackberry Cake","levelRequirement":{"skillHrid":"/skills/cooking","level":20},"baseTimeCost":9000000000,"experienceGain":{"skillHrid":"/skills/cooking","value":20},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/egg","count":1},{"itemHrid":"/items/wheat","count":1},{"itemHrid":"/items/sugar","count":2},{"itemHrid":"/items/azure_milk","count":1},{"itemHrid":"/items/blackberry","count":2}],"outputItems":[{"itemHrid":"/items/blackberry_cake","count":1}],"monsterSpawnRates":null,"sortIndex":10},"/actions/cooking/blackberry_donut":{"hrid":"/actions/cooking/blackberry_donut","function":"/action_functions/production","type":"/action_types/cooking","category":"/action_categories/cooking/instant_heal","name":"Blackberry Donut","levelRequirement":{"skillHrid":"/skills/cooking","level":20},"baseTimeCost":7000000000,"experienceGain":{"skillHrid":"/skills/cooking","value":12},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/egg","count":1},{"itemHrid":"/items/wheat","count":1},{"itemHrid":"/items/sugar","count":4},{"itemHrid":"/items/blackberry","count":2}],"outputItems":[{"itemHrid":"/items/blackberry_donut","count":1}],"monsterSpawnRates":null,"sortIndex":9},"/actions/cooking/blueberry_cake":{"hrid":"/actions/cooking/blueberry_cake","function":"/action_functions/production","type":"/action_types/cooking","category":"/action_categories/cooking/heal_over_time","name":"Blueberry Cake","levelRequirement":{"skillHrid":"/skills/cooking","level":10},"baseTimeCost":8000000000,"experienceGain":{"skillHrid":"/skills/cooking","value":10},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/egg","count":1},{"itemHrid":"/items/wheat","count":1},{"itemHrid":"/items/sugar","count":2},{"itemHrid":"/items/verdant_milk","count":1},{"itemHrid":"/items/blueberry","count":2}],"outputItems":[{"itemHrid":"/items/blueberry_cake","count":1}],"monsterSpawnRates":null,"sortIndex":6},"/actions/cooking/blueberry_donut":{"hrid":"/actions/cooking/blueberry_donut","function":"/action_functions/production","type":"/action_types/cooking","category":"/action_categories/cooking/instant_heal","name":"Blueberry Donut","levelRequirement":{"skillHrid":"/skills/cooking","level":10},"baseTimeCost":6500000000,"experienceGain":{"skillHrid":"/skills/cooking","value":6},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/egg","count":1},{"itemHrid":"/items/wheat","count":1},{"itemHrid":"/items/sugar","count":4},{"itemHrid":"/items/blueberry","count":2}],"outputItems":[{"itemHrid":"/items/blueberry_donut","count":1}],"monsterSpawnRates":null,"sortIndex":5},"/actions/cooking/cupcake":{"hrid":"/actions/cooking/cupcake","function":"/action_functions/production","type":"/action_types/cooking","category":"/action_categories/cooking/heal_over_time","name":"Cupcake","levelRequirement":{"skillHrid":"/skills/cooking","level":1},"baseTimeCost":7000000000,"experienceGain":{"skillHrid":"/skills/cooking","value":5},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/egg","count":1},{"itemHrid":"/items/wheat","count":1},{"itemHrid":"/items/sugar","count":2},{"itemHrid":"/items/milk","count":1}],"outputItems":[{"itemHrid":"/items/cupcake","count":1}],"monsterSpawnRates":null,"sortIndex":2},"/actions/cooking/donut":{"hrid":"/actions/cooking/donut","function":"/action_functions/production","type":"/action_types/cooking","category":"/action_categories/cooking/instant_heal","name":"Donut","levelRequirement":{"skillHrid":"/skills/cooking","level":1},"baseTimeCost":6000000000,"experienceGain":{"skillHrid":"/skills/cooking","value":3},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/egg","count":1},{"itemHrid":"/items/wheat","count":1},{"itemHrid":"/items/sugar","count":4}],"outputItems":[{"itemHrid":"/items/donut","count":1}],"monsterSpawnRates":null,"sortIndex":1},"/actions/cooking/dragon_fruit_gummy":{"hrid":"/actions/cooking/dragon_fruit_gummy","function":"/action_functions/production","type":"/action_types/cooking","category":"/action_categories/cooking/instant_mana","name":"Dragon Fruit Gummy","levelRequirement":{"skillHrid":"/skills/cooking","level":65},"baseTimeCost":10000000000,"experienceGain":{"skillHrid":"/skills/cooking","value":30},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/sugar","count":6},{"itemHrid":"/items/dragon_fruit","count":1}],"outputItems":[{"itemHrid":"/items/dragon_fruit_gummy","count":1}],"monsterSpawnRates":null,"sortIndex":23},"/actions/cooking/dragon_fruit_yogurt":{"hrid":"/actions/cooking/dragon_fruit_yogurt","function":"/action_functions/production","type":"/action_types/cooking","category":"/action_categories/cooking/mana_over_time","name":"Dragon Fruit Yogurt","levelRequirement":{"skillHrid":"/skills/cooking","level":65},"baseTimeCost":14000000000,"experienceGain":{"skillHrid":"/skills/cooking","value":50},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/sugar","count":3},{"itemHrid":"/items/rainbow_milk","count":1},{"itemHrid":"/items/dragon_fruit","count":1}],"outputItems":[{"itemHrid":"/items/dragon_fruit_yogurt","count":1}],"monsterSpawnRates":null,"sortIndex":24},"/actions/cooking/gummy":{"hrid":"/actions/cooking/gummy","function":"/action_functions/production","type":"/action_types/cooking","category":"/action_categories/cooking/instant_mana","name":"Gummy","levelRequirement":{"skillHrid":"/skills/cooking","level":1},"baseTimeCost":6000000000,"experienceGain":{"skillHrid":"/skills/cooking","value":3},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/sugar","count":6}],"outputItems":[{"itemHrid":"/items/gummy","count":1}],"monsterSpawnRates":null,"sortIndex":3},"/actions/cooking/marsberry_cake":{"hrid":"/actions/cooking/marsberry_cake","function":"/action_functions/production","type":"/action_types/cooking","category":"/action_categories/cooking/heal_over_time","name":"Marsberry Cake","levelRequirement":{"skillHrid":"/skills/cooking","level":65},"baseTimeCost":14000000000,"experienceGain":{"skillHrid":"/skills/cooking","value":50},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/egg","count":1},{"itemHrid":"/items/wheat","count":1},{"itemHrid":"/items/sugar","count":2},{"itemHrid":"/items/rainbow_milk","count":1},{"itemHrid":"/items/marsberry","count":2}],"outputItems":[{"itemHrid":"/items/marsberry_cake","count":1}],"monsterSpawnRates":null,"sortIndex":22},"/actions/cooking/marsberry_donut":{"hrid":"/actions/cooking/marsberry_donut","function":"/action_functions/production","type":"/action_types/cooking","category":"/action_categories/cooking/instant_heal","name":"Marsberry Donut","levelRequirement":{"skillHrid":"/skills/cooking","level":65},"baseTimeCost":10000000000,"experienceGain":{"skillHrid":"/skills/cooking","value":30},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/egg","count":1},{"itemHrid":"/items/wheat","count":1},{"itemHrid":"/items/sugar","count":4},{"itemHrid":"/items/marsberry","count":2}],"outputItems":[{"itemHrid":"/items/marsberry_donut","count":1}],"monsterSpawnRates":null,"sortIndex":21},"/actions/cooking/mooberry_cake":{"hrid":"/actions/cooking/mooberry_cake","function":"/action_functions/production","type":"/action_types/cooking","category":"/action_categories/cooking/heal_over_time","name":"Mooberry Cake","levelRequirement":{"skillHrid":"/skills/cooking","level":50},"baseTimeCost":12000000000,"experienceGain":{"skillHrid":"/skills/cooking","value":40},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/egg","count":1},{"itemHrid":"/items/wheat","count":1},{"itemHrid":"/items/sugar","count":2},{"itemHrid":"/items/crimson_milk","count":1},{"itemHrid":"/items/mooberry","count":2}],"outputItems":[{"itemHrid":"/items/mooberry_cake","count":1}],"monsterSpawnRates":null,"sortIndex":18},"/actions/cooking/mooberry_donut":{"hrid":"/actions/cooking/mooberry_donut","function":"/action_functions/production","type":"/action_types/cooking","category":"/action_categories/cooking/instant_heal","name":"Mooberry Donut","levelRequirement":{"skillHrid":"/skills/cooking","level":50},"baseTimeCost":9000000000,"experienceGain":{"skillHrid":"/skills/cooking","value":24},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/egg","count":1},{"itemHrid":"/items/wheat","count":1},{"itemHrid":"/items/sugar","count":4},{"itemHrid":"/items/mooberry","count":2}],"outputItems":[{"itemHrid":"/items/mooberry_donut","count":1}],"monsterSpawnRates":null,"sortIndex":17},"/actions/cooking/orange_gummy":{"hrid":"/actions/cooking/orange_gummy","function":"/action_functions/production","type":"/action_types/cooking","category":"/action_categories/cooking/instant_mana","name":"Orange Gummy","levelRequirement":{"skillHrid":"/skills/cooking","level":20},"baseTimeCost":7000000000,"experienceGain":{"skillHrid":"/skills/cooking","value":12},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/sugar","count":6},{"itemHrid":"/items/orange","count":1}],"outputItems":[{"itemHrid":"/items/orange_gummy","count":1}],"monsterSpawnRates":null,"sortIndex":11},"/actions/cooking/orange_yogurt":{"hrid":"/actions/cooking/orange_yogurt","function":"/action_functions/production","type":"/action_types/cooking","category":"/action_categories/cooking/mana_over_time","name":"Orange Yogurt","levelRequirement":{"skillHrid":"/skills/cooking","level":20},"baseTimeCost":9000000000,"experienceGain":{"skillHrid":"/skills/cooking","value":20},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/sugar","count":3},{"itemHrid":"/items/azure_milk","count":1},{"itemHrid":"/items/orange","count":1}],"outputItems":[{"itemHrid":"/items/orange_yogurt","count":1}],"monsterSpawnRates":null,"sortIndex":12},"/actions/cooking/peach_gummy":{"hrid":"/actions/cooking/peach_gummy","function":"/action_functions/production","type":"/action_types/cooking","category":"/action_categories/cooking/instant_mana","name":"Peach Gummy","levelRequirement":{"skillHrid":"/skills/cooking","level":50},"baseTimeCost":9000000000,"experienceGain":{"skillHrid":"/skills/cooking","value":24},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/sugar","count":6},{"itemHrid":"/items/peach","count":1}],"outputItems":[{"itemHrid":"/items/peach_gummy","count":1}],"monsterSpawnRates":null,"sortIndex":19},"/actions/cooking/peach_yogurt":{"hrid":"/actions/cooking/peach_yogurt","function":"/action_functions/production","type":"/action_types/cooking","category":"/action_categories/cooking/mana_over_time","name":"Peach Yogurt","levelRequirement":{"skillHrid":"/skills/cooking","level":50},"baseTimeCost":12000000000,"experienceGain":{"skillHrid":"/skills/cooking","value":40},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/sugar","count":3},{"itemHrid":"/items/crimson_milk","count":1},{"itemHrid":"/items/peach","count":1}],"outputItems":[{"itemHrid":"/items/peach_yogurt","count":1}],"monsterSpawnRates":null,"sortIndex":20},"/actions/cooking/plum_gummy":{"hrid":"/actions/cooking/plum_gummy","function":"/action_functions/production","type":"/action_types/cooking","category":"/action_categories/cooking/instant_mana","name":"Plum Gummy","levelRequirement":{"skillHrid":"/skills/cooking","level":35},"baseTimeCost":8000000000,"experienceGain":{"skillHrid":"/skills/cooking","value":18},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/sugar","count":6},{"itemHrid":"/items/plum","count":1}],"outputItems":[{"itemHrid":"/items/plum_gummy","count":1}],"monsterSpawnRates":null,"sortIndex":15},"/actions/cooking/plum_yogurt":{"hrid":"/actions/cooking/plum_yogurt","function":"/action_functions/production","type":"/action_types/cooking","category":"/action_categories/cooking/mana_over_time","name":"Plum Yogurt","levelRequirement":{"skillHrid":"/skills/cooking","level":35},"baseTimeCost":10000000000,"experienceGain":{"skillHrid":"/skills/cooking","value":30},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/sugar","count":3},{"itemHrid":"/items/burble_milk","count":1},{"itemHrid":"/items/plum","count":1}],"outputItems":[{"itemHrid":"/items/plum_yogurt","count":1}],"monsterSpawnRates":null,"sortIndex":16},"/actions/cooking/spaceberry_cake":{"hrid":"/actions/cooking/spaceberry_cake","function":"/action_functions/production","type":"/action_types/cooking","category":"/action_categories/cooking/heal_over_time","name":"Spaceberry Cake","levelRequirement":{"skillHrid":"/skills/cooking","level":80},"baseTimeCost":16000000000,"experienceGain":{"skillHrid":"/skills/cooking","value":60},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/egg","count":1},{"itemHrid":"/items/wheat","count":1},{"itemHrid":"/items/sugar","count":2},{"itemHrid":"/items/holy_milk","count":1},{"itemHrid":"/items/spaceberry","count":2}],"outputItems":[{"itemHrid":"/items/spaceberry_cake","count":1}],"monsterSpawnRates":null,"sortIndex":26},"/actions/cooking/spaceberry_donut":{"hrid":"/actions/cooking/spaceberry_donut","function":"/action_functions/production","type":"/action_types/cooking","category":"/action_categories/cooking/instant_heal","name":"Spaceberry Donut","levelRequirement":{"skillHrid":"/skills/cooking","level":80},"baseTimeCost":12000000000,"experienceGain":{"skillHrid":"/skills/cooking","value":36},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/egg","count":1},{"itemHrid":"/items/wheat","count":1},{"itemHrid":"/items/sugar","count":4},{"itemHrid":"/items/spaceberry","count":2}],"outputItems":[{"itemHrid":"/items/spaceberry_donut","count":1}],"monsterSpawnRates":null,"sortIndex":25},"/actions/cooking/star_fruit_gummy":{"hrid":"/actions/cooking/star_fruit_gummy","function":"/action_functions/production","type":"/action_types/cooking","category":"/action_categories/cooking/instant_mana","name":"Star Fruit Gummy","levelRequirement":{"skillHrid":"/skills/cooking","level":80},"baseTimeCost":12000000000,"experienceGain":{"skillHrid":"/skills/cooking","value":36},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/sugar","count":6},{"itemHrid":"/items/star_fruit","count":1}],"outputItems":[{"itemHrid":"/items/star_fruit_gummy","count":1}],"monsterSpawnRates":null,"sortIndex":27},"/actions/cooking/star_fruit_yogurt":{"hrid":"/actions/cooking/star_fruit_yogurt","function":"/action_functions/production","type":"/action_types/cooking","category":"/action_categories/cooking/mana_over_time","name":"Star Fruit Yogurt","levelRequirement":{"skillHrid":"/skills/cooking","level":80},"baseTimeCost":16000000000,"experienceGain":{"skillHrid":"/skills/cooking","value":60},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/sugar","count":3},{"itemHrid":"/items/holy_milk","count":1},{"itemHrid":"/items/star_fruit","count":1}],"outputItems":[{"itemHrid":"/items/star_fruit_yogurt","count":1}],"monsterSpawnRates":null,"sortIndex":28},"/actions/cooking/strawberry_cake":{"hrid":"/actions/cooking/strawberry_cake","function":"/action_functions/production","type":"/action_types/cooking","category":"/action_categories/cooking/heal_over_time","name":"Strawberry Cake","levelRequirement":{"skillHrid":"/skills/cooking","level":35},"baseTimeCost":10000000000,"experienceGain":{"skillHrid":"/skills/cooking","value":30},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/egg","count":1},{"itemHrid":"/items/wheat","count":1},{"itemHrid":"/items/sugar","count":2},{"itemHrid":"/items/burble_milk","count":1},{"itemHrid":"/items/strawberry","count":2}],"outputItems":[{"itemHrid":"/items/strawberry_cake","count":1}],"monsterSpawnRates":null,"sortIndex":14},"/actions/cooking/strawberry_donut":{"hrid":"/actions/cooking/strawberry_donut","function":"/action_functions/production","type":"/action_types/cooking","category":"/action_categories/cooking/instant_heal","name":"Strawberry Donut","levelRequirement":{"skillHrid":"/skills/cooking","level":35},"baseTimeCost":8000000000,"experienceGain":{"skillHrid":"/skills/cooking","value":18},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/egg","count":1},{"itemHrid":"/items/wheat","count":1},{"itemHrid":"/items/sugar","count":4},{"itemHrid":"/items/strawberry","count":2}],"outputItems":[{"itemHrid":"/items/strawberry_donut","count":1}],"monsterSpawnRates":null,"sortIndex":13},"/actions/cooking/yogurt":{"hrid":"/actions/cooking/yogurt","function":"/action_functions/production","type":"/action_types/cooking","category":"/action_categories/cooking/mana_over_time","name":"Yogurt","levelRequirement":{"skillHrid":"/skills/cooking","level":1},"baseTimeCost":7000000000,"experienceGain":{"skillHrid":"/skills/cooking","value":5},"dropTable":null,"upgradeItemHrid":"","inputItems":[{"itemHrid":"/items/sugar","count":3},{"itemHrid":"/items/milk","count":1}],"outputItems":[{"itemHrid":"/items/yogurt","count":1}],"monsterSpawnRates":null,"sortIndex":4},"/actions/enhancing/enhance":{"hrid":"/actions/enhancing/enhance","function":"/action_functions/enhancing","type":"/action_types/enhancing","category":"","name":"Enhance","levelRequirement":{"skillHrid":"/skills/enhancing","level":1},"baseTimeCost":10000000000,"experienceGain":{"skillHrid":"","value":0},"dropTable":null,"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":null,"sortIndex":0},"/actions/foraging/apple":{"hrid":"/actions/foraging/apple","function":"/action_functions/gathering","type":"/action_types/foraging","category":"/action_categories/foraging/shimmering_lake","name":"Apple","levelRequirement":{"skillHrid":"/skills/foraging","level":10},"baseTimeCost":9000000000,"experienceGain":{"skillHrid":"/skills/foraging","value":10},"dropTable":[{"itemHrid":"/items/apple","dropRate":1,"minCount":1,"maxCount":4}],"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":null,"sortIndex":6},"/actions/foraging/arabica_coffee_bean":{"hrid":"/actions/foraging/arabica_coffee_bean","function":"/action_functions/gathering","type":"/action_types/foraging","category":"/action_categories/foraging/shimmering_lake","name":"Arabica Coffee Bean","levelRequirement":{"skillHrid":"/skills/foraging","level":10},"baseTimeCost":9000000000,"experienceGain":{"skillHrid":"/skills/foraging","value":10},"dropTable":[{"itemHrid":"/items/arabica_coffee_bean","dropRate":1,"minCount":1,"maxCount":1}],"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":null,"sortIndex":7},"/actions/foraging/asteroid_belt":{"hrid":"/actions/foraging/asteroid_belt","function":"/action_functions/gathering","type":"/action_types/foraging","category":"/action_categories/foraging/asteroid_belt","name":"Asteroid Belt","levelRequirement":{"skillHrid":"/skills/foraging","level":80},"baseTimeCost":24000000000,"experienceGain":{"skillHrid":"/skills/foraging","value":60},"dropTable":[{"itemHrid":"/items/spaceberry","dropRate":0.4,"minCount":1,"maxCount":8},{"itemHrid":"/items/star_fruit","dropRate":0.4,"minCount":1,"maxCount":4},{"itemHrid":"/items/spacia_coffee_bean","dropRate":0.4,"minCount":1,"maxCount":1}],"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":null,"sortIndex":28},"/actions/foraging/blackberry":{"hrid":"/actions/foraging/blackberry","function":"/action_functions/gathering","type":"/action_types/foraging","category":"/action_categories/foraging/misty_forest","name":"Blackberry","levelRequirement":{"skillHrid":"/skills/foraging","level":20},"baseTimeCost":10000000000,"experienceGain":{"skillHrid":"/skills/foraging","value":20},"dropTable":[{"itemHrid":"/items/blackberry","dropRate":1,"minCount":1,"maxCount":8}],"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":null,"sortIndex":9},"/actions/foraging/blueberry":{"hrid":"/actions/foraging/blueberry","function":"/action_functions/gathering","type":"/action_types/foraging","category":"/action_categories/foraging/shimmering_lake","name":"Blueberry","levelRequirement":{"skillHrid":"/skills/foraging","level":10},"baseTimeCost":9000000000,"experienceGain":{"skillHrid":"/skills/foraging","value":10},"dropTable":[{"itemHrid":"/items/blueberry","dropRate":1,"minCount":1,"maxCount":8}],"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":null,"sortIndex":5},"/actions/foraging/burble_beach":{"hrid":"/actions/foraging/burble_beach","function":"/action_functions/gathering","type":"/action_types/foraging","category":"/action_categories/foraging/burble_beach","name":"Burble Beach","levelRequirement":{"skillHrid":"/skills/foraging","level":35},"baseTimeCost":12000000000,"experienceGain":{"skillHrid":"/skills/foraging","value":30},"dropTable":[{"itemHrid":"/items/strawberry","dropRate":0.4,"minCount":1,"maxCount":8},{"itemHrid":"/items/plum","dropRate":0.4,"minCount":1,"maxCount":4},{"itemHrid":"/items/liberica_coffee_bean","dropRate":0.4,"minCount":1,"maxCount":1}],"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":null,"sortIndex":16},"/actions/foraging/dragon_fruit":{"hrid":"/actions/foraging/dragon_fruit","function":"/action_functions/gathering","type":"/action_types/foraging","category":"/action_categories/foraging/olympus_mons","name":"Dragon Fruit","levelRequirement":{"skillHrid":"/skills/foraging","level":65},"baseTimeCost":16000000000,"experienceGain":{"skillHrid":"/skills/foraging","value":50},"dropTable":[{"itemHrid":"/items/dragon_fruit","dropRate":1,"minCount":1,"maxCount":4}],"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":null,"sortIndex":22},"/actions/foraging/egg":{"hrid":"/actions/foraging/egg","function":"/action_functions/gathering","type":"/action_types/foraging","category":"/action_categories/foraging/farmland","name":"Egg","levelRequirement":{"skillHrid":"/skills/foraging","level":1},"baseTimeCost":8000000000,"experienceGain":{"skillHrid":"/skills/foraging","value":5},"dropTable":[{"itemHrid":"/items/egg","dropRate":1,"minCount":1,"maxCount":6}],"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":null,"sortIndex":1},"/actions/foraging/excelsa_coffee_bean":{"hrid":"/actions/foraging/excelsa_coffee_bean","function":"/action_functions/gathering","type":"/action_types/foraging","category":"/action_categories/foraging/silly_cow_valley","name":"Excelsa Coffee Bean","levelRequirement":{"skillHrid":"/skills/foraging","level":50},"baseTimeCost":14000000000,"experienceGain":{"skillHrid":"/skills/foraging","value":40},"dropTable":[{"itemHrid":"/items/excelsa_coffee_bean","dropRate":1,"minCount":1,"maxCount":1}],"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":null,"sortIndex":19},"/actions/foraging/farmland":{"hrid":"/actions/foraging/farmland","function":"/action_functions/gathering","type":"/action_types/foraging","category":"/action_categories/foraging/farmland","name":"Farmland","levelRequirement":{"skillHrid":"/skills/foraging","level":1},"baseTimeCost":8000000000,"experienceGain":{"skillHrid":"/skills/foraging","value":5},"dropTable":[{"itemHrid":"/items/egg","dropRate":0.4,"minCount":1,"maxCount":6},{"itemHrid":"/items/wheat","dropRate":0.4,"minCount":1,"maxCount":6},{"itemHrid":"/items/sugar","dropRate":0.4,"minCount":1,"maxCount":14}],"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":null,"sortIndex":4},"/actions/foraging/fieriosa_coffee_bean":{"hrid":"/actions/foraging/fieriosa_coffee_bean","function":"/action_functions/gathering","type":"/action_types/foraging","category":"/action_categories/foraging/olympus_mons","name":"Fieriosa Coffee Bean","levelRequirement":{"skillHrid":"/skills/foraging","level":65},"baseTimeCost":16000000000,"experienceGain":{"skillHrid":"/skills/foraging","value":50},"dropTable":[{"itemHrid":"/items/fieriosa_coffee_bean","dropRate":1,"minCount":1,"maxCount":1}],"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":null,"sortIndex":23},"/actions/foraging/liberica_coffee_bean":{"hrid":"/actions/foraging/liberica_coffee_bean","function":"/action_functions/gathering","type":"/action_types/foraging","category":"/action_categories/foraging/burble_beach","name":"Liberica Coffee Bean","levelRequirement":{"skillHrid":"/skills/foraging","level":35},"baseTimeCost":12000000000,"experienceGain":{"skillHrid":"/skills/foraging","value":30},"dropTable":[{"itemHrid":"/items/liberica_coffee_bean","dropRate":1,"minCount":1,"maxCount":1}],"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":null,"sortIndex":15},"/actions/foraging/marsberry":{"hrid":"/actions/foraging/marsberry","function":"/action_functions/gathering","type":"/action_types/foraging","category":"/action_categories/foraging/olympus_mons","name":"Marsberry","levelRequirement":{"skillHrid":"/skills/foraging","level":65},"baseTimeCost":16000000000,"experienceGain":{"skillHrid":"/skills/foraging","value":50},"dropTable":[{"itemHrid":"/items/marsberry","dropRate":1,"minCount":1,"maxCount":8}],"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":null,"sortIndex":21},"/actions/foraging/misty_forest":{"hrid":"/actions/foraging/misty_forest","function":"/action_functions/gathering","type":"/action_types/foraging","category":"/action_categories/foraging/misty_forest","name":"Misty Forest","levelRequirement":{"skillHrid":"/skills/foraging","level":20},"baseTimeCost":10000000000,"experienceGain":{"skillHrid":"/skills/foraging","value":20},"dropTable":[{"itemHrid":"/items/blackberry","dropRate":0.4,"minCount":1,"maxCount":8},{"itemHrid":"/items/orange","dropRate":0.4,"minCount":1,"maxCount":4},{"itemHrid":"/items/robusta_coffee_bean","dropRate":0.4,"minCount":1,"maxCount":1}],"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":null,"sortIndex":12},"/actions/foraging/mooberry":{"hrid":"/actions/foraging/mooberry","function":"/action_functions/gathering","type":"/action_types/foraging","category":"/action_categories/foraging/silly_cow_valley","name":"Mooberry","levelRequirement":{"skillHrid":"/skills/foraging","level":50},"baseTimeCost":14000000000,"experienceGain":{"skillHrid":"/skills/foraging","value":40},"dropTable":[{"itemHrid":"/items/mooberry","dropRate":1,"minCount":1,"maxCount":8}],"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":null,"sortIndex":17},"/actions/foraging/olympus_mons":{"hrid":"/actions/foraging/olympus_mons","function":"/action_functions/gathering","type":"/action_types/foraging","category":"/action_categories/foraging/olympus_mons","name":"Olympus Mons","levelRequirement":{"skillHrid":"/skills/foraging","level":65},"baseTimeCost":16000000000,"experienceGain":{"skillHrid":"/skills/foraging","value":50},"dropTable":[{"itemHrid":"/items/marsberry","dropRate":0.4,"minCount":1,"maxCount":8},{"itemHrid":"/items/dragon_fruit","dropRate":0.4,"minCount":1,"maxCount":4},{"itemHrid":"/items/fieriosa_coffee_bean","dropRate":0.4,"minCount":1,"maxCount":1}],"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":null,"sortIndex":24},"/actions/foraging/orange":{"hrid":"/actions/foraging/orange","function":"/action_functions/gathering","type":"/action_types/foraging","category":"/action_categories/foraging/misty_forest","name":"Orange","levelRequirement":{"skillHrid":"/skills/foraging","level":20},"baseTimeCost":10000000000,"experienceGain":{"skillHrid":"/skills/foraging","value":20},"dropTable":[{"itemHrid":"/items/orange","dropRate":1,"minCount":1,"maxCount":4}],"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":null,"sortIndex":10},"/actions/foraging/peach":{"hrid":"/actions/foraging/peach","function":"/action_functions/gathering","type":"/action_types/foraging","category":"/action_categories/foraging/silly_cow_valley","name":"Peach","levelRequirement":{"skillHrid":"/skills/foraging","level":50},"baseTimeCost":14000000000,"experienceGain":{"skillHrid":"/skills/foraging","value":40},"dropTable":[{"itemHrid":"/items/peach","dropRate":1,"minCount":1,"maxCount":4}],"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":null,"sortIndex":18},"/actions/foraging/plum":{"hrid":"/actions/foraging/plum","function":"/action_functions/gathering","type":"/action_types/foraging","category":"/action_categories/foraging/burble_beach","name":"Plum","levelRequirement":{"skillHrid":"/skills/foraging","level":35},"baseTimeCost":12000000000,"experienceGain":{"skillHrid":"/skills/foraging","value":30},"dropTable":[{"itemHrid":"/items/plum","dropRate":1,"minCount":1,"maxCount":4}],"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":null,"sortIndex":14},"/actions/foraging/robusta_coffee_bean":{"hrid":"/actions/foraging/robusta_coffee_bean","function":"/action_functions/gathering","type":"/action_types/foraging","category":"/action_categories/foraging/misty_forest","name":"Robusta Coffee Bean","levelRequirement":{"skillHrid":"/skills/foraging","level":20},"baseTimeCost":10000000000,"experienceGain":{"skillHrid":"/skills/foraging","value":20},"dropTable":[{"itemHrid":"/items/robusta_coffee_bean","dropRate":1,"minCount":1,"maxCount":1}],"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":null,"sortIndex":11},"/actions/foraging/shimmering_lake":{"hrid":"/actions/foraging/shimmering_lake","function":"/action_functions/gathering","type":"/action_types/foraging","category":"/action_categories/foraging/shimmering_lake","name":"Shimmering Lake","levelRequirement":{"skillHrid":"/skills/foraging","level":10},"baseTimeCost":9000000000,"experienceGain":{"skillHrid":"/skills/foraging","value":10},"dropTable":[{"itemHrid":"/items/blueberry","dropRate":0.4,"minCount":1,"maxCount":8},{"itemHrid":"/items/apple","dropRate":0.4,"minCount":1,"maxCount":4},{"itemHrid":"/items/arabica_coffee_bean","dropRate":0.4,"minCount":1,"maxCount":1}],"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":null,"sortIndex":8},"/actions/foraging/silly_cow_valley":{"hrid":"/actions/foraging/silly_cow_valley","function":"/action_functions/gathering","type":"/action_types/foraging","category":"/action_categories/foraging/silly_cow_valley","name":"Silly Cow Valley","levelRequirement":{"skillHrid":"/skills/foraging","level":50},"baseTimeCost":14000000000,"experienceGain":{"skillHrid":"/skills/foraging","value":40},"dropTable":[{"itemHrid":"/items/mooberry","dropRate":0.4,"minCount":1,"maxCount":8},{"itemHrid":"/items/peach","dropRate":0.4,"minCount":1,"maxCount":4},{"itemHrid":"/items/excelsa_coffee_bean","dropRate":0.4,"minCount":1,"maxCount":1}],"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":null,"sortIndex":20},"/actions/foraging/spaceberry":{"hrid":"/actions/foraging/spaceberry","function":"/action_functions/gathering","type":"/action_types/foraging","category":"/action_categories/foraging/asteroid_belt","name":"Spaceberry","levelRequirement":{"skillHrid":"/skills/foraging","level":80},"baseTimeCost":24000000000,"experienceGain":{"skillHrid":"/skills/foraging","value":60},"dropTable":[{"itemHrid":"/items/spaceberry","dropRate":1,"minCount":1,"maxCount":8}],"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":null,"sortIndex":25},"/actions/foraging/spacia_coffee_bean":{"hrid":"/actions/foraging/spacia_coffee_bean","function":"/action_functions/gathering","type":"/action_types/foraging","category":"/action_categories/foraging/asteroid_belt","name":"Spacia Coffee Bean","levelRequirement":{"skillHrid":"/skills/foraging","level":80},"baseTimeCost":24000000000,"experienceGain":{"skillHrid":"/skills/foraging","value":60},"dropTable":[{"itemHrid":"/items/spacia_coffee_bean","dropRate":1,"minCount":1,"maxCount":1}],"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":null,"sortIndex":27},"/actions/foraging/star_fruit":{"hrid":"/actions/foraging/star_fruit","function":"/action_functions/gathering","type":"/action_types/foraging","category":"/action_categories/foraging/asteroid_belt","name":"Star Fruit","levelRequirement":{"skillHrid":"/skills/foraging","level":80},"baseTimeCost":24000000000,"experienceGain":{"skillHrid":"/skills/foraging","value":60},"dropTable":[{"itemHrid":"/items/star_fruit","dropRate":1,"minCount":1,"maxCount":4}],"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":null,"sortIndex":26},"/actions/foraging/strawberry":{"hrid":"/actions/foraging/strawberry","function":"/action_functions/gathering","type":"/action_types/foraging","category":"/action_categories/foraging/burble_beach","name":"Strawberry","levelRequirement":{"skillHrid":"/skills/foraging","level":35},"baseTimeCost":12000000000,"experienceGain":{"skillHrid":"/skills/foraging","value":30},"dropTable":[{"itemHrid":"/items/strawberry","dropRate":1,"minCount":1,"maxCount":8}],"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":null,"sortIndex":13},"/actions/foraging/sugar":{"hrid":"/actions/foraging/sugar","function":"/action_functions/gathering","type":"/action_types/foraging","category":"/action_categories/foraging/farmland","name":"Sugar","levelRequirement":{"skillHrid":"/skills/foraging","level":1},"baseTimeCost":8000000000,"experienceGain":{"skillHrid":"/skills/foraging","value":5},"dropTable":[{"itemHrid":"/items/sugar","dropRate":1,"minCount":1,"maxCount":14}],"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":null,"sortIndex":3},"/actions/foraging/wheat":{"hrid":"/actions/foraging/wheat","function":"/action_functions/gathering","type":"/action_types/foraging","category":"/action_categories/foraging/farmland","name":"Wheat","levelRequirement":{"skillHrid":"/skills/foraging","level":1},"baseTimeCost":8000000000,"experienceGain":{"skillHrid":"/skills/foraging","value":5},"dropTable":[{"itemHrid":"/items/wheat","dropRate":1,"minCount":1,"maxCount":6}],"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":null,"sortIndex":2},"/actions/idle/idle":{"hrid":"/actions/idle/idle","function":"/action_functions/idle","type":"/action_types/idle","category":"","name":"Idle","levelRequirement":{"skillHrid":"","level":0},"baseTimeCost":0,"experienceGain":{"skillHrid":"","value":0},"dropTable":null,"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":null,"sortIndex":0},"/actions/milking/azure_cow":{"hrid":"/actions/milking/azure_cow","function":"/action_functions/gathering","type":"/action_types/milking","category":"","name":"Azure Cow","levelRequirement":{"skillHrid":"/skills/milking","level":20},"baseTimeCost":10000000000,"experienceGain":{"skillHrid":"/skills/milking","value":20},"dropTable":[{"itemHrid":"/items/azure_milk","dropRate":1,"minCount":1,"maxCount":3}],"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":null,"sortIndex":3},"/actions/milking/burble_cow":{"hrid":"/actions/milking/burble_cow","function":"/action_functions/gathering","type":"/action_types/milking","category":"","name":"Burble Cow","levelRequirement":{"skillHrid":"/skills/milking","level":35},"baseTimeCost":12000000000,"experienceGain":{"skillHrid":"/skills/milking","value":30},"dropTable":[{"itemHrid":"/items/burble_milk","dropRate":1,"minCount":1,"maxCount":3}],"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":null,"sortIndex":4},"/actions/milking/cow":{"hrid":"/actions/milking/cow","function":"/action_functions/gathering","type":"/action_types/milking","category":"","name":"Cow","levelRequirement":{"skillHrid":"/skills/milking","level":1},"baseTimeCost":8000000000,"experienceGain":{"skillHrid":"/skills/milking","value":5},"dropTable":[{"itemHrid":"/items/milk","dropRate":1,"minCount":1,"maxCount":3}],"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":null,"sortIndex":1},"/actions/milking/crimson_cow":{"hrid":"/actions/milking/crimson_cow","function":"/action_functions/gathering","type":"/action_types/milking","category":"","name":"Crimson Cow","levelRequirement":{"skillHrid":"/skills/milking","level":50},"baseTimeCost":14000000000,"experienceGain":{"skillHrid":"/skills/milking","value":40},"dropTable":[{"itemHrid":"/items/crimson_milk","dropRate":1,"minCount":1,"maxCount":3}],"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":null,"sortIndex":5},"/actions/milking/holy_cow":{"hrid":"/actions/milking/holy_cow","function":"/action_functions/gathering","type":"/action_types/milking","category":"","name":"Holy Cow","levelRequirement":{"skillHrid":"/skills/milking","level":80},"baseTimeCost":24000000000,"experienceGain":{"skillHrid":"/skills/milking","value":60},"dropTable":[{"itemHrid":"/items/holy_milk","dropRate":1,"minCount":1,"maxCount":3}],"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":null,"sortIndex":7},"/actions/milking/unicow":{"hrid":"/actions/milking/unicow","function":"/action_functions/gathering","type":"/action_types/milking","category":"","name":"Unicow","levelRequirement":{"skillHrid":"/skills/milking","level":65},"baseTimeCost":16000000000,"experienceGain":{"skillHrid":"/skills/milking","value":50},"dropTable":[{"itemHrid":"/items/rainbow_milk","dropRate":1,"minCount":1,"maxCount":3}],"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":null,"sortIndex":6},"/actions/milking/verdant_cow":{"hrid":"/actions/milking/verdant_cow","function":"/action_functions/gathering","type":"/action_types/milking","category":"","name":"Verdant Cow","levelRequirement":{"skillHrid":"/skills/milking","level":10},"baseTimeCost":9000000000,"experienceGain":{"skillHrid":"/skills/milking","value":10},"dropTable":[{"itemHrid":"/items/verdant_milk","dropRate":1,"minCount":1,"maxCount":3}],"upgradeItemHrid":"","inputItems":null,"outputItems":null,"monsterSpawnRates":null,"sortIndex":2}}');
+
+/***/ }),
+
+/***/ "./src/combatsimulator/data/combatMonsterDetailMap.json":
+/*!**************************************************************!*\
+  !*** ./src/combatsimulator/data/combatMonsterDetailMap.json ***!
+  \**************************************************************/
+/***/ ((module) => {
+
+module.exports = JSON.parse('{"/combat_monsters/alligator":{"hrid":"/combat_monsters/alligator","name":"Sherlock","combatDetails":{"combatStyleHrid":"/combat_styles/slash","currentHitpoints":300,"maxHitpoints":300,"currentManapoints":300,"maxManapoints":300,"stabAccuracyRating":30,"slashAccuracyRating":30,"smashAccuracyRating":30,"stabMaxDamage":37.1,"slashMaxDamage":37.1,"smashMaxDamage":37.1,"stabEvasionRating":36.4,"slashEvasionRating":36.4,"smashEvasionRating":36.4,"staminaLevel":20,"intelligenceLevel":20,"attackLevel":20,"powerLevel":25,"defenseLevel":16,"combatStats":{"attackInterval":3500000000,"stabAccuracy":0,"slashAccuracy":0,"smashAccuracy":0,"stabDamage":0.06,"slashDamage":0.06,"smashDamage":0.06,"stabEvasion":0.4,"slashEvasion":0.4,"smashEvasion":0.4,"armor":0,"lifeSteal":0,"HPRegen":0,"MPRegen":0,"dropRate":0,"foodSlots":0,"drinkSlots":0}},"abilities":[{"abilityHrid":"/abilities/scratch","level":10}],"dropTable":[{"itemHrid":"/items/coin","dropRate":1,"minCount":50,"maxCount":250},{"itemHrid":"/items/blueberry","dropRate":0.1,"minCount":1,"maxCount":6},{"itemHrid":"/items/blackberry","dropRate":0.05,"minCount":1,"maxCount":4},{"itemHrid":"/items/apple","dropRate":0.3,"minCount":1,"maxCount":5},{"itemHrid":"/items/orange","dropRate":0.15,"minCount":1,"maxCount":3},{"itemHrid":"/items/gator_vest","dropRate":0.003,"minCount":1,"maxCount":1},{"itemHrid":"/items/swamp_essence","dropRate":0.6,"minCount":4,"maxCount":12},{"itemHrid":"/items/scratch","dropRate":0.01,"minCount":1,"maxCount":1}]},"/combat_monsters/black_bear":{"hrid":"/combat_monsters/black_bear","name":"Black Bear","combatDetails":{"combatStyleHrid":"/combat_styles/stab","currentHitpoints":1300,"maxHitpoints":1300,"currentManapoints":1300,"maxManapoints":1300,"stabAccuracyRating":150,"slashAccuracyRating":150,"smashAccuracyRating":150,"stabMaxDamage":150,"slashMaxDamage":150,"smashMaxDamage":150,"stabEvasionRating":169,"slashEvasionRating":130,"smashEvasionRating":130,"staminaLevel":120,"intelligenceLevel":120,"attackLevel":140,"powerLevel":140,"defenseLevel":120,"combatStats":{"attackInterval":3000000000,"stabAccuracy":0,"slashAccuracy":0,"smashAccuracy":0,"stabDamage":0,"slashDamage":0,"smashDamage":0,"stabEvasion":0.3,"slashEvasion":0,"smashEvasion":0,"armor":0,"lifeSteal":0,"HPRegen":0,"MPRegen":0,"dropRate":0,"foodSlots":0,"drinkSlots":0}},"abilities":[{"abilityHrid":"/abilities/frenzy","level":4}],"dropTable":[{"itemHrid":"/items/coin","dropRate":1,"minCount":340,"maxCount":1700},{"itemHrid":"/items/mooberry","dropRate":0.1,"minCount":1,"maxCount":4},{"itemHrid":"/items/marsberry","dropRate":0.15,"minCount":1,"maxCount":4},{"itemHrid":"/items/spaceberry","dropRate":0.05,"minCount":1,"maxCount":4},{"itemHrid":"/items/black_tea_leaf","dropRate":0.3,"minCount":1,"maxCount":3},{"itemHrid":"/items/red_tea_leaf","dropRate":0.3,"minCount":1,"maxCount":2},{"itemHrid":"/items/emp_tea_leaf","dropRate":0.15,"minCount":1,"maxCount":1},{"itemHrid":"/items/black_bear_fluff","dropRate":0.002,"minCount":1,"maxCount":1},{"itemHrid":"/items/bear_essence","dropRate":0.4,"minCount":2,"maxCount":6},{"itemHrid":"/items/frenzy","dropRate":0.0006,"minCount":1,"maxCount":1}]},"/combat_monsters/crab":{"hrid":"/combat_monsters/crab","name":"I Pinch","combatDetails":{"combatStyleHrid":"/combat_styles/smash","currentHitpoints":400,"maxHitpoints":400,"currentManapoints":400,"maxManapoints":400,"stabAccuracyRating":35,"slashAccuracyRating":35,"smashAccuracyRating":35,"stabMaxDamage":40,"slashMaxDamage":40,"smashMaxDamage":40,"stabEvasionRating":50,"slashEvasionRating":70,"smashEvasionRating":40,"staminaLevel":30,"intelligenceLevel":30,"attackLevel":25,"powerLevel":30,"defenseLevel":40,"combatStats":{"attackInterval":3500000000,"stabAccuracy":0,"slashAccuracy":0,"smashAccuracy":0,"stabDamage":0,"slashDamage":0,"smashDamage":0,"stabEvasion":0,"slashEvasion":0.4,"smashEvasion":-0.2,"armor":0,"lifeSteal":0,"HPRegen":0,"MPRegen":0,"dropRate":0,"foodSlots":0,"drinkSlots":0}},"abilities":[{"abilityHrid":"/abilities/smack","level":5}],"dropTable":[{"itemHrid":"/items/coin","dropRate":1,"minCount":60,"maxCount":300},{"itemHrid":"/items/orange","dropRate":0.15,"minCount":1,"maxCount":5},{"itemHrid":"/items/plum","dropRate":0.05,"minCount":1,"maxCount":3},{"itemHrid":"/items/crab_pincer","dropRate":0.005,"minCount":1,"maxCount":1},{"itemHrid":"/items/aqua_essence","dropRate":0.4,"minCount":2,"maxCount":6},{"itemHrid":"/items/smack","dropRate":0.01,"minCount":1,"maxCount":1}]},"/combat_monsters/eye":{"hrid":"/combat_monsters/eye","name":"Eye","combatDetails":{"combatStyleHrid":"/combat_styles/slash","currentHitpoints":990,"maxHitpoints":990,"currentManapoints":990,"maxManapoints":990,"stabAccuracyRating":99,"slashAccuracyRating":99,"smashAccuracyRating":99,"stabMaxDamage":99,"slashMaxDamage":99,"smashMaxDamage":99,"stabEvasionRating":74.25,"slashEvasionRating":99,"smashEvasionRating":99,"staminaLevel":89,"intelligenceLevel":89,"attackLevel":89,"powerLevel":89,"defenseLevel":89,"combatStats":{"attackInterval":2800000000,"stabAccuracy":0,"slashAccuracy":0,"smashAccuracy":0,"stabDamage":0,"slashDamage":0,"smashDamage":0,"stabEvasion":-0.25,"slashEvasion":0,"smashEvasion":0,"armor":0,"lifeSteal":0,"HPRegen":0,"MPRegen":0,"dropRate":0,"foodSlots":0,"drinkSlots":0}},"abilities":[{"abilityHrid":"/abilities/precision","level":1}],"dropTable":[{"itemHrid":"/items/coin","dropRate":1,"minCount":200,"maxCount":1000},{"itemHrid":"/items/azure_cheese","dropRate":0.1,"minCount":1,"maxCount":2},{"itemHrid":"/items/burble_cheese","dropRate":0.1,"minCount":1,"maxCount":2},{"itemHrid":"/items/crimson_cheese","dropRate":0.1,"minCount":1,"maxCount":2},{"itemHrid":"/items/strawberry","dropRate":0.1,"minCount":1,"maxCount":6},{"itemHrid":"/items/mooberry","dropRate":0.1,"minCount":1,"maxCount":6},{"itemHrid":"/items/marsberry","dropRate":0.1,"minCount":1,"maxCount":6},{"itemHrid":"/items/plum","dropRate":0.1,"minCount":1,"maxCount":5},{"itemHrid":"/items/peach","dropRate":0.15,"minCount":1,"maxCount":5},{"itemHrid":"/items/dragon_fruit","dropRate":0.05,"minCount":1,"maxCount":5},{"itemHrid":"/items/burble_tea_leaf","dropRate":0.45,"minCount":1,"maxCount":3},{"itemHrid":"/items/moolong_tea_leaf","dropRate":0.6,"minCount":1,"maxCount":3},{"itemHrid":"/items/red_tea_leaf","dropRate":0.3,"minCount":1,"maxCount":3},{"itemHrid":"/items/eyessence","dropRate":1,"minCount":1,"maxCount":1},{"itemHrid":"/items/precision","dropRate":0.001,"minCount":1,"maxCount":1}]},"/combat_monsters/eyes":{"hrid":"/combat_monsters/eyes","name":"Eyes","combatDetails":{"combatStyleHrid":"/combat_styles/slash","currentHitpoints":1110,"maxHitpoints":1110,"currentManapoints":1110,"maxManapoints":1110,"stabAccuracyRating":111,"slashAccuracyRating":111,"smashAccuracyRating":111,"stabMaxDamage":111,"slashMaxDamage":111,"smashMaxDamage":111,"stabEvasionRating":83.25,"slashEvasionRating":111,"smashEvasionRating":111,"staminaLevel":101,"intelligenceLevel":101,"attackLevel":101,"powerLevel":101,"defenseLevel":101,"combatStats":{"attackInterval":2800000000,"stabAccuracy":0,"slashAccuracy":0,"smashAccuracy":0,"stabDamage":0,"slashDamage":0,"smashDamage":0,"stabEvasion":-0.25,"slashEvasion":0,"smashEvasion":0,"armor":0,"lifeSteal":0,"HPRegen":0,"MPRegen":0,"dropRate":0,"foodSlots":0,"drinkSlots":0}},"abilities":[{"abilityHrid":"/abilities/precision","level":1}],"dropTable":[{"itemHrid":"/items/coin","dropRate":1,"minCount":240,"maxCount":1200},{"itemHrid":"/items/burble_tea_leaf","dropRate":0.15,"minCount":1,"maxCount":1},{"itemHrid":"/items/moolong_tea_leaf","dropRate":0.2,"minCount":1,"maxCount":1},{"itemHrid":"/items/red_tea_leaf","dropRate":0.1,"minCount":1,"maxCount":1},{"itemHrid":"/items/goggles","dropRate":0.0005,"minCount":1,"maxCount":1},{"itemHrid":"/items/eyessence","dropRate":1,"minCount":2,"maxCount":2},{"itemHrid":"/items/precision","dropRate":0.0015,"minCount":1,"maxCount":1}]},"/combat_monsters/fly":{"hrid":"/combat_monsters/fly","name":"Fly","combatDetails":{"combatStyleHrid":"/combat_styles/smash","currentHitpoints":30,"maxHitpoints":30,"currentManapoints":30,"maxManapoints":30,"stabAccuracyRating":11,"slashAccuracyRating":11,"smashAccuracyRating":7.699999999999999,"stabMaxDamage":11,"slashMaxDamage":11,"smashMaxDamage":7.699999999999999,"stabEvasionRating":11,"slashEvasionRating":11,"smashEvasionRating":11,"staminaLevel":-7,"intelligenceLevel":-7,"attackLevel":1,"powerLevel":1,"defenseLevel":1,"combatStats":{"attackInterval":4000000000,"stabAccuracy":0,"slashAccuracy":0,"smashAccuracy":-0.3,"stabDamage":0,"slashDamage":0,"smashDamage":-0.3,"stabEvasion":0,"slashEvasion":0,"smashEvasion":0,"armor":0,"lifeSteal":0,"HPRegen":0,"MPRegen":0,"dropRate":0,"foodSlots":0,"drinkSlots":0}},"abilities":[],"dropTable":[{"itemHrid":"/items/coin","dropRate":1,"minCount":8,"maxCount":40}]},"/combat_monsters/frog":{"hrid":"/combat_monsters/frog","name":"Frogger","combatDetails":{"combatStyleHrid":"/combat_styles/smash","currentHitpoints":150,"maxHitpoints":150,"currentManapoints":150,"maxManapoints":150,"stabAccuracyRating":25,"slashAccuracyRating":25,"smashAccuracyRating":25,"stabMaxDamage":20,"slashMaxDamage":20,"smashMaxDamage":20,"stabEvasionRating":25,"slashEvasionRating":25,"smashEvasionRating":25,"staminaLevel":5,"intelligenceLevel":5,"attackLevel":15,"powerLevel":10,"defenseLevel":15,"combatStats":{"attackInterval":3200000000,"stabAccuracy":0,"slashAccuracy":0,"smashAccuracy":0,"stabDamage":0,"slashDamage":0,"smashDamage":0,"stabEvasion":0,"slashEvasion":0,"smashEvasion":0,"armor":0,"lifeSteal":0,"HPRegen":0,"MPRegen":0,"dropRate":0,"foodSlots":0,"drinkSlots":0}},"abilities":[{"abilityHrid":"/abilities/smack","level":1}],"dropTable":[{"itemHrid":"/items/coin","dropRate":1,"minCount":24,"maxCount":120},{"itemHrid":"/items/egg","dropRate":0.3,"minCount":1,"maxCount":2},{"itemHrid":"/items/green_tea_leaf","dropRate":0.4,"minCount":1,"maxCount":3},{"itemHrid":"/items/black_tea_leaf","dropRate":0.2,"minCount":1,"maxCount":3},{"itemHrid":"/items/swamp_essence","dropRate":0.4,"minCount":1,"maxCount":3},{"itemHrid":"/items/smack","dropRate":0.007,"minCount":1,"maxCount":1}]},"/combat_monsters/gobo_slashy":{"hrid":"/combat_monsters/gobo_slashy","name":"Slashy","combatDetails":{"combatStyleHrid":"/combat_styles/slash","currentHitpoints":800,"maxHitpoints":800,"currentManapoints":300,"maxManapoints":300,"stabAccuracyRating":50,"slashAccuracyRating":95,"smashAccuracyRating":50,"stabMaxDamage":50,"slashMaxDamage":95,"smashMaxDamage":50,"stabEvasionRating":70,"slashEvasionRating":70,"smashEvasionRating":70,"staminaLevel":70,"intelligenceLevel":20,"attackLevel":40,"powerLevel":40,"defenseLevel":60,"combatStats":{"attackInterval":3300000000,"stabAccuracy":0,"slashAccuracy":0.9,"smashAccuracy":0,"stabDamage":0,"slashDamage":0.9,"smashDamage":0,"stabEvasion":0,"slashEvasion":0,"smashEvasion":0,"armor":0,"lifeSteal":0,"HPRegen":0,"MPRegen":0,"dropRate":0,"foodSlots":0,"drinkSlots":0}},"abilities":[{"abilityHrid":"/abilities/cleave","level":1}],"dropTable":[{"itemHrid":"/items/coin","dropRate":1,"minCount":160,"maxCount":800},{"itemHrid":"/items/blackberry","dropRate":0.1,"minCount":1,"maxCount":6},{"itemHrid":"/items/strawberry","dropRate":0.15,"minCount":1,"maxCount":6},{"itemHrid":"/items/mooberry","dropRate":0.05,"minCount":1,"maxCount":5},{"itemHrid":"/items/gobo_slasher","dropRate":0.001,"minCount":1,"maxCount":1},{"itemHrid":"/items/gobo_essence","dropRate":0.5,"minCount":3,"maxCount":9},{"itemHrid":"/items/black_tea_leaf","dropRate":0.2,"minCount":1,"maxCount":2},{"itemHrid":"/items/burble_tea_leaf","dropRate":0.2,"minCount":1,"maxCount":2},{"itemHrid":"/items/moolong_tea_leaf","dropRate":0.1,"minCount":1,"maxCount":2},{"itemHrid":"/items/cleave","dropRate":0.001,"minCount":1,"maxCount":1}]},"/combat_monsters/gobo_smashy":{"hrid":"/combat_monsters/gobo_smashy","name":"Smashy","combatDetails":{"combatStyleHrid":"/combat_styles/smash","currentHitpoints":800,"maxHitpoints":800,"currentManapoints":300,"maxManapoints":300,"stabAccuracyRating":50,"slashAccuracyRating":50,"smashAccuracyRating":55.00000000000001,"stabMaxDamage":55,"slashMaxDamage":55,"smashMaxDamage":145.75,"stabEvasionRating":70,"slashEvasionRating":70,"smashEvasionRating":70,"staminaLevel":70,"intelligenceLevel":20,"attackLevel":40,"powerLevel":45,"defenseLevel":60,"combatStats":{"attackInterval":3700000000,"stabAccuracy":0,"slashAccuracy":0,"smashAccuracy":0.1,"stabDamage":0,"slashDamage":0,"smashDamage":1.65,"stabEvasion":0,"slashEvasion":0,"smashEvasion":0,"armor":0,"lifeSteal":0,"HPRegen":0,"MPRegen":0,"dropRate":0,"foodSlots":0,"drinkSlots":0}},"abilities":[{"abilityHrid":"/abilities/berserk","level":1}],"dropTable":[{"itemHrid":"/items/coin","dropRate":1,"minCount":160,"maxCount":800},{"itemHrid":"/items/orange","dropRate":0.1,"minCount":1,"maxCount":6},{"itemHrid":"/items/plum","dropRate":0.15,"minCount":1,"maxCount":6},{"itemHrid":"/items/peach","dropRate":0.05,"minCount":1,"maxCount":5},{"itemHrid":"/items/green_tea_leaf","dropRate":0.2,"minCount":1,"maxCount":2},{"itemHrid":"/items/burble_tea_leaf","dropRate":0.2,"minCount":1,"maxCount":2},{"itemHrid":"/items/moolong_tea_leaf","dropRate":0.1,"minCount":1,"maxCount":2},{"itemHrid":"/items/gobo_smasher","dropRate":0.001,"minCount":1,"maxCount":1},{"itemHrid":"/items/gobo_essence","dropRate":0.5,"minCount":3,"maxCount":9},{"itemHrid":"/items/berserk","dropRate":0.001,"minCount":1,"maxCount":1}]},"/combat_monsters/gobo_stabby":{"hrid":"/combat_monsters/gobo_stabby","name":"Stabby","combatDetails":{"combatStyleHrid":"/combat_styles/stab","currentHitpoints":800,"maxHitpoints":800,"currentManapoints":300,"maxManapoints":300,"stabAccuracyRating":150,"slashAccuracyRating":50,"smashAccuracyRating":50,"stabMaxDamage":44,"slashMaxDamage":40,"smashMaxDamage":40,"stabEvasionRating":70,"slashEvasionRating":70,"smashEvasionRating":70,"staminaLevel":70,"intelligenceLevel":20,"attackLevel":40,"powerLevel":30,"defenseLevel":60,"combatStats":{"attackInterval":2500000000,"stabAccuracy":2,"slashAccuracy":0,"smashAccuracy":0,"stabDamage":0.1,"slashDamage":0,"smashDamage":0,"stabEvasion":0,"slashEvasion":0,"smashEvasion":0,"armor":0,"lifeSteal":0,"HPRegen":0,"MPRegen":0,"dropRate":0,"foodSlots":0,"drinkSlots":0}},"abilities":[{"abilityHrid":"/abilities/pierce","level":1}],"dropTable":[{"itemHrid":"/items/coin","dropRate":1,"minCount":160,"maxCount":800},{"itemHrid":"/items/burble_milk","dropRate":0.15,"minCount":2,"maxCount":10},{"itemHrid":"/items/crimson_milk","dropRate":0.05,"minCount":2,"maxCount":10},{"itemHrid":"/items/black_tea_leaf","dropRate":0.2,"minCount":1,"maxCount":2},{"itemHrid":"/items/burble_tea_leaf","dropRate":0.2,"minCount":1,"maxCount":2},{"itemHrid":"/items/moolong_tea_leaf","dropRate":0.1,"minCount":1,"maxCount":2},{"itemHrid":"/items/gobo_stabber","dropRate":0.001,"minCount":1,"maxCount":1},{"itemHrid":"/items/gobo_essence","dropRate":0.5,"minCount":3,"maxCount":9},{"itemHrid":"/items/pierce","dropRate":0.0015,"minCount":1,"maxCount":1}]},"/combat_monsters/grizzly_bear":{"hrid":"/combat_monsters/grizzly_bear","name":"Grizzly Bear","combatDetails":{"combatStyleHrid":"/combat_styles/slash","currentHitpoints":1400,"maxHitpoints":1400,"currentManapoints":1400,"maxManapoints":1400,"stabAccuracyRating":160,"slashAccuracyRating":160,"smashAccuracyRating":160,"stabMaxDamage":160,"slashMaxDamage":160,"smashMaxDamage":160,"stabEvasionRating":140,"slashEvasionRating":182,"smashEvasionRating":140,"staminaLevel":130,"intelligenceLevel":130,"attackLevel":150,"powerLevel":150,"defenseLevel":130,"combatStats":{"attackInterval":3000000000,"stabAccuracy":0,"slashAccuracy":0,"smashAccuracy":0,"stabDamage":0,"slashDamage":0,"smashDamage":0,"stabEvasion":0,"slashEvasion":0.3,"smashEvasion":0,"armor":0,"lifeSteal":0,"HPRegen":0,"MPRegen":0,"dropRate":0,"foodSlots":0,"drinkSlots":0}},"abilities":[{"abilityHrid":"/abilities/frenzy","level":7}],"dropTable":[{"itemHrid":"/items/coin","dropRate":1,"minCount":380,"maxCount":1900},{"itemHrid":"/items/mooberry","dropRate":0.1,"minCount":1,"maxCount":6},{"itemHrid":"/items/marsberry","dropRate":0.15,"minCount":1,"maxCount":6},{"itemHrid":"/items/spaceberry","dropRate":0.05,"minCount":1,"maxCount":6},{"itemHrid":"/items/burble_tea_leaf","dropRate":0.3,"minCount":1,"maxCount":3},{"itemHrid":"/items/red_tea_leaf","dropRate":0.3,"minCount":1,"maxCount":2},{"itemHrid":"/items/emp_tea_leaf","dropRate":0.15,"minCount":1,"maxCount":1},{"itemHrid":"/items/grizzly_bear_fluff","dropRate":0.002,"minCount":1,"maxCount":1},{"itemHrid":"/items/bear_essence","dropRate":0.5,"minCount":3,"maxCount":9},{"itemHrid":"/items/frenzy","dropRate":0.0008,"minCount":1,"maxCount":1}]},"/combat_monsters/gummy_bear":{"hrid":"/combat_monsters/gummy_bear","name":"Gummy Bear","combatDetails":{"combatStyleHrid":"/combat_styles/smash","currentHitpoints":1200,"maxHitpoints":1200,"currentManapoints":1200,"maxManapoints":1200,"stabAccuracyRating":150,"slashAccuracyRating":150,"smashAccuracyRating":150,"stabMaxDamage":90,"slashMaxDamage":90,"smashMaxDamage":90,"stabEvasionRating":110,"slashEvasionRating":110,"smashEvasionRating":143,"staminaLevel":110,"intelligenceLevel":110,"attackLevel":140,"powerLevel":80,"defenseLevel":100,"combatStats":{"attackInterval":2600000000,"stabAccuracy":0,"slashAccuracy":0,"smashAccuracy":0,"stabDamage":0,"slashDamage":0,"smashDamage":0,"stabEvasion":0,"slashEvasion":0,"smashEvasion":0.3,"armor":0,"lifeSteal":0,"HPRegen":0,"MPRegen":0,"dropRate":0,"foodSlots":0,"drinkSlots":0}},"abilities":[{"abilityHrid":"/abilities/frenzy","level":1}],"dropTable":[{"itemHrid":"/items/sugar","dropRate":1,"minCount":50,"maxCount":250},{"itemHrid":"/items/apple_gummy","dropRate":0.5,"minCount":1,"maxCount":1},{"itemHrid":"/items/orange_gummy","dropRate":0.5,"minCount":1,"maxCount":1},{"itemHrid":"/items/plum_gummy","dropRate":0.5,"minCount":1,"maxCount":1},{"itemHrid":"/items/peach_gummy","dropRate":0.5,"minCount":1,"maxCount":1},{"itemHrid":"/items/dragon_fruit_gummy","dropRate":0.5,"minCount":1,"maxCount":1},{"itemHrid":"/items/bear_essence","dropRate":0.4,"minCount":1,"maxCount":3},{"itemHrid":"/items/frenzy","dropRate":0.0003,"minCount":1,"maxCount":1}]},"/combat_monsters/nom_nom":{"hrid":"/combat_monsters/nom_nom","name":"Nom Nom","combatDetails":{"combatStyleHrid":"/combat_styles/stab","currentHitpoints":480,"maxHitpoints":480,"currentManapoints":480,"maxManapoints":480,"stabAccuracyRating":44,"slashAccuracyRating":44,"smashAccuracyRating":55,"stabMaxDamage":55,"slashMaxDamage":55,"smashMaxDamage":55,"stabEvasionRating":55,"slashEvasionRating":55,"smashEvasionRating":55,"staminaLevel":38,"intelligenceLevel":38,"attackLevel":45,"powerLevel":45,"defenseLevel":45,"combatStats":{"attackInterval":3200000000,"stabAccuracy":-0.2,"slashAccuracy":-0.2,"smashAccuracy":0,"stabDamage":0,"slashDamage":0,"smashDamage":0,"stabEvasion":0,"slashEvasion":0,"smashEvasion":0,"armor":0,"lifeSteal":0,"HPRegen":0,"MPRegen":0,"dropRate":0,"foodSlots":0,"drinkSlots":0}},"abilities":[{"abilityHrid":"/abilities/pierce","level":1}],"dropTable":[{"itemHrid":"/items/coin","dropRate":1,"minCount":90,"maxCount":450},{"itemHrid":"/items/blackberry","dropRate":0.15,"minCount":1,"maxCount":12},{"itemHrid":"/items/strawberry","dropRate":0.05,"minCount":1,"maxCount":8},{"itemHrid":"/items/orange","dropRate":0.15,"minCount":1,"maxCount":10},{"itemHrid":"/items/plum","dropRate":0.05,"minCount":1,"maxCount":6},{"itemHrid":"/items/green_tea_leaf","dropRate":0.3,"minCount":1,"maxCount":3},{"itemHrid":"/items/black_tea_leaf","dropRate":0.4,"minCount":1,"maxCount":3},{"itemHrid":"/items/burble_tea_leaf","dropRate":0.2,"minCount":1,"maxCount":3},{"itemHrid":"/items/aqua_essence","dropRate":0.6,"minCount":4,"maxCount":12},{"itemHrid":"/items/pierce","dropRate":0.001,"minCount":1,"maxCount":1}]},"/combat_monsters/panda":{"hrid":"/combat_monsters/panda","name":"Panda","combatDetails":{"combatStyleHrid":"/combat_styles/smash","currentHitpoints":1600,"maxHitpoints":1600,"currentManapoints":1600,"maxManapoints":1600,"stabAccuracyRating":140,"slashAccuracyRating":140,"smashAccuracyRating":140,"stabMaxDamage":140,"slashMaxDamage":140,"smashMaxDamage":140,"stabEvasionRating":160,"slashEvasionRating":160,"smashEvasionRating":208,"staminaLevel":150,"intelligenceLevel":150,"attackLevel":130,"powerLevel":130,"defenseLevel":150,"combatStats":{"attackInterval":3500000000,"stabAccuracy":0,"slashAccuracy":0,"smashAccuracy":0,"stabDamage":0,"slashDamage":0,"smashDamage":0,"stabEvasion":0,"slashEvasion":0,"smashEvasion":0.3,"armor":8,"lifeSteal":0,"HPRegen":0,"MPRegen":0,"dropRate":0,"foodSlots":0,"drinkSlots":0}},"abilities":[{"abilityHrid":"/abilities/toughness","level":10}],"dropTable":[{"itemHrid":"/items/coin","dropRate":1,"minCount":340,"maxCount":1700},{"itemHrid":"/items/wheat","dropRate":0.3,"minCount":1,"maxCount":15},{"itemHrid":"/items/egg","dropRate":0.3,"minCount":1,"maxCount":15},{"itemHrid":"/items/peach","dropRate":0.1,"minCount":1,"maxCount":5},{"itemHrid":"/items/dragon_fruit","dropRate":0.15,"minCount":1,"maxCount":5},{"itemHrid":"/items/star_fruit","dropRate":0.05,"minCount":1,"maxCount":5},{"itemHrid":"/items/green_tea_leaf","dropRate":0.3,"minCount":1,"maxCount":3},{"itemHrid":"/items/red_tea_leaf","dropRate":0.3,"minCount":1,"maxCount":2},{"itemHrid":"/items/emp_tea_leaf","dropRate":0.15,"minCount":1,"maxCount":1},{"itemHrid":"/items/panda_fluff","dropRate":0.002,"minCount":1,"maxCount":1},{"itemHrid":"/items/bear_essence","dropRate":0.4,"minCount":2,"maxCount":6},{"itemHrid":"/items/toughness","dropRate":0.002,"minCount":1,"maxCount":1}]},"/combat_monsters/polar_bear":{"hrid":"/combat_monsters/polar_bear","name":"Polar Bear","combatDetails":{"combatStyleHrid":"/combat_styles/smash","currentHitpoints":1500,"maxHitpoints":1500,"currentManapoints":1500,"maxManapoints":1500,"stabAccuracyRating":170,"slashAccuracyRating":170,"smashAccuracyRating":170,"stabMaxDamage":170,"slashMaxDamage":170,"smashMaxDamage":170,"stabEvasionRating":150,"slashEvasionRating":150,"smashEvasionRating":195,"staminaLevel":140,"intelligenceLevel":140,"attackLevel":160,"powerLevel":160,"defenseLevel":140,"combatStats":{"attackInterval":3000000000,"stabAccuracy":0,"slashAccuracy":0,"smashAccuracy":0,"stabDamage":0,"slashDamage":0,"smashDamage":0,"stabEvasion":0,"slashEvasion":0,"smashEvasion":0.3,"armor":0,"lifeSteal":0,"HPRegen":0,"MPRegen":0,"dropRate":0,"foodSlots":0,"drinkSlots":0}},"abilities":[{"abilityHrid":"/abilities/frenzy","level":10}],"dropTable":[{"itemHrid":"/items/coin","dropRate":1,"minCount":440,"maxCount":2200},{"itemHrid":"/items/crimson_milk","dropRate":0.1,"minCount":1,"maxCount":4},{"itemHrid":"/items/rainbow_milk","dropRate":0.15,"minCount":1,"maxCount":4},{"itemHrid":"/items/holy_milk","dropRate":0.05,"minCount":1,"maxCount":4},{"itemHrid":"/items/moolong_tea_leaf","dropRate":0.3,"minCount":1,"maxCount":3},{"itemHrid":"/items/red_tea_leaf","dropRate":0.3,"minCount":1,"maxCount":2},{"itemHrid":"/items/emp_tea_leaf","dropRate":0.15,"minCount":1,"maxCount":1},{"itemHrid":"/items/polar_bear_fluff","dropRate":0.002,"minCount":1,"maxCount":1},{"itemHrid":"/items/bear_essence","dropRate":0.6,"minCount":4,"maxCount":12},{"itemHrid":"/items/frenzy","dropRate":0.001,"minCount":1,"maxCount":1}]},"/combat_monsters/rat":{"hrid":"/combat_monsters/rat","name":"Jerry","combatDetails":{"combatStyleHrid":"/combat_styles/stab","currentHitpoints":60,"maxHitpoints":60,"currentManapoints":100,"maxManapoints":100,"stabAccuracyRating":14,"slashAccuracyRating":14,"smashAccuracyRating":14,"stabMaxDamage":14,"slashMaxDamage":14,"smashMaxDamage":14,"stabEvasionRating":14,"slashEvasionRating":14,"smashEvasionRating":14,"staminaLevel":-4,"intelligenceLevel":0,"attackLevel":4,"powerLevel":4,"defenseLevel":4,"combatStats":{"attackInterval":3500000000,"stabAccuracy":0,"slashAccuracy":0,"smashAccuracy":0,"stabDamage":0,"slashDamage":0,"smashDamage":0,"stabEvasion":0,"slashEvasion":0,"smashEvasion":0,"armor":0,"lifeSteal":0,"HPRegen":0,"MPRegen":0,"dropRate":0,"foodSlots":0,"drinkSlots":0}},"abilities":[{"abilityHrid":"/abilities/poke","level":1}],"dropTable":[{"itemHrid":"/items/coin","dropRate":1,"minCount":10,"maxCount":50},{"itemHrid":"/items/wheat","dropRate":0.3,"minCount":1,"maxCount":3},{"itemHrid":"/items/sugar","dropRate":0.3,"minCount":1,"maxCount":6},{"itemHrid":"/items/cheese","dropRate":0.2,"minCount":1,"maxCount":1},{"itemHrid":"/items/verdant_cheese","dropRate":0.1,"minCount":1,"maxCount":1},{"itemHrid":"/items/azure_cheese","dropRate":0.05,"minCount":1,"maxCount":1},{"itemHrid":"/items/poke","dropRate":0.005,"minCount":1,"maxCount":1}]},"/combat_monsters/sea_snail":{"hrid":"/combat_monsters/sea_snail","name":"Gary","combatDetails":{"combatStyleHrid":"/combat_styles/smash","currentHitpoints":350,"maxHitpoints":350,"currentManapoints":350,"maxManapoints":350,"stabAccuracyRating":32,"slashAccuracyRating":32,"smashAccuracyRating":32,"stabMaxDamage":32,"slashMaxDamage":32,"smashMaxDamage":32,"stabEvasionRating":38,"slashEvasionRating":53.199999999999996,"smashEvasionRating":30.400000000000002,"staminaLevel":25,"intelligenceLevel":25,"attackLevel":22,"powerLevel":22,"defenseLevel":28,"combatStats":{"attackInterval":4000000000,"stabAccuracy":0,"slashAccuracy":0,"smashAccuracy":0,"stabDamage":0,"slashDamage":0,"smashDamage":0,"stabEvasion":0,"slashEvasion":0.4,"smashEvasion":-0.2,"armor":0,"lifeSteal":0,"HPRegen":0,"MPRegen":0,"dropRate":0,"foodSlots":0,"drinkSlots":0}},"abilities":[{"abilityHrid":"/abilities/toughness","level":1}],"dropTable":[{"itemHrid":"/items/coin","dropRate":1,"minCount":56,"maxCount":280},{"itemHrid":"/items/wheat","dropRate":0.3,"minCount":1,"maxCount":10},{"itemHrid":"/items/snail_shell","dropRate":0.006,"minCount":1,"maxCount":1},{"itemHrid":"/items/green_tea_leaf","dropRate":0.3,"minCount":1,"maxCount":2},{"itemHrid":"/items/black_tea_leaf","dropRate":0.4,"minCount":1,"maxCount":2},{"itemHrid":"/items/burble_tea_leaf","dropRate":0.2,"minCount":1,"maxCount":2},{"itemHrid":"/items/aqua_essence","dropRate":0.4,"minCount":1,"maxCount":3},{"itemHrid":"/items/toughness","dropRate":0.001,"minCount":1,"maxCount":1}]},"/combat_monsters/skunk":{"hrid":"/combat_monsters/skunk","name":"Skunk","combatDetails":{"combatStyleHrid":"/combat_styles/slash","currentHitpoints":80,"maxHitpoints":80,"currentManapoints":100,"maxManapoints":100,"stabAccuracyRating":18,"slashAccuracyRating":18,"smashAccuracyRating":18,"stabMaxDamage":18,"slashMaxDamage":18,"smashMaxDamage":18,"stabEvasionRating":18,"slashEvasionRating":18,"smashEvasionRating":18,"staminaLevel":-2,"intelligenceLevel":0,"attackLevel":8,"powerLevel":8,"defenseLevel":8,"combatStats":{"attackInterval":3500000000,"stabAccuracy":0,"slashAccuracy":0,"smashAccuracy":0,"stabDamage":0,"slashDamage":0,"smashDamage":0,"stabEvasion":0,"slashEvasion":0,"smashEvasion":0,"armor":0,"lifeSteal":0,"HPRegen":0,"MPRegen":0,"dropRate":0,"foodSlots":0,"drinkSlots":0}},"abilities":[{"abilityHrid":"/abilities/scratch","level":1}],"dropTable":[{"itemHrid":"/items/coin","dropRate":1,"minCount":14,"maxCount":70},{"itemHrid":"/items/blueberry","dropRate":0.2,"minCount":1,"maxCount":5},{"itemHrid":"/items/green_tea_leaf","dropRate":0.2,"minCount":1,"maxCount":3},{"itemHrid":"/items/scratch","dropRate":0.005,"minCount":1,"maxCount":1}]},"/combat_monsters/slimy":{"hrid":"/combat_monsters/slimy","name":"Slimy","combatDetails":{"combatStyleHrid":"/combat_styles/smash","currentHitpoints":120,"maxHitpoints":120,"currentManapoints":120,"maxManapoints":120,"stabAccuracyRating":19,"slashAccuracyRating":19,"smashAccuracyRating":19,"stabMaxDamage":22,"slashMaxDamage":22,"smashMaxDamage":22,"stabEvasionRating":20,"slashEvasionRating":20,"smashEvasionRating":20,"staminaLevel":2,"intelligenceLevel":2,"attackLevel":9,"powerLevel":12,"defenseLevel":10,"combatStats":{"attackInterval":3500000000,"stabAccuracy":0,"slashAccuracy":0,"smashAccuracy":0,"stabDamage":0,"slashDamage":0,"smashDamage":0,"stabEvasion":0,"slashEvasion":0,"smashEvasion":0,"armor":0,"lifeSteal":0,"HPRegen":0,"MPRegen":0,"dropRate":0,"foodSlots":0,"drinkSlots":0}},"abilities":[{"abilityHrid":"/abilities/smack","level":1}],"dropTable":[{"itemHrid":"/items/coin","dropRate":1,"minCount":20,"maxCount":100},{"itemHrid":"/items/apple","dropRate":0.2,"minCount":1,"maxCount":4},{"itemHrid":"/items/green_tea_leaf","dropRate":0.2,"minCount":1,"maxCount":4},{"itemHrid":"/items/smack","dropRate":0.005,"minCount":1,"maxCount":1}]},"/combat_monsters/snake":{"hrid":"/combat_monsters/snake","name":"Thnake","combatDetails":{"combatStyleHrid":"/combat_styles/stab","currentHitpoints":200,"maxHitpoints":200,"currentManapoints":200,"maxManapoints":200,"stabAccuracyRating":24,"slashAccuracyRating":24,"smashAccuracyRating":24,"stabMaxDamage":26,"slashMaxDamage":26,"smashMaxDamage":26,"stabEvasionRating":28,"slashEvasionRating":19.599999999999998,"smashEvasionRating":28,"staminaLevel":10,"intelligenceLevel":10,"attackLevel":14,"powerLevel":16,"defenseLevel":18,"combatStats":{"attackInterval":3200000000,"stabAccuracy":0,"slashAccuracy":0,"smashAccuracy":0,"stabDamage":0,"slashDamage":0,"smashDamage":0,"stabEvasion":0,"slashEvasion":-0.3,"smashEvasion":0,"armor":0,"lifeSteal":0,"HPRegen":0,"MPRegen":0,"dropRate":0,"foodSlots":0,"drinkSlots":0}},"abilities":[{"abilityHrid":"/abilities/poke","level":5}],"dropTable":[{"itemHrid":"/items/coin","dropRate":1,"minCount":32,"maxCount":160},{"itemHrid":"/items/egg","dropRate":0.3,"minCount":1,"maxCount":4},{"itemHrid":"/items/snake_fang","dropRate":0.04,"minCount":1,"maxCount":1},{"itemHrid":"/items/swamp_essence","dropRate":0.4,"minCount":2,"maxCount":6},{"itemHrid":"/items/poke","dropRate":0.008,"minCount":1,"maxCount":1}]},"/combat_monsters/swampy":{"hrid":"/combat_monsters/swampy","name":"Swampy","combatDetails":{"combatStyleHrid":"/combat_styles/smash","currentHitpoints":260,"maxHitpoints":260,"currentManapoints":260,"maxManapoints":260,"stabAccuracyRating":28,"slashAccuracyRating":28,"smashAccuracyRating":28,"stabMaxDamage":26,"slashMaxDamage":26,"smashMaxDamage":26,"stabEvasionRating":32,"slashEvasionRating":32,"smashEvasionRating":22.4,"staminaLevel":16,"intelligenceLevel":16,"attackLevel":18,"powerLevel":16,"defenseLevel":22,"combatStats":{"attackInterval":3000000000,"stabAccuracy":0,"slashAccuracy":0,"smashAccuracy":0,"stabDamage":0,"slashDamage":0,"smashDamage":0,"stabEvasion":0,"slashEvasion":0,"smashEvasion":-0.3,"armor":0,"lifeSteal":0,"HPRegen":0,"MPRegen":0,"dropRate":0,"foodSlots":0,"drinkSlots":0}},"abilities":[{"abilityHrid":"/abilities/sweep","level":1}],"dropTable":[{"itemHrid":"/items/coin","dropRate":1,"minCount":44,"maxCount":220},{"itemHrid":"/items/blueberry","dropRate":0.3,"minCount":1,"maxCount":6},{"itemHrid":"/items/blackberry","dropRate":0.15,"minCount":1,"maxCount":4},{"itemHrid":"/items/apple","dropRate":0.1,"minCount":1,"maxCount":5},{"itemHrid":"/items/orange","dropRate":0.05,"minCount":1,"maxCount":3},{"itemHrid":"/items/green_tea_leaf","dropRate":0.4,"minCount":1,"maxCount":4},{"itemHrid":"/items/black_tea_leaf","dropRate":0.2,"minCount":1,"maxCount":4},{"itemHrid":"/items/swamp_essence","dropRate":0.6,"minCount":3,"maxCount":9},{"itemHrid":"/items/sweep","dropRate":0.002,"minCount":1,"maxCount":1}]},"/combat_monsters/turtle":{"hrid":"/combat_monsters/turtle","name":"Turuto","combatDetails":{"combatStyleHrid":"/combat_styles/smash","currentHitpoints":700,"maxHitpoints":700,"currentManapoints":600,"maxManapoints":600,"stabAccuracyRating":50,"slashAccuracyRating":50,"smashAccuracyRating":50,"stabMaxDamage":65,"slashMaxDamage":65,"smashMaxDamage":65,"stabEvasionRating":65,"slashEvasionRating":91,"smashEvasionRating":52,"staminaLevel":60,"intelligenceLevel":50,"attackLevel":40,"powerLevel":55,"defenseLevel":55,"combatStats":{"attackInterval":3500000000,"stabAccuracy":0,"slashAccuracy":0,"smashAccuracy":0,"stabDamage":0,"slashDamage":0,"smashDamage":0,"stabEvasion":0,"slashEvasion":0.4,"smashEvasion":-0.2,"armor":0,"lifeSteal":0,"HPRegen":0,"MPRegen":0,"dropRate":0,"foodSlots":0,"drinkSlots":0}},"abilities":[{"abilityHrid":"/abilities/toughness","level":10}],"dropTable":[{"itemHrid":"/items/coin","dropRate":1,"minCount":120,"maxCount":600},{"itemHrid":"/items/egg","dropRate":0.2,"minCount":1,"maxCount":10},{"itemHrid":"/items/orange","dropRate":0.1,"minCount":1,"maxCount":4},{"itemHrid":"/items/plum","dropRate":0.15,"minCount":1,"maxCount":5},{"itemHrid":"/items/peach","dropRate":0.05,"minCount":1,"maxCount":3},{"itemHrid":"/items/turtle_shell","dropRate":0.004,"minCount":1,"maxCount":1},{"itemHrid":"/items/aqua_essence","dropRate":0.6,"minCount":3,"maxCount":15},{"itemHrid":"/items/toughness","dropRate":0.0015,"minCount":1,"maxCount":1}]},"/combat_monsters/vampire":{"hrid":"/combat_monsters/vampire","name":"Vampire","combatDetails":{"combatStyleHrid":"/combat_styles/stab","currentHitpoints":2000,"maxHitpoints":2000,"currentManapoints":2000,"maxManapoints":2000,"stabAccuracyRating":260,"slashAccuracyRating":260,"smashAccuracyRating":260,"stabMaxDamage":200,"slashMaxDamage":200,"smashMaxDamage":200,"stabEvasionRating":260,"slashEvasionRating":260,"smashEvasionRating":260,"staminaLevel":190,"intelligenceLevel":190,"attackLevel":250,"powerLevel":190,"defenseLevel":250,"combatStats":{"attackInterval":2800000000,"stabAccuracy":0,"slashAccuracy":0,"smashAccuracy":0,"stabDamage":0,"slashDamage":0,"smashDamage":0,"stabEvasion":0,"slashEvasion":0,"smashEvasion":0,"armor":0,"lifeSteal":0.02,"HPRegen":0,"MPRegen":0,"dropRate":0,"foodSlots":0,"drinkSlots":0}},"abilities":[{"abilityHrid":"/abilities/vampirism","level":1}],"dropTable":[{"itemHrid":"/items/coin","dropRate":1,"minCount":600,"maxCount":3000},{"itemHrid":"/items/red_tea_leaf","dropRate":0.2,"minCount":1,"maxCount":2},{"itemHrid":"/items/emp_tea_leaf","dropRate":0.2,"minCount":1,"maxCount":2},{"itemHrid":"/items/twilight_essence","dropRate":0.5,"minCount":2,"maxCount":6},{"itemHrid":"/items/vampire_fang","dropRate":0.001,"minCount":1,"maxCount":1},{"itemHrid":"/items/vampirism","dropRate":0.0008,"minCount":1,"maxCount":1}]},"/combat_monsters/veyes":{"hrid":"/combat_monsters/veyes","name":"Veyes","combatDetails":{"combatStyleHrid":"/combat_styles/slash","currentHitpoints":1230,"maxHitpoints":1230,"currentManapoints":1230,"maxManapoints":1230,"stabAccuracyRating":123,"slashAccuracyRating":123,"smashAccuracyRating":123,"stabMaxDamage":123,"slashMaxDamage":123,"smashMaxDamage":123,"stabEvasionRating":92.25,"slashEvasionRating":123,"smashEvasionRating":123,"staminaLevel":113,"intelligenceLevel":113,"attackLevel":113,"powerLevel":113,"defenseLevel":113,"combatStats":{"attackInterval":2800000000,"stabAccuracy":0,"slashAccuracy":0,"smashAccuracy":0,"stabDamage":0,"slashDamage":0,"smashDamage":0,"stabEvasion":-0.25,"slashEvasion":0,"smashEvasion":0,"armor":0,"lifeSteal":0,"HPRegen":0,"MPRegen":0,"dropRate":0,"foodSlots":0,"drinkSlots":0}},"abilities":[{"abilityHrid":"/abilities/precision","level":1}],"dropTable":[{"itemHrid":"/items/coin","dropRate":1,"minCount":280,"maxCount":1400},{"itemHrid":"/items/burble_tea_leaf","dropRate":0.15,"minCount":1,"maxCount":2},{"itemHrid":"/items/moolong_tea_leaf","dropRate":0.2,"minCount":1,"maxCount":2},{"itemHrid":"/items/red_tea_leaf","dropRate":0.1,"minCount":1,"maxCount":2},{"itemHrid":"/items/magnifying_glass","dropRate":0.0005,"minCount":1,"maxCount":1},{"itemHrid":"/items/eyessence","dropRate":1,"minCount":5,"maxCount":5},{"itemHrid":"/items/precision","dropRate":0.002,"minCount":1,"maxCount":1}]},"/combat_monsters/werewolf":{"hrid":"/combat_monsters/werewolf","name":"Werewolf","combatDetails":{"combatStyleHrid":"/combat_styles/slash","currentHitpoints":2400,"maxHitpoints":2400,"currentManapoints":2400,"maxManapoints":2400,"stabAccuracyRating":230,"slashAccuracyRating":230,"smashAccuracyRating":230,"stabMaxDamage":230,"slashMaxDamage":230,"smashMaxDamage":230,"stabEvasionRating":210,"slashEvasionRating":210,"smashEvasionRating":210,"staminaLevel":230,"intelligenceLevel":230,"attackLevel":220,"powerLevel":220,"defenseLevel":200,"combatStats":{"attackInterval":2800000000,"stabAccuracy":0,"slashAccuracy":0,"smashAccuracy":0,"stabDamage":0,"slashDamage":0,"smashDamage":0,"stabEvasion":0,"slashEvasion":0,"smashEvasion":0,"armor":0,"lifeSteal":0,"HPRegen":0,"MPRegen":0,"dropRate":0,"foodSlots":0,"drinkSlots":0}},"abilities":[{"abilityHrid":"/abilities/berserk","level":10},{"abilityHrid":"/abilities/maim","level":10}],"dropTable":[{"itemHrid":"/items/coin","dropRate":1,"minCount":750,"maxCount":3750},{"itemHrid":"/items/red_tea_leaf","dropRate":0.2,"minCount":1,"maxCount":2},{"itemHrid":"/items/emp_tea_leaf","dropRate":0.2,"minCount":1,"maxCount":2},{"itemHrid":"/items/twilight_essence","dropRate":0.6,"minCount":3,"maxCount":9},{"itemHrid":"/items/werewolf_claw","dropRate":0.001,"minCount":1,"maxCount":1},{"itemHrid":"/items/berserk","dropRate":0.002,"minCount":1,"maxCount":1},{"itemHrid":"/items/maim","dropRate":0.0008,"minCount":1,"maxCount":1}]},"/combat_monsters/zombie":{"hrid":"/combat_monsters/zombie","name":"Zombie","combatDetails":{"combatStyleHrid":"/combat_styles/slash","currentHitpoints":1700,"maxHitpoints":1700,"currentManapoints":1700,"maxManapoints":1700,"stabAccuracyRating":190,"slashAccuracyRating":190,"smashAccuracyRating":190,"stabMaxDamage":200,"slashMaxDamage":200,"smashMaxDamage":200,"stabEvasionRating":200,"slashEvasionRating":200,"smashEvasionRating":200,"staminaLevel":160,"intelligenceLevel":160,"attackLevel":180,"powerLevel":190,"defenseLevel":190,"combatStats":{"attackInterval":3200000000,"stabAccuracy":0,"slashAccuracy":0,"smashAccuracy":0,"stabDamage":0,"slashDamage":0,"smashDamage":0,"stabEvasion":0,"slashEvasion":0,"smashEvasion":0,"armor":0,"lifeSteal":0,"HPRegen":0,"MPRegen":0,"dropRate":0,"foodSlots":0,"drinkSlots":0}},"abilities":[{"abilityHrid":"/abilities/toughness","level":10},{"abilityHrid":"/abilities/maim","level":1}],"dropTable":[{"itemHrid":"/items/coin","dropRate":1,"minCount":500,"maxCount":2500},{"itemHrid":"/items/green_tea_leaf","dropRate":0.3,"minCount":1,"maxCount":5},{"itemHrid":"/items/black_tea_leaf","dropRate":0.3,"minCount":1,"maxCount":5},{"itemHrid":"/items/burble_tea_leaf","dropRate":0.3,"minCount":1,"maxCount":4},{"itemHrid":"/items/moolong_tea_leaf","dropRate":0.3,"minCount":1,"maxCount":4},{"itemHrid":"/items/red_tea_leaf","dropRate":0.4,"minCount":1,"maxCount":3},{"itemHrid":"/items/emp_tea_leaf","dropRate":0.4,"minCount":1,"maxCount":3},{"itemHrid":"/items/twilight_essence","dropRate":0.4,"minCount":1,"maxCount":3},{"itemHrid":"/items/toughness","dropRate":0.002,"minCount":1,"maxCount":1},{"itemHrid":"/items/maim","dropRate":0.0005,"minCount":1,"maxCount":1}]}}');
 
 /***/ }),
 
@@ -815,7 +2067,51 @@ module.exports = JSON.parse('{"/items/apple":{"hrid":"/items/apple","name":"Appl
 /******/ 		return module.exports;
 /******/ 	}
 /******/ 	
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = __webpack_modules__;
+/******/ 	
+/******/ 	// the startup function
+/******/ 	__webpack_require__.x = () => {
+/******/ 		// Load entry module and return exports
+/******/ 		// This entry module depends on other loaded chunks and execution need to be delayed
+/******/ 		var __webpack_exports__ = __webpack_require__.O(undefined, ["vendors-node_modules_heap-js_dist_heap-js_es5_js"], () => (__webpack_require__("./src/worker.js")))
+/******/ 		__webpack_exports__ = __webpack_require__.O(__webpack_exports__);
+/******/ 		return __webpack_exports__;
+/******/ 	};
+/******/ 	
 /************************************************************************/
+/******/ 	/* webpack/runtime/chunk loaded */
+/******/ 	(() => {
+/******/ 		var deferred = [];
+/******/ 		__webpack_require__.O = (result, chunkIds, fn, priority) => {
+/******/ 			if(chunkIds) {
+/******/ 				priority = priority || 0;
+/******/ 				for(var i = deferred.length; i > 0 && deferred[i - 1][2] > priority; i--) deferred[i] = deferred[i - 1];
+/******/ 				deferred[i] = [chunkIds, fn, priority];
+/******/ 				return;
+/******/ 			}
+/******/ 			var notFulfilled = Infinity;
+/******/ 			for (var i = 0; i < deferred.length; i++) {
+/******/ 				var [chunkIds, fn, priority] = deferred[i];
+/******/ 				var fulfilled = true;
+/******/ 				for (var j = 0; j < chunkIds.length; j++) {
+/******/ 					if ((priority & 1 === 0 || notFulfilled >= priority) && Object.keys(__webpack_require__.O).every((key) => (__webpack_require__.O[key](chunkIds[j])))) {
+/******/ 						chunkIds.splice(j--, 1);
+/******/ 					} else {
+/******/ 						fulfilled = false;
+/******/ 						if(priority < notFulfilled) notFulfilled = priority;
+/******/ 					}
+/******/ 				}
+/******/ 				if(fulfilled) {
+/******/ 					deferred.splice(i--, 1)
+/******/ 					var r = fn();
+/******/ 					if (r !== undefined) result = r;
+/******/ 				}
+/******/ 			}
+/******/ 			return result;
+/******/ 		};
+/******/ 	})();
+/******/ 	
 /******/ 	/* webpack/runtime/define property getters */
 /******/ 	(() => {
 /******/ 		// define getter functions for harmony exports
@@ -826,6 +2122,40 @@ module.exports = JSON.parse('{"/items/apple":{"hrid":"/items/apple","name":"Appl
 /******/ 				}
 /******/ 			}
 /******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/ensure chunk */
+/******/ 	(() => {
+/******/ 		__webpack_require__.f = {};
+/******/ 		// This file contains only the entry chunk.
+/******/ 		// The chunk loading function for additional chunks
+/******/ 		__webpack_require__.e = (chunkId) => {
+/******/ 			return Promise.all(Object.keys(__webpack_require__.f).reduce((promises, key) => {
+/******/ 				__webpack_require__.f[key](chunkId, promises);
+/******/ 				return promises;
+/******/ 			}, []));
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/get javascript chunk filename */
+/******/ 	(() => {
+/******/ 		// This function allow to reference async chunks and sibling chunks for the entrypoint
+/******/ 		__webpack_require__.u = (chunkId) => {
+/******/ 			// return url for filenames based on template
+/******/ 			return "" + chunkId + ".bundle.js";
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/global */
+/******/ 	(() => {
+/******/ 		__webpack_require__.g = (function() {
+/******/ 			if (typeof globalThis === 'object') return globalThis;
+/******/ 			try {
+/******/ 				return this || new Function('return this')();
+/******/ 			} catch (e) {
+/******/ 				if (typeof window === 'object') return window;
+/******/ 			}
+/******/ 		})();
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/hasOwnProperty shorthand */
@@ -844,27 +2174,80 @@ module.exports = JSON.parse('{"/items/apple":{"hrid":"/items/apple","name":"Appl
 /******/ 		};
 /******/ 	})();
 /******/ 	
+/******/ 	/* webpack/runtime/publicPath */
+/******/ 	(() => {
+/******/ 		var scriptUrl;
+/******/ 		if (__webpack_require__.g.importScripts) scriptUrl = __webpack_require__.g.location + "";
+/******/ 		var document = __webpack_require__.g.document;
+/******/ 		if (!scriptUrl && document) {
+/******/ 			if (document.currentScript)
+/******/ 				scriptUrl = document.currentScript.src
+/******/ 			if (!scriptUrl) {
+/******/ 				var scripts = document.getElementsByTagName("script");
+/******/ 				if(scripts.length) scriptUrl = scripts[scripts.length - 1].src
+/******/ 			}
+/******/ 		}
+/******/ 		// When supporting browsers where an automatic publicPath is not supported you must specify an output.publicPath manually via configuration
+/******/ 		// or pass an empty string ("") and set the __webpack_public_path__ variable from your code to use your own logic.
+/******/ 		if (!scriptUrl) throw new Error("Automatic publicPath is not supported in this browser");
+/******/ 		scriptUrl = scriptUrl.replace(/#.*$/, "").replace(/\?.*$/, "").replace(/\/[^\/]+$/, "/");
+/******/ 		__webpack_require__.p = scriptUrl;
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/importScripts chunk loading */
+/******/ 	(() => {
+/******/ 		// no baseURI
+/******/ 		
+/******/ 		// object to store loaded chunks
+/******/ 		// "1" means "already loaded"
+/******/ 		var installedChunks = {
+/******/ 			"src_worker_js": 1
+/******/ 		};
+/******/ 		
+/******/ 		// importScripts chunk loading
+/******/ 		var installChunk = (data) => {
+/******/ 			var [chunkIds, moreModules, runtime] = data;
+/******/ 			for(var moduleId in moreModules) {
+/******/ 				if(__webpack_require__.o(moreModules, moduleId)) {
+/******/ 					__webpack_require__.m[moduleId] = moreModules[moduleId];
+/******/ 				}
+/******/ 			}
+/******/ 			if(runtime) runtime(__webpack_require__);
+/******/ 			while(chunkIds.length)
+/******/ 				installedChunks[chunkIds.pop()] = 1;
+/******/ 			parentChunkLoadingFunction(data);
+/******/ 		};
+/******/ 		__webpack_require__.f.i = (chunkId, promises) => {
+/******/ 			// "1" is the signal for "already loaded"
+/******/ 			if(!installedChunks[chunkId]) {
+/******/ 				if(true) { // all chunks have JS
+/******/ 					importScripts(__webpack_require__.p + __webpack_require__.u(chunkId));
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 		
+/******/ 		var chunkLoadingGlobal = self["webpackChunkmwicombatsimulator"] = self["webpackChunkmwicombatsimulator"] || [];
+/******/ 		var parentChunkLoadingFunction = chunkLoadingGlobal.push.bind(chunkLoadingGlobal);
+/******/ 		chunkLoadingGlobal.push = installChunk;
+/******/ 		
+/******/ 		// no HMR
+/******/ 		
+/******/ 		// no HMR manifest
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/startup chunk dependencies */
+/******/ 	(() => {
+/******/ 		var next = __webpack_require__.x;
+/******/ 		__webpack_require__.x = () => {
+/******/ 			return __webpack_require__.e("vendors-node_modules_heap-js_dist_heap-js_es5_js").then(next);
+/******/ 		};
+/******/ 	})();
+/******/ 	
 /************************************************************************/
-var __webpack_exports__ = {};
-// This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
-(() => {
-/*!***********************!*\
-  !*** ./src/worker.js ***!
-  \***********************/
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _combatsimulator_player__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./combatsimulator/player */ "./src/combatsimulator/player.js");
-
-
-
-onmessage = function (event) {
-    console.log(event.data.player);
-    let player = _combatsimulator_player__WEBPACK_IMPORTED_MODULE_0__["default"].createFromDTO(event.data.player);
-    player.updateCombatStats();
-    console.log(player);
-};
-
-})();
-
+/******/ 	
+/******/ 	// run startup
+/******/ 	var __webpack_exports__ = __webpack_require__.x();
+/******/ 	
 /******/ })()
 ;
 //# sourceMappingURL=src_worker_js.bundle.js.map
