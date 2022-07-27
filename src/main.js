@@ -68,7 +68,7 @@ function initEnhancementLevelInput(equipmentType) {
     let inputElement = document.getElementById(inputId);
     inputElement.addEventListener("change", (event) => {
         enhancementLevelInputHandler(event, equipmentType);
-    })
+    });
 }
 
 function equipmentSelectHandler(event, type) {
@@ -127,7 +127,39 @@ function enhancementLevelInputHandler(event, type) {
 function updatePlayerStats() {
     player.updateCombatStats();
 
-    console.log(player);
+    [
+        "maxHitpoints",
+        "maxManapoints",
+        "stabAccuracyRating",
+        "stabMaxDamage",
+        "slashAccuracyRating",
+        "slashMaxDamage",
+        "smashAccuracyRating",
+        "smashMaxDamage",
+        "stabEvasionRating",
+        "slashEvasionRating",
+        "smashEvasionRating",
+        "armor",
+    ].forEach((stat) => {
+        let element = document.getElementById("combatStat_" + stat);
+        element.innerHTML = Math.floor(player.combatStats[stat]);
+    });
+
+    let combatStyleElement = document.getElementById("combatStat_combatStyleHrid");
+    let combatStyle = player.combatStats.combatStyleHrid;
+    combatStyleElement.innerHTML = combatStyle.charAt(0).toUpperCase() + combatStyle.slice(1);
+
+    let attackIntervalElement = document.getElementById("combatStat_attackInterval");
+    attackIntervalElement.innerHTML = (player.combatStats.attackInterval / 1e9).toLocaleString() + "s";
+
+    ["lifeSteal", "HPRegen", "MPRegen"].forEach((stat) => {
+        let element = document.getElementById("combatStat_" + stat);
+        let value = (100 * player.combatStats[stat]).toLocaleString([], {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 2,
+        });
+        element.innerHTML = value + "%";
+    });
 }
 
 function startSimulation() {
@@ -223,3 +255,4 @@ function printSimResult(simResult) {
 }
 
 initEquipmentSection();
+updatePlayerStats();
