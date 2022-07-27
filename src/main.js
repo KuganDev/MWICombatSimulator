@@ -105,7 +105,7 @@ function equipmentSelectHandler(event, type) {
     }
 
     let enhancementLevel = document.getElementById("inputEquipmentEnhancementLevel_" + selectType).value;
-    let equipment = new Equipment(gameItem.hrid, enhancementLevel);
+    let equipment = new Equipment(gameItem.hrid, Number(enhancementLevel));
     player.equipment[equipmentType] = equipment;
     updatePlayerStats();
 }
@@ -117,8 +117,26 @@ function enhancementLevelInputHandler(event, type) {
         return;
     }
 
-    let equipment = new Equipment(player.equipment[equipmentType].hrid, event.target.value);
+    let equipment = new Equipment(player.equipment[equipmentType].hrid, Number(event.target.value));
     player.equipment[equipmentType] = equipment;
+    updatePlayerStats();
+}
+
+// #endregion
+
+// #region Level
+
+function initLevelSection() {
+    ["stamina", "intelligence", "attack", "power", "defense"].forEach((skill) => {
+        let element = document.getElementById("inputLevel_" + skill);
+        element.addEventListener("change", (event) => {
+            levelInputHandler(event, skill);
+        });
+    });
+}
+
+function levelInputHandler(event, skill) {
+    player[skill + "Level"] = Number(event.target.value);
     updatePlayerStats();
 }
 
@@ -255,4 +273,5 @@ function printSimResult(simResult) {
 }
 
 initEquipmentSection();
+initLevelSection();
 updatePlayerStats();
