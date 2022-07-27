@@ -14,6 +14,8 @@ let buttonStartSimulation = document.getElementById("buttonStartSimulation");
 
 let worker = new Worker(new URL("worker.js", import.meta.url));
 
+let player = new Player();
+
 buttonStartSimulation.onclick = function () {
     startSimulation();
 };
@@ -26,27 +28,109 @@ worker.onmessage = function (event) {
     }
 };
 
-function fillEquipmentSelects() {
-    ["Head", "Body", "Legs", "Feet", "Hands", "Pouch"].forEach((type) => {
-        fillEquipmentSelect("selectEquipment" + type, "/equipment_types/" + type.toLowerCase());
+// #region Equipment
+
+function initEquipmentSection() {
+    ["head", "body", "legs", "feet", "hands", "main_hand", "two_hand", "off_hand", "pouch"].forEach((type) => {
+        initEquipmentSelect(type);
+        initEnhancementLevelInput(type);
     });
-    fillEquipmentSelect("selectEquipmentWeapon", "/equipment_types/main_hand");
-    fillEquipmentSelect("selectEquipmentWeapon", "/equipment_types/two_hand");
-    fillEquipmentSelect("selectEquipmentOffhand", "/equipment_types/off_hand");
 }
 
-function fillEquipmentSelect(selectId, equipmentType) {
+function initEquipmentSelect(equipmentType) {
+    let selectId = "selectEquipment_";
+    if (equipmentType == "main_hand" || equipmentType == "two_hand") {
+        selectId += "weapon";
+    } else {
+        selectId += equipmentType;
+    }
     let selectElement = document.getElementById(selectId);
 
     for (const value of Object.values(itemDetailMap)
         .filter((item) => item.categoryHrid == "/item_categories/equipment")
-        .filter((item) => item.equipmentDetail.type == equipmentType)) {
+        .filter((item) => item.equipmentDetail.type == "/equipment_types/" + equipmentType)) {
         selectElement.add(new Option(value.name, value.hrid));
     }
+
+    selectElement.addEventListener("change", (event) => {
+        equipmentSelectHandler(event, equipmentType);
+    });
+}
+
+function initEnhancementLevelInput(equipmentType) {
+    let inputId = "inputEquipmentEnhancementLevel_";
+    if (equipmentType == "main_hand" || equipmentType == "two_hand") {
+        inputId += "weapon";
+    } else {
+        inputId += equipmentType;
+    }
+
+    let inputElement = document.getElementById(inputId);
+    inputElement.addEventListener("change", (event) => {
+        enhancementLevelInputHandler(event, equipmentType);
+    })
+}
+
+function equipmentSelectHandler(event, type) {
+    let equipmentType = "/equipment_types/" + type;
+
+    if (!event.target.value) {
+        player.equipment[equipmentType] = null;
+        updatePlayerStats();
+        return;
+    }
+
+    let gameItem = itemDetailMap[event.target.value];
+
+    // Weapon select has two handlers because of mainhand and twohand weapons. Ignore the handler with the wrong type
+    if (gameItem.equipmentDetail.type != equipmentType) {
+        return;
+    }
+
+    if (type == "two_hand") {
+        player.equipment["/equipment_types/main_hand"] = null;
+        player.equipment["/equipment_types/off_hand"] = null;
+        document.getElementById("selectEquipment_off_hand").value = "";
+        document.getElementById("inputEquipmentEnhancementLevel_off_hand").value = 0;
+    }
+    if (type == "off_hand" && player.equipment["/equipment_types/two_hand"]) {
+        player.equipment["/equipment_types/two_hand"] = null;
+        document.getElementById("selectEquipment_weapon").value = "";
+        document.getElementById("inputEquipmentEnhancementLevel_weapon").value = 0;
+    }
+
+    let selectType = type;
+    if (type == "main_hand" || type == "two_hand") {
+        selectType = "weapon";
+    }
+
+    let enhancementLevel = document.getElementById("inputEquipmentEnhancementLevel_" + selectType).value;
+    let equipment = new Equipment(gameItem.hrid, enhancementLevel);
+    player.equipment[equipmentType] = equipment;
+    updatePlayerStats();
+}
+
+function enhancementLevelInputHandler(event, type) {
+    let equipmentType = "/equipment_types/" + type;
+
+    if (!player.equipment[equipmentType]) {
+        return;
+    }
+
+    let equipment = new Equipment(player.equipment[equipmentType].hrid, event.target.value);
+    player.equipment[equipmentType] = equipment;
+    updatePlayerStats();
+}
+
+// #endregion
+
+function updatePlayerStats() {
+    player.updateCombatStats();
+
+    console.log(player);
 }
 
 function startSimulation() {
-    let player = new Player();
     player.staminaLevel = 65;
     player.intelligenceLevel = 69;
     player.attackLevel = 71;
@@ -138,4 +222,4 @@ function printSimResult(simResult) {
     }
 }
 
-fillEquipmentSelects();
+initEquipmentSection();
