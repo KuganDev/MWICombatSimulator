@@ -3094,6 +3094,9 @@ let buttonStartSimulation = document.getElementById("buttonStartSimulation");
 let worker = new Worker(new URL(/* worker import */ __webpack_require__.p + __webpack_require__.u("src_worker_js"), __webpack_require__.b));
 
 let player = new _combatsimulator_player_js__WEBPACK_IMPORTED_MODULE_2__["default"]();
+let food = [null, null, null];
+let drinks = [null, null, null];
+let triggerMap = {};
 
 buttonStartSimulation.onclick = function () {
     startSimulation();
@@ -3221,6 +3224,94 @@ function levelInputHandler(event, skill) {
 
 // #endregion
 
+// #region Food
+
+function initFoodSection() {
+    for (let i = 0; i < 3; i++) {
+        let element = document.getElementById("selectFood_" + i);
+
+        for (const value of Object.values(_combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_5__).filter(
+            (item) => item.categoryHrid == "/item_categories/food"
+        )) {
+            element.add(new Option(value.name, value.hrid));
+        }
+
+        element.addEventListener("change", (event) => {
+            foodSelectHandler(event, i);
+        });
+    }
+
+    updateAvailableFoodSlots();
+}
+
+function foodSelectHandler(event, index) {
+    food[index] = event.target.value;
+
+    let triggerButton = document.getElementById("buttonFoodTrigger_" + index);
+    triggerButton.disabled = !food[index];
+
+    if (food[index] && !triggerMap[food[index]]) {
+        let gameItem = _combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_5__[food[index]];
+        triggerMap[food[index]] = gameItem.consumableDetail.defaultCombatTriggers;
+    }
+}
+
+function updateAvailableFoodSlots() {
+    for (let i = 0; i < 3; i++) {
+        let selectElement = document.getElementById("selectFood_" + i);
+        let triggerButton = document.getElementById("buttonFoodTrigger_" + i);
+
+        selectElement.disabled = i >= player.combatStats.foodSlots;
+        triggerButton.disabled = i >= player.combatStats.foodSlots || !food[i];
+    }
+}
+
+// #endregion
+
+// #region Trigger
+
+function initTriggerModal() {
+    let modal = document.getElementById("triggerModal");
+    modal.addEventListener("show.bs.modal", (event) => {
+        modalShownHandler(event);
+    });
+
+    let saveButton = document.getElementById("buttonTriggerModalSave");
+    saveButton.addEventListener("click", (event) => {
+        modalSaveHandler(event);
+    });
+}
+
+function modalShownHandler(event) {
+    let triggerButton = event.relatedTarget;
+
+    let triggerType = triggerButton.getAttribute("data-bs-triggertype");
+    let triggerIndex = Number(triggerButton.getAttribute("data-bs-triggerindex"));
+
+    let triggerTarget;
+    switch(triggerType) {
+        case "food":
+            triggerTarget = food[triggerIndex];
+            break;
+        case "drink":
+            triggerTarget = drinks[triggerIndex];
+            break;
+    }
+
+    let triggerTargetnput = document.getElementById("inputModalTriggerTarget");
+    triggerTargetnput.value = triggerTarget;
+}
+
+function modalSaveHandler(event) {
+    let triggerTargetnput = document.getElementById("inputModalTriggerTarget");
+
+    let triggerTarget = triggerTargetnput.value;
+
+    console.log(triggerTarget);
+}
+
+// #endregion
+
 function updatePlayerStats() {
     player.updateCombatStats();
 
@@ -3257,6 +3348,8 @@ function updatePlayerStats() {
         });
         element.innerHTML = value + "%";
     });
+
+    updateAvailableFoodSlots();
 }
 
 function startSimulation() {
@@ -3351,9 +3444,12 @@ function printSimResult(simResult) {
     }
 }
 
+updatePlayerStats();
+
 initEquipmentSection();
 initLevelSection();
-updatePlayerStats();
+initFoodSection();
+initTriggerModal();
 
 })();
 

@@ -16,6 +16,7 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-2">
+                    <!-- #region Levels -->
                     <div class="row mb-3">
                         <b>Levels</b>
                     </div>
@@ -84,6 +85,7 @@
                             />
                         </div>
                     </div>
+                    <!-- #endregion -->
                 </div>
                 <div class="col-md-4">
                     <!-- #region Equipment -->
@@ -314,6 +316,162 @@
                     <!-- #endregion -->
                 </div>
                 <div class="col-md-4"></div>
+            </div>
+            <div class="row">
+                <div class="col-md-2">
+                    <div class="row mb-3">
+                        <b>Food</b>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col">
+                            <select id="selectFood_0" class="form-select">
+                                <option value="">Empty</option>
+                            </select>
+                        </div>
+                        <div class="col-md-auto">
+                            <button
+                                id="buttonFoodTrigger_0"
+                                class="btn btn-primary"
+                                type="button"
+                                data-bs-toggle="modal"
+                                data-bs-target="#triggerModal"
+                                data-bs-triggertype="food"
+                                data-bs-triggerindex="0"
+                            >
+                                Trigger
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col">
+                            <select id="selectFood_1" class="form-select">
+                                <option value="">Empty</option>
+                            </select>
+                        </div>
+                        <div class="col-md-auto">
+                            <button
+                                id="buttonFoodTrigger_1"
+                                class="btn btn-primary"
+                                type="button"
+                                data-bs-toggle="modal"
+                                data-bs-target="#triggerModal"
+                                data-bs-triggertype="food"
+                                data-bs-triggerindex="1"
+                            >
+                                Trigger
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col">
+                            <select id="selectFood_2" class="form-select">
+                                <option value="">Empty</option>
+                            </select>
+                        </div>
+                        <div class="col-md-auto">
+                            <button
+                                id="buttonFoodTrigger_2"
+                                class="btn btn-primary"
+                                type="button"
+                                data-bs-toggle="modal"
+                                data-bs-target="#triggerModal"
+                                data-bs-triggertype="food"
+                                data-bs-triggerindex="2"
+                            >
+                                Trigger
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="row mb-3">
+                        <b>Drinks</b>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col">
+                            <select id="selectDrink_0" class="form-select">
+                                <option value="">Empty</option>
+                            </select>
+                        </div>
+                        <div class="col-md-auto">
+                            <button
+                                id="buttonDrinkTrigger_0"
+                                class="btn btn-primary"
+                                type="button"
+                                data-bs-toggle="modal"
+                                data-bs-target="#triggerModal"
+                                data-bs-triggertype="drink"
+                                data-bs-triggerindex="0"
+                            >
+                                Trigger
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col">
+                            <select id="selectDrink_1" class="form-select">
+                                <option value="">Empty</option>
+                            </select>
+                        </div>
+                        <div class="col-md-auto">
+                            <button
+                                id="buttonDrinkTrigger_1"
+                                class="btn btn-primary"
+                                type="button"
+                                data-bs-toggle="modal"
+                                data-bs-target="#triggerModal"
+                                data-bs-triggertype="drink"
+                                data-bs-triggerindex="1"
+                            >
+                                Trigger
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col">
+                            <select id="selectDrink_2" class="form-select">
+                                <option value="">Empty</option>
+                            </select>
+                        </div>
+                        <div class="col-md-auto">
+                            <button
+                                id="buttonDrinkTrigger_2"
+                                class="btn btn-primary"
+                                type="button"
+                                data-bs-toggle="modal"
+                                data-bs-target="#triggerModal"
+                                data-bs-triggertype="drink"
+                                data-bs-triggerindex="2"
+                            >
+                                Trigger
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal" id="triggerModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Configure Trigger</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="inputModalTriggerTarget" />
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button
+                            type="button"
+                            class="btn btn-primary"
+                            data-bs-dismiss="modal"
+                            id="buttonTriggerModalSave"
+                        >
+                            Save
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
         <button id="buttonStartSimulation" class="btn btn-primary" type="button">Start Simulation</button>
