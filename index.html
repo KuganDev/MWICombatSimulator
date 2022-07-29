@@ -90,8 +90,8 @@
                 <div class="col-md-4">
                     <!-- #region Equipment -->
                     <div class="row mb-3">
-                        <div class="col-md-4"><b>Slot</b></div>
-                        <div class="col-md-4"><b>Item</b></div>
+                        <div class="col-md-2"><b>Slot</b></div>
+                        <div class="col-md-6"><b>Item</b></div>
                         <div class="col-md-4"><b>Enhancement Level</b></div>
                     </div>
                     <div class="row mb-2">
@@ -319,6 +319,7 @@
             </div>
             <div class="row">
                 <div class="col-md-2">
+                    <!-- #region Food -->
                     <div class="row mb-3">
                         <b>Food</b>
                     </div>
@@ -382,8 +383,10 @@
                             </button>
                         </div>
                     </div>
+                    <!-- #endregion -->
                 </div>
                 <div class="col-md-2">
+                    <!-- #region Drinks -->
                     <div class="row mb-3">
                         <b>Drinks</b>
                     </div>
@@ -447,10 +450,116 @@
                             </button>
                         </div>
                     </div>
+                    <!-- #endregion -->
+                </div>
+                <div class="col-md-3">
+                    <!-- #region Abilities -->
+                    <div class="row mb-3">
+                        <div class="col-md-7">
+                            <b>Abilities</b>
+                        </div>
+                        <div class="col">
+                            <b>Level</b>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-md-7">
+                            <select id="selectAbility_0" class="form-select">
+                                <option value="">Empty</option>
+                            </select>
+                        </div>
+                        <div class="col">
+                            <input type="number" id="inputAbilityLevel_0" class="form-control" value="1" min="1" />
+                        </div>
+                        <div class="col-md-auto">
+                            <button
+                                id="buttonAbilityTrigger_0"
+                                class="btn btn-primary"
+                                type="button"
+                                data-bs-toggle="modal"
+                                data-bs-target="#triggerModal"
+                                data-bs-triggertype="ability"
+                                data-bs-triggerindex="0"
+                            >
+                                Trigger
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-md-7">
+                            <select id="selectAbility_1" class="form-select">
+                                <option value="">Empty</option>
+                            </select>
+                        </div>
+                        <div class="col">
+                            <input type="number" id="inputAbilityLevel_1" class="form-control" value="1" min="1" />
+                        </div>
+                        <div class="col-md-auto">
+                            <button
+                                id="buttonAbilityTrigger_1"
+                                class="btn btn-primary"
+                                type="button"
+                                data-bs-toggle="modal"
+                                data-bs-target="#triggerModal"
+                                data-bs-triggertype="ability"
+                                data-bs-triggerindex="1"
+                            >
+                                Trigger
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-md-7">
+                            <select id="selectAbility_2" class="form-select">
+                                <option value="">Empty</option>
+                            </select>
+                        </div>
+                        <div class="col">
+                            <input type="number" id="inputAbilityLevel_2" class="form-control" value="1" min="1" />
+                        </div>
+                        <div class="col-md-auto">
+                            <button
+                                id="buttonAbilityTrigger_2"
+                                class="btn btn-primary"
+                                type="button"
+                                data-bs-toggle="modal"
+                                data-bs-target="#triggerModal"
+                                data-bs-triggertype="ability"
+                                data-bs-triggerindex="2"
+                            >
+                                Trigger
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-md-7">
+                            <select id="selectAbility_3" class="form-select">
+                                <option value="">Empty</option>
+                            </select>
+                        </div>
+                        <div class="col">
+                            <input type="number" id="inputAbilityLevel_3" class="form-control" value="1" min="1" />
+                        </div>
+                        <div class="col-md-auto">
+                            <button
+                                id="buttonAbilityTrigger_3"
+                                class="btn btn-primary"
+                                type="button"
+                                data-bs-toggle="modal"
+                                data-bs-target="#triggerModal"
+                                data-bs-triggertype="ability"
+                                data-bs-triggerindex="3"
+                            >
+                                Trigger
+                            </button>
+                        </div>
+                    </div>
+                    <!-- #endregion-->
                 </div>
             </div>
         </div>
         <div class="modal" id="triggerModal" tabindex="-1">
+            <!-- #region Trigger Modal -->
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -604,10 +713,14 @@
                             </div>
                             <div class="row pt-2">
                                 <div class="col-md-6 text-center">
-                                    <button type="button" class="btn btn-primary" id="buttonAddTrigger">Add condition</button>
+                                    <button type="button" class="btn btn-primary" id="buttonAddTrigger">
+                                        Add condition
+                                    </button>
                                 </div>
                                 <div class="col-md-6 text-center">
-                                    <button type="button" class="btn btn-primary" id="buttonDefaultTrigger">Set to default</button>
+                                    <button type="button" class="btn btn-primary" id="buttonDefaultTrigger">
+                                        Set to default
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -625,6 +738,7 @@
                     </div>
                 </div>
             </div>
+            <!-- #endregion -->
         </div>
         <button id="buttonStartSimulation" class="btn btn-primary" type="button">Start Simulation</button>
         <script

@@ -2883,6 +2883,16 @@ module.exports = JSON.parse('{"/abilities/berserk":{"hrid":"/abilities/berserk",
 
 /***/ }),
 
+/***/ "./src/combatsimulator/data/abilitySlotsLevelRequirementList.json":
+/*!************************************************************************!*\
+  !*** ./src/combatsimulator/data/abilitySlotsLevelRequirementList.json ***!
+  \************************************************************************/
+/***/ ((module) => {
+
+module.exports = [0,1,20,50,90];
+
+/***/ }),
+
 /***/ "./src/combatsimulator/data/actionDetailMap.json":
 /*!*******************************************************!*\
   !*** ./src/combatsimulator/data/actionDetailMap.json ***!
@@ -3100,6 +3110,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _combatsimulator_data_combatTriggerDependencyDetailMap_json__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./combatsimulator/data/combatTriggerDependencyDetailMap.json */ "./src/combatsimulator/data/combatTriggerDependencyDetailMap.json");
 /* harmony import */ var _combatsimulator_data_combatTriggerConditionDetailMap_json__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./combatsimulator/data/combatTriggerConditionDetailMap.json */ "./src/combatsimulator/data/combatTriggerConditionDetailMap.json");
 /* harmony import */ var _combatsimulator_data_combatTriggerComparatorDetailMap_json__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./combatsimulator/data/combatTriggerComparatorDetailMap.json */ "./src/combatsimulator/data/combatTriggerComparatorDetailMap.json");
+/* harmony import */ var _combatsimulator_data_abilitySlotsLevelRequirementList_json__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./combatsimulator/data/abilitySlotsLevelRequirementList.json */ "./src/combatsimulator/data/abilitySlotsLevelRequirementList.json");
+
 
 
 
@@ -3122,6 +3134,7 @@ let worker = new Worker(new URL(/* worker import */ __webpack_require__.p + __we
 let player = new _combatsimulator_player_js__WEBPACK_IMPORTED_MODULE_2__["default"]();
 let food = [null, null, null];
 let drinks = [null, null, null];
+let abilities = [null, null, null, null];
 let triggerMap = {};
 let modalTriggers = [];
 
@@ -3335,6 +3348,48 @@ function updateAvailableDrinkSlots() {
 
 // #endregion
 
+// #region Abilities
+
+function initAbilitiesSection() {
+    for (let i = 0; i < 4; i++) {
+        let selectElement = document.getElementById("selectAbility_" + i);
+
+        for (const value of Object.values(_combatsimulator_data_abilityDetailMap_json__WEBPACK_IMPORTED_MODULE_4__)) {
+            selectElement.add(new Option(value.name, value.hrid));
+        }
+
+        selectElement.addEventListener("change", (event) => abilitySelectHandler(event, i));
+    }
+
+    updateAvailableAbilitySlots();
+}
+
+function abilitySelectHandler(event, index) {
+    abilities[index] = event.target.value;
+
+    let triggerButton = document.getElementById("buttonAbilityTrigger_" + index);
+    triggerButton.disabled = !abilities[index];
+
+    if (abilities[index] && !triggerMap[abilities[index]]) {
+        let gameAbility = _combatsimulator_data_abilityDetailMap_json__WEBPACK_IMPORTED_MODULE_4__[abilities[index]];
+        triggerMap[abilities[index]] = structuredClone(gameAbility.defaultCombatTriggers);
+    }
+}
+
+function updateAvailableAbilitySlots() {
+    for (let i = 0; i < 4; i++) {
+        let selectElement = document.getElementById("selectAbility_" + i);
+        let inputElement = document.getElementById("inputAbilityLevel_" + i);
+        let triggerButton = document.getElementById("buttonAbilityTrigger_" + i);
+
+        selectElement.disabled = player.intelligenceLevel < _combatsimulator_data_abilitySlotsLevelRequirementList_json__WEBPACK_IMPORTED_MODULE_14__[i + 1];
+        inputElement.disabled = player.intelligenceLevel < _combatsimulator_data_abilitySlotsLevelRequirementList_json__WEBPACK_IMPORTED_MODULE_14__[i + 1];
+        triggerButton.disabled = player.intelligenceLevel < _combatsimulator_data_abilitySlotsLevelRequirementList_json__WEBPACK_IMPORTED_MODULE_14__[i + 1] || !abilities[i];
+    }
+}
+
+// #endregion
+
 // #region Trigger
 
 function initTriggerModal() {
@@ -3378,6 +3433,9 @@ function triggerModalShownHandler(event) {
             break;
         case "drink":
             triggerTarget = drinks[triggerIndex];
+            break;
+        case "ability":
+            triggerTarget = abilities[triggerIndex];
             break;
     }
 
@@ -3448,7 +3506,11 @@ function triggerDefaultButtonHandler(event) {
     let triggerTargetnput = document.getElementById("inputModalTriggerTarget");
     let triggerTarget = triggerTargetnput.value;
 
-    modalTriggers = structuredClone(_combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_5__[triggerTarget].consumableDetail.defaultCombatTriggers);
+    if (triggerTarget.startsWith("/items/")) {
+        modalTriggers = structuredClone(_combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_5__[triggerTarget].consumableDetail.defaultCombatTriggers);
+    } else {
+        modalTriggers = structuredClone(_combatsimulator_data_abilityDetailMap_json__WEBPACK_IMPORTED_MODULE_4__[triggerTarget].defaultCombatTriggers);
+    }
 
     updateTriggerModal();
 }
@@ -3620,6 +3682,7 @@ function updatePlayerStats() {
 
     updateAvailableFoodSlots();
     updateAvailableDrinkSlots();
+    updateAvailableAbilitySlots();
 }
 
 function startSimulation() {
@@ -3720,6 +3783,7 @@ initEquipmentSection();
 initLevelSection();
 initFoodSection();
 initDrinksSection();
+initAbilitiesSection();
 initTriggerModal();
 
 })();

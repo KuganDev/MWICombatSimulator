@@ -12,6 +12,7 @@ import CombatSimulator from "./combatsimulator/combatSimulator.js";
 import combatTriggerDependencyDetailMap from "./combatsimulator/data/combatTriggerDependencyDetailMap.json";
 import combatTriggerConditionDetailMap from "./combatsimulator/data/combatTriggerConditionDetailMap.json";
 import combatTriggerComparatorDetailMap from "./combatsimulator/data/combatTriggerComparatorDetailMap.json";
+import abilitySlotsLevelRequirementList from "./combatsimulator/data/abilitySlotsLevelRequirementList.json";
 
 let buttonStartSimulation = document.getElementById("buttonStartSimulation");
 
@@ -20,6 +21,7 @@ let worker = new Worker(new URL("worker.js", import.meta.url));
 let player = new Player();
 let food = [null, null, null];
 let drinks = [null, null, null];
+let abilities = [null, null, null, null];
 let triggerMap = {};
 let modalTriggers = [];
 
@@ -233,6 +235,48 @@ function updateAvailableDrinkSlots() {
 
 // #endregion
 
+// #region Abilities
+
+function initAbilitiesSection() {
+    for (let i = 0; i < 4; i++) {
+        let selectElement = document.getElementById("selectAbility_" + i);
+
+        for (const value of Object.values(abilityDetailMap)) {
+            selectElement.add(new Option(value.name, value.hrid));
+        }
+
+        selectElement.addEventListener("change", (event) => abilitySelectHandler(event, i));
+    }
+
+    updateAvailableAbilitySlots();
+}
+
+function abilitySelectHandler(event, index) {
+    abilities[index] = event.target.value;
+
+    let triggerButton = document.getElementById("buttonAbilityTrigger_" + index);
+    triggerButton.disabled = !abilities[index];
+
+    if (abilities[index] && !triggerMap[abilities[index]]) {
+        let gameAbility = abilityDetailMap[abilities[index]];
+        triggerMap[abilities[index]] = structuredClone(gameAbility.defaultCombatTriggers);
+    }
+}
+
+function updateAvailableAbilitySlots() {
+    for (let i = 0; i < 4; i++) {
+        let selectElement = document.getElementById("selectAbility_" + i);
+        let inputElement = document.getElementById("inputAbilityLevel_" + i);
+        let triggerButton = document.getElementById("buttonAbilityTrigger_" + i);
+
+        selectElement.disabled = player.intelligenceLevel < abilitySlotsLevelRequirementList[i + 1];
+        inputElement.disabled = player.intelligenceLevel < abilitySlotsLevelRequirementList[i + 1];
+        triggerButton.disabled = player.intelligenceLevel < abilitySlotsLevelRequirementList[i + 1] || !abilities[i];
+    }
+}
+
+// #endregion
+
 // #region Trigger
 
 function initTriggerModal() {
@@ -276,6 +320,9 @@ function triggerModalShownHandler(event) {
             break;
         case "drink":
             triggerTarget = drinks[triggerIndex];
+            break;
+        case "ability":
+            triggerTarget = abilities[triggerIndex];
             break;
     }
 
@@ -346,7 +393,11 @@ function triggerDefaultButtonHandler(event) {
     let triggerTargetnput = document.getElementById("inputModalTriggerTarget");
     let triggerTarget = triggerTargetnput.value;
 
-    modalTriggers = structuredClone(itemDetailMap[triggerTarget].consumableDetail.defaultCombatTriggers);
+    if (triggerTarget.startsWith("/items/")) {
+        modalTriggers = structuredClone(itemDetailMap[triggerTarget].consumableDetail.defaultCombatTriggers);
+    } else {
+        modalTriggers = structuredClone(abilityDetailMap[triggerTarget].defaultCombatTriggers);
+    }
 
     updateTriggerModal();
 }
@@ -518,6 +569,7 @@ function updatePlayerStats() {
 
     updateAvailableFoodSlots();
     updateAvailableDrinkSlots();
+    updateAvailableAbilitySlots();
 }
 
 function startSimulation() {
@@ -618,4 +670,5 @@ initEquipmentSection();
 initLevelSection();
 initFoodSection();
 initDrinksSection();
+initAbilitiesSection();
 initTriggerModal();
