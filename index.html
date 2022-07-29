@@ -459,6 +459,158 @@
                     </div>
                     <div class="modal-body">
                         <input type="hidden" id="inputModalTriggerTarget" />
+                        <div class="container-fluid">
+                            <div class="row mb-2">
+                                <div class="col" id="triggerStartText">Activate when:</div>
+                            </div>
+                            <div class="row mb-2" id="modalTrigger_0">
+                                <div class="col-md-10">
+                                    <div class="row mb-2">
+                                        <div class="col">
+                                            <select id="selectTriggerDependency_0" class="form-select">
+                                                <option value=""></option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-2">
+                                        <div class="col">
+                                            <select id="selectTriggerCondition_0" class="form-select">
+                                                <option value=""></option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <select id="selectTriggerComparator_0" class="form-select">
+                                                <option value=""></option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <input type="number" id="inputTriggerValue_0" class="form-control" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 align-self-center">
+                                    <button type="button" class="btn btn-danger" id="buttonRemoveTrigger_0">x</button>
+                                </div>
+                            </div>
+                            <div class="row mb-2" id="modalTrigger_1">
+                                <div class="col-md-10">
+                                    <div class="row mb-2">
+                                        <div class="col">
+                                            <b>AND</b>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-2">
+                                        <div class="col">
+                                            <select id="selectTriggerDependency_1" class="form-select">
+                                                <option value=""></option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-2">
+                                        <div class="col">
+                                            <select id="selectTriggerCondition_1" class="form-select">
+                                                <option value=""></option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <select id="selectTriggerComparator_1" class="form-select">
+                                                <option value=""></option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <input type="number" id="inputTriggerValue_1" class="form-control" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 align-self-center">
+                                    <button type="button" class="btn btn-danger" id="buttonRemoveTrigger_1">x</button>
+                                </div>
+                            </div>
+                            <div class="row mb-2" id="modalTrigger_2">
+                                <div class="col-md-10">
+                                    <div class="row mb-2">
+                                        <div class="col">
+                                            <b>AND</b>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-2">
+                                        <div class="col">
+                                            <select id="selectTriggerDependency_2" class="form-select">
+                                                <option value=""></option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-2">
+                                        <div class="col">
+                                            <select id="selectTriggerCondition_2" class="form-select">
+                                                <option value=""></option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <select id="selectTriggerComparator_2" class="form-select">
+                                                <option value=""></option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <input type="number" id="inputTriggerValue_2" class="form-control" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 align-self-center">
+                                    <button type="button" class="btn btn-danger" id="buttonRemoveTrigger_2">x</button>
+                                </div>
+                            </div>
+                            <div class="row mb-2" id="modalTrigger_3">
+                                <div class="col-md-10">
+                                    <div class="row mb-2">
+                                        <div class="col">
+                                            <b>AND</b>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-2">
+                                        <div class="col">
+                                            <select id="selectTriggerDependency_3" class="form-select">
+                                                <option value=""></option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-2">
+                                        <div class="col">
+                                            <select id="selectTriggerCondition_3" class="form-select">
+                                                <option value=""></option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <select id="selectTriggerComparator_3" class="form-select">
+                                                <option value=""></option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <input type="number" id="inputTriggerValue_3" class="form-control" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 align-self-center">
+                                    <button type="button" class="btn btn-danger" id="buttonRemoveTrigger_3">x</button>
+                                </div>
+                            </div>
+                            <div class="row pt-2">
+                                <div class="col-md-6 text-center">
+                                    <button type="button" class="btn btn-primary" id="buttonAddTrigger">Add condition</button>
+                                </div>
+                                <div class="col-md-6 text-center">
+                                    <button type="button" class="btn btn-primary" id="buttonDefaultTrigger">Set to default</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>

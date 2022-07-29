@@ -2903,6 +2903,26 @@ module.exports = JSON.parse('{"/combat_monsters/alligator":{"hrid":"/combat_mons
 
 /***/ }),
 
+/***/ "./src/combatsimulator/data/combatTriggerComparatorDetailMap.json":
+/*!************************************************************************!*\
+  !*** ./src/combatsimulator/data/combatTriggerComparatorDetailMap.json ***!
+  \************************************************************************/
+/***/ ((module) => {
+
+module.exports = JSON.parse('{"/combat_trigger_comparators/greater_than_equal":{"hrid":"/combat_trigger_comparators/greater_than_equal","name":">=","allowValue":true,"sortIndex":1},"/combat_trigger_comparators/is_active":{"hrid":"/combat_trigger_comparators/is_active","name":"Is Active","allowValue":false,"sortIndex":3},"/combat_trigger_comparators/is_inactive":{"hrid":"/combat_trigger_comparators/is_inactive","name":"Is Inactive","allowValue":false,"sortIndex":4},"/combat_trigger_comparators/less_than_equal":{"hrid":"/combat_trigger_comparators/less_than_equal","name":"<=","allowValue":true,"sortIndex":2}}');
+
+/***/ }),
+
+/***/ "./src/combatsimulator/data/combatTriggerConditionDetailMap.json":
+/*!***********************************************************************!*\
+  !*** ./src/combatsimulator/data/combatTriggerConditionDetailMap.json ***!
+  \***********************************************************************/
+/***/ ((module) => {
+
+module.exports = JSON.parse('{"/combat_trigger_conditions/attack_coffee":{"hrid":"/combat_trigger_conditions/attack_coffee","name":"Attack Coffee","isSingleTarget":true,"isMultiTarget":false,"allowedComparatorHrids":["/combat_trigger_comparators/is_active","/combat_trigger_comparators/is_inactive"],"sortIndex":11},"/combat_trigger_conditions/berserk":{"hrid":"/combat_trigger_conditions/berserk","name":"Berserk","isSingleTarget":true,"isMultiTarget":false,"allowedComparatorHrids":["/combat_trigger_comparators/is_active","/combat_trigger_comparators/is_inactive"],"sortIndex":19},"/combat_trigger_conditions/current_hp":{"hrid":"/combat_trigger_conditions/current_hp","name":"Current Hp","isSingleTarget":true,"isMultiTarget":true,"allowedComparatorHrids":["/combat_trigger_comparators/greater_than_equal","/combat_trigger_comparators/less_than_equal"],"sortIndex":3},"/combat_trigger_conditions/current_mp":{"hrid":"/combat_trigger_conditions/current_mp","name":"Current Mp","isSingleTarget":true,"isMultiTarget":true,"allowedComparatorHrids":["/combat_trigger_comparators/greater_than_equal","/combat_trigger_comparators/less_than_equal"],"sortIndex":5},"/combat_trigger_conditions/defense_coffee":{"hrid":"/combat_trigger_conditions/defense_coffee","name":"Defense Coffee","isSingleTarget":true,"isMultiTarget":false,"allowedComparatorHrids":["/combat_trigger_comparators/is_active","/combat_trigger_comparators/is_inactive"],"sortIndex":10},"/combat_trigger_conditions/frenzy":{"hrid":"/combat_trigger_conditions/frenzy","name":"Frenzy","isSingleTarget":true,"isMultiTarget":false,"allowedComparatorHrids":["/combat_trigger_comparators/is_active","/combat_trigger_comparators/is_inactive"],"sortIndex":20},"/combat_trigger_conditions/intelligence_coffee_max_mp":{"hrid":"/combat_trigger_conditions/intelligence_coffee_max_mp","name":"Intelligence Coffee (Max MP)","isSingleTarget":true,"isMultiTarget":false,"allowedComparatorHrids":["/combat_trigger_comparators/is_active","/combat_trigger_comparators/is_inactive"],"sortIndex":8},"/combat_trigger_conditions/intelligence_coffee_mp_regen":{"hrid":"/combat_trigger_conditions/intelligence_coffee_mp_regen","name":"Intelligence Coffee (MP Regen)","isSingleTarget":true,"isMultiTarget":false,"allowedComparatorHrids":["/combat_trigger_comparators/is_active","/combat_trigger_comparators/is_inactive"],"sortIndex":9},"/combat_trigger_conditions/lucky_coffee":{"hrid":"/combat_trigger_conditions/lucky_coffee","name":"Lucky Coffee","isSingleTarget":true,"isMultiTarget":false,"allowedComparatorHrids":["/combat_trigger_comparators/is_active","/combat_trigger_comparators/is_inactive"],"sortIndex":15},"/combat_trigger_conditions/magic_coffee":{"hrid":"/combat_trigger_conditions/magic_coffee","name":"Magic Coffee","isSingleTarget":true,"isMultiTarget":false,"allowedComparatorHrids":["/combat_trigger_comparators/is_active","/combat_trigger_comparators/is_inactive"],"sortIndex":14},"/combat_trigger_conditions/missing_hp":{"hrid":"/combat_trigger_conditions/missing_hp","name":"Missing Hp","isSingleTarget":true,"isMultiTarget":true,"allowedComparatorHrids":["/combat_trigger_comparators/greater_than_equal","/combat_trigger_comparators/less_than_equal"],"sortIndex":2},"/combat_trigger_conditions/missing_mp":{"hrid":"/combat_trigger_conditions/missing_mp","name":"Missing Mp","isSingleTarget":true,"isMultiTarget":true,"allowedComparatorHrids":["/combat_trigger_comparators/greater_than_equal","/combat_trigger_comparators/less_than_equal"],"sortIndex":4},"/combat_trigger_conditions/number_of_active_units":{"hrid":"/combat_trigger_conditions/number_of_active_units","name":"# of Active Units","isSingleTarget":false,"isMultiTarget":true,"allowedComparatorHrids":["/combat_trigger_comparators/greater_than_equal","/combat_trigger_comparators/less_than_equal"],"sortIndex":1},"/combat_trigger_conditions/power_coffee":{"hrid":"/combat_trigger_conditions/power_coffee","name":"Power Coffee","isSingleTarget":true,"isMultiTarget":false,"allowedComparatorHrids":["/combat_trigger_comparators/is_active","/combat_trigger_comparators/is_inactive"],"sortIndex":12},"/combat_trigger_conditions/precision":{"hrid":"/combat_trigger_conditions/precision","name":"Precision","isSingleTarget":true,"isMultiTarget":false,"allowedComparatorHrids":["/combat_trigger_comparators/is_active","/combat_trigger_comparators/is_inactive"],"sortIndex":18},"/combat_trigger_conditions/ranged_coffee":{"hrid":"/combat_trigger_conditions/ranged_coffee","name":"Ranged Coffee","isSingleTarget":true,"isMultiTarget":false,"allowedComparatorHrids":["/combat_trigger_comparators/is_active","/combat_trigger_comparators/is_inactive"],"sortIndex":13},"/combat_trigger_conditions/stamina_coffee_hp_regen":{"hrid":"/combat_trigger_conditions/stamina_coffee_hp_regen","name":"Stamina Coffee (HP Regen)","isSingleTarget":true,"isMultiTarget":false,"allowedComparatorHrids":["/combat_trigger_comparators/is_active","/combat_trigger_comparators/is_inactive"],"sortIndex":7},"/combat_trigger_conditions/stamina_coffee_max_hp":{"hrid":"/combat_trigger_conditions/stamina_coffee_max_hp","name":"Stamina Coffee (Max HP)","isSingleTarget":true,"isMultiTarget":false,"allowedComparatorHrids":["/combat_trigger_comparators/is_active","/combat_trigger_comparators/is_inactive"],"sortIndex":6},"/combat_trigger_conditions/swiftness_coffee":{"hrid":"/combat_trigger_conditions/swiftness_coffee","name":"Swiftness Coffee","isSingleTarget":true,"isMultiTarget":false,"allowedComparatorHrids":["/combat_trigger_comparators/is_active","/combat_trigger_comparators/is_inactive"],"sortIndex":16},"/combat_trigger_conditions/toughness":{"hrid":"/combat_trigger_conditions/toughness","name":"Toughness","isSingleTarget":true,"isMultiTarget":false,"allowedComparatorHrids":["/combat_trigger_comparators/is_active","/combat_trigger_comparators/is_inactive"],"sortIndex":17},"/combat_trigger_conditions/vampirism":{"hrid":"/combat_trigger_conditions/vampirism","name":"Vampirism","isSingleTarget":true,"isMultiTarget":false,"allowedComparatorHrids":["/combat_trigger_comparators/is_active","/combat_trigger_comparators/is_inactive"],"sortIndex":21}}');
+
+/***/ }),
+
 /***/ "./src/combatsimulator/data/combatTriggerDependencyDetailMap.json":
 /*!************************************************************************!*\
   !*** ./src/combatsimulator/data/combatTriggerDependencyDetailMap.json ***!
@@ -3077,6 +3097,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _combatsimulator_consumable_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./combatsimulator/consumable.js */ "./src/combatsimulator/consumable.js");
 /* harmony import */ var _combatsimulator_zone_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./combatsimulator/zone.js */ "./src/combatsimulator/zone.js");
 /* harmony import */ var _combatsimulator_combatSimulator_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./combatsimulator/combatSimulator.js */ "./src/combatsimulator/combatSimulator.js");
+/* harmony import */ var _combatsimulator_data_combatTriggerDependencyDetailMap_json__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./combatsimulator/data/combatTriggerDependencyDetailMap.json */ "./src/combatsimulator/data/combatTriggerDependencyDetailMap.json");
+/* harmony import */ var _combatsimulator_data_combatTriggerConditionDetailMap_json__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./combatsimulator/data/combatTriggerConditionDetailMap.json */ "./src/combatsimulator/data/combatTriggerConditionDetailMap.json");
+/* harmony import */ var _combatsimulator_data_combatTriggerComparatorDetailMap_json__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./combatsimulator/data/combatTriggerComparatorDetailMap.json */ "./src/combatsimulator/data/combatTriggerComparatorDetailMap.json");
+
+
+
 
 
 
@@ -3097,6 +3123,7 @@ let player = new _combatsimulator_player_js__WEBPACK_IMPORTED_MODULE_2__["defaul
 let food = [null, null, null];
 let drinks = [null, null, null];
 let triggerMap = {};
+let modalTriggers = [];
 
 buttonStartSimulation.onclick = function () {
     startSimulation();
@@ -3252,7 +3279,7 @@ function foodSelectHandler(event, index) {
 
     if (food[index] && !triggerMap[food[index]]) {
         let gameItem = _combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_5__[food[index]];
-        triggerMap[food[index]] = gameItem.consumableDetail.defaultCombatTriggers;
+        triggerMap[food[index]] = structuredClone(gameItem.consumableDetail.defaultCombatTriggers);
     }
 }
 
@@ -3272,24 +3299,40 @@ function updateAvailableFoodSlots() {
 
 function initTriggerModal() {
     let modal = document.getElementById("triggerModal");
-    modal.addEventListener("show.bs.modal", (event) => {
-        modalShownHandler(event);
-    });
+    modal.addEventListener("show.bs.modal", (event) => triggerModalShownHandler(event));
 
-    let saveButton = document.getElementById("buttonTriggerModalSave");
-    saveButton.addEventListener("click", (event) => {
-        modalSaveHandler(event);
-    });
+    let triggerSaveButton = document.getElementById("buttonTriggerModalSave");
+    triggerSaveButton.addEventListener("click", (event) => triggerModalSaveHandler(event));
+
+    let triggerAddButton = document.getElementById("buttonAddTrigger");
+    triggerAddButton.addEventListener("click", (event) => triggerAddButtonHandler(event));
+
+    let triggerDefaultButton = document.getElementById("buttonDefaultTrigger");
+    triggerDefaultButton.addEventListener("click", (event) => triggerDefaultButtonHandler(event));
+
+    for (let i = 0; i < 4; i++) {
+        let triggerDependencySelect = document.getElementById("selectTriggerDependency_" + i);
+        let triggerConditionSelect = document.getElementById("selectTriggerCondition_" + i);
+        let triggerComparatorSelect = document.getElementById("selectTriggerComparator_" + i);
+        let triggerValueInput = document.getElementById("inputTriggerValue_" + i);
+        let triggerRemoveButton = document.getElementById("buttonRemoveTrigger_" + i);
+
+        triggerDependencySelect.addEventListener("change", (event) => triggerDependencySelectHandler(event, i));
+        triggerConditionSelect.addEventListener("change", (event) => triggerConditionSelectHandler(event, i));
+        triggerComparatorSelect.addEventListener("change", (event) => triggerComparatorSelectHander(event, i));
+        triggerValueInput.addEventListener("change", (event) => triggerValueInputHandler(event, i));
+        triggerRemoveButton.addEventListener("click", (event) => triggerRemoveButtonHandler(event, i));
+    }
 }
 
-function modalShownHandler(event) {
+function triggerModalShownHandler(event) {
     let triggerButton = event.relatedTarget;
 
     let triggerType = triggerButton.getAttribute("data-bs-triggertype");
     let triggerIndex = Number(triggerButton.getAttribute("data-bs-triggerindex"));
 
     let triggerTarget;
-    switch(triggerType) {
+    switch (triggerType) {
         case "food":
             triggerTarget = food[triggerIndex];
             break;
@@ -3300,14 +3343,200 @@ function modalShownHandler(event) {
 
     let triggerTargetnput = document.getElementById("inputModalTriggerTarget");
     triggerTargetnput.value = triggerTarget;
+    modalTriggers = triggerMap[triggerTarget];
+    updateTriggerModal();
 }
 
-function modalSaveHandler(event) {
+function triggerModalSaveHandler(event) {
     let triggerTargetnput = document.getElementById("inputModalTriggerTarget");
-
     let triggerTarget = triggerTargetnput.value;
 
-    console.log(triggerTarget);
+    triggerMap[triggerTarget] = modalTriggers;
+}
+
+function triggerDependencySelectHandler(event, index) {
+    modalTriggers[index].dependencyHrid = event.target.value;
+    modalTriggers[index].conditionHrid = "";
+    modalTriggers[index].comparatorHrid = "";
+    modalTriggers[index].value = 0;
+
+    updateTriggerModal();
+}
+
+function triggerConditionSelectHandler(event, index) {
+    modalTriggers[index].conditionHrid = event.target.value;
+    modalTriggers[index].comparatorHrid = "";
+    modalTriggers[index].value = 0;
+
+    updateTriggerModal();
+}
+
+function triggerComparatorSelectHander(event, index) {
+    modalTriggers[index].comparatorHrid = event.target.value;
+
+    updateTriggerModal();
+}
+
+function triggerValueInputHandler(event, index) {
+    modalTriggers[index].value = Number(event.target.value);
+
+    updateTriggerModal();
+}
+
+function triggerRemoveButtonHandler(event, index) {
+    modalTriggers.splice(index, 1);
+
+    updateTriggerModal();
+}
+
+function triggerAddButtonHandler(event) {
+    if (modalTriggers.length == 4) {
+        return;
+    }
+
+    modalTriggers.push({
+        dependencyHrid: "",
+        conditionHrid: "",
+        comparatorHrid: "",
+        value: 0,
+    });
+
+    updateTriggerModal();
+}
+
+function triggerDefaultButtonHandler(event) {
+    let triggerTargetnput = document.getElementById("inputModalTriggerTarget");
+    let triggerTarget = triggerTargetnput.value;
+
+    modalTriggers = structuredClone(_combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_5__[triggerTarget].consumableDetail.defaultCombatTriggers);
+
+    updateTriggerModal();
+}
+
+function updateTriggerModal() {
+    let triggerStartTextElement = document.getElementById("triggerStartText");
+    if (modalTriggers.length == 0) {
+        triggerStartTextElement.innerHTML = "Activate as soon as it's off cooldown";
+    } else {
+        triggerStartTextElement.innerHTML = "Activate when:";
+    }
+
+    let triggerAddButton = document.getElementById("buttonAddTrigger");
+    triggerAddButton.disabled = modalTriggers.length == 4;
+
+    let triggersValid = true;
+
+    for (let i = 0; i < 4; i++) {
+        let triggerElement = document.getElementById("modalTrigger_" + i);
+
+        if (!modalTriggers[i]) {
+            hideElement(triggerElement);
+            continue;
+        }
+
+        showElement(triggerElement);
+
+        let triggerDependencySelect = document.getElementById("selectTriggerDependency_" + i);
+        let triggerConditionSelect = document.getElementById("selectTriggerCondition_" + i);
+        let triggerComparatorSelect = document.getElementById("selectTriggerComparator_" + i);
+        let triggerValueInput = document.getElementById("inputTriggerValue_" + i);
+
+        showElement(triggerDependencySelect);
+        fillTriggerDependencySelect(triggerDependencySelect);
+
+        if (modalTriggers[i].dependencyHrid == "") {
+            hideElement(triggerConditionSelect);
+            hideElement(triggerComparatorSelect);
+            hideElement(triggerValueInput);
+            triggersValid = false;
+            continue;
+        }
+
+        triggerDependencySelect.value = modalTriggers[i].dependencyHrid;
+        showElement(triggerConditionSelect);
+        fillTriggerConditionSelect(triggerConditionSelect, modalTriggers[i].dependencyHrid);
+
+        if (modalTriggers[i].conditionHrid == "") {
+            hideElement(triggerComparatorSelect);
+            hideElement(triggerValueInput);
+            triggersValid = false;
+            continue;
+        }
+
+        triggerConditionSelect.value = modalTriggers[i].conditionHrid;
+        showElement(triggerComparatorSelect);
+        fillTriggerComparatorSelect(triggerComparatorSelect, modalTriggers[i].conditionHrid);
+
+        if (modalTriggers[i].comparatorHrid == "") {
+            hideElement(triggerValueInput);
+            triggersValid = false;
+            continue;
+        }
+
+        triggerComparatorSelect.value = modalTriggers[i].comparatorHrid;
+
+        if (_combatsimulator_data_combatTriggerComparatorDetailMap_json__WEBPACK_IMPORTED_MODULE_13__[modalTriggers[i].comparatorHrid].allowValue) {
+            showElement(triggerValueInput);
+            triggerValueInput.value = modalTriggers[i].value;
+        } else {
+            hideElement(triggerValueInput);
+        }
+    }
+
+    let triggerSaveButton = document.getElementById("buttonTriggerModalSave");
+    triggerSaveButton.disabled = !triggersValid;
+}
+
+function fillTriggerDependencySelect(element) {
+    element.length = 0;
+    element.add(new Option("", ""));
+
+    for (const dependency of Object.values(_combatsimulator_data_combatTriggerDependencyDetailMap_json__WEBPACK_IMPORTED_MODULE_11__).sort(
+        (a, b) => a.sortIndex - b.sortIndex
+    )) {
+        element.add(new Option(dependency.name, dependency.hrid));
+    }
+}
+
+function fillTriggerConditionSelect(element, dependencyHrid) {
+    let dependency = _combatsimulator_data_combatTriggerDependencyDetailMap_json__WEBPACK_IMPORTED_MODULE_11__[dependencyHrid];
+
+    let conditions;
+    if (dependency.isSingleTarget) {
+        conditions = Object.values(_combatsimulator_data_combatTriggerConditionDetailMap_json__WEBPACK_IMPORTED_MODULE_12__).filter((condition) => condition.isSingleTarget);
+    } else {
+        conditions = Object.values(_combatsimulator_data_combatTriggerConditionDetailMap_json__WEBPACK_IMPORTED_MODULE_12__).filter((condition) => condition.isMultiTarget);
+    }
+
+    element.length = 0;
+    element.add(new Option("", ""));
+
+    for (const condition of Object.values(conditions).sort((a, b) => a.sortIndex - b.sortIndex)) {
+        element.add(new Option(condition.name, condition.hrid));
+    }
+}
+
+function fillTriggerComparatorSelect(element, conditionHrid) {
+    let condition = _combatsimulator_data_combatTriggerConditionDetailMap_json__WEBPACK_IMPORTED_MODULE_12__[conditionHrid];
+
+    let comparators = condition.allowedComparatorHrids.map((hrid) => _combatsimulator_data_combatTriggerComparatorDetailMap_json__WEBPACK_IMPORTED_MODULE_13__[hrid]);
+
+    element.length = 0;
+    element.add(new Option("", ""));
+
+    for (const comparator of Object.values(comparators).sort((a, b) => a.sortIndex - b.sortIndex)) {
+        element.add(new Option(comparator.name, comparator.hrid));
+    }
+}
+
+function hideElement(element) {
+    element.classList.remove("d-flex");
+    element.classList.add("d-none");
+}
+
+function showElement(element) {
+    element.classList.remove("d-none");
+    element.classList.add("d-flex");
 }
 
 // #endregion
