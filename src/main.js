@@ -161,9 +161,7 @@ function initFoodSection() {
             element.add(new Option(value.name, value.hrid));
         }
 
-        element.addEventListener("change", (event) => {
-            foodSelectHandler(event, i);
-        });
+        element.addEventListener("change", (event) => foodSelectHandler(event, i));
     }
 
     updateAvailableFoodSlots();
@@ -188,6 +186,48 @@ function updateAvailableFoodSlots() {
 
         selectElement.disabled = i >= player.combatStats.foodSlots;
         triggerButton.disabled = i >= player.combatStats.foodSlots || !food[i];
+    }
+}
+
+// #endregion
+
+// #region Drinks
+
+function initDrinksSection() {
+    for (let i = 0; i < 3; i++) {
+        let element = document.getElementById("selectDrink_" + i);
+
+        for (const value of Object.values(itemDetailMap).filter(
+            (item) => item.categoryHrid == "/item_categories/drink"
+        )) {
+            element.add(new Option(value.name, value.hrid));
+        }
+
+        element.addEventListener("change", (event) => drinkSelectHandler(event, i));
+    }
+
+    updateAvailableDrinkSlots();
+}
+
+function drinkSelectHandler(event, index) {
+    drinks[index] = event.target.value;
+
+    let triggerButton = document.getElementById("buttonDrinkTrigger_" + index);
+    triggerButton.disabled = !drinks[index];
+
+    if (drinks[index] && !triggerMap[drinks[index]]) {
+        let gameItem = itemDetailMap[drinks[index]];
+        triggerMap[drinks[index]] = structuredClone(gameItem.consumableDetail.defaultCombatTriggers);
+    }
+}
+
+function updateAvailableDrinkSlots() {
+    for (let i = 0; i < 3; i++) {
+        let selectElement = document.getElementById("selectDrink_" + i);
+        let triggerButton = document.getElementById("buttonDrinkTrigger_" + i);
+
+        selectElement.disabled = i >= player.combatStats.drinkSlots;
+        triggerButton.disabled = i >= player.combatStats.drinkSlots || !drinks[i];
     }
 }
 
@@ -477,6 +517,7 @@ function updatePlayerStats() {
     });
 
     updateAvailableFoodSlots();
+    updateAvailableDrinkSlots();
 }
 
 function startSimulation() {
@@ -576,4 +617,5 @@ updatePlayerStats();
 initEquipmentSection();
 initLevelSection();
 initFoodSection();
+initDrinksSection();
 initTriggerModal();

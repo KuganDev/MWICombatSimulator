@@ -693,7 +693,7 @@ class CombatUnit {
         MPRegen: 0.01,
         dropRate: 0,
         foodSlots: 1,
-        drinkSlots: 0,
+        drinkSlots: 1,
         staminaLevel: 1,
         intelligenceLevel: 1,
         attackLevel: 1,
@@ -1622,10 +1622,10 @@ class Player extends _combatUnit__WEBPACK_IMPORTED_MODULE_1__["default"] {
 
         if (this.equipment["/equipment_types/pouch"]) {
             this.combatStats.foodSlots = 1 + this.equipment["/equipment_types/pouch"].getCombatStat("foodSlots");
-            this.combatStats.drinkSlots = this.equipment["/equipment_types/pouch"].getCombatStat("drinkSlots");
+            this.combatStats.drinkSlots = 1 + this.equipment["/equipment_types/pouch"].getCombatStat("drinkSlots");
         } else {
             this.combatStats.foodSlots = 1;
-            this.combatStats.drinkSlots = 0;
+            this.combatStats.drinkSlots = 1;
         }
 
         this.combatStats.HPRegen = 0.005;

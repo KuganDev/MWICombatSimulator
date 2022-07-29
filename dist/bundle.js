@@ -1614,7 +1614,7 @@ class CombatUnit {
         MPRegen: 0.01,
         dropRate: 0,
         foodSlots: 1,
-        drinkSlots: 0,
+        drinkSlots: 1,
         staminaLevel: 1,
         intelligenceLevel: 1,
         attackLevel: 1,
@@ -2543,10 +2543,10 @@ class Player extends _combatUnit__WEBPACK_IMPORTED_MODULE_1__["default"] {
 
         if (this.equipment["/equipment_types/pouch"]) {
             this.combatStats.foodSlots = 1 + this.equipment["/equipment_types/pouch"].getCombatStat("foodSlots");
-            this.combatStats.drinkSlots = this.equipment["/equipment_types/pouch"].getCombatStat("drinkSlots");
+            this.combatStats.drinkSlots = 1 + this.equipment["/equipment_types/pouch"].getCombatStat("drinkSlots");
         } else {
             this.combatStats.foodSlots = 1;
-            this.combatStats.drinkSlots = 0;
+            this.combatStats.drinkSlots = 1;
         }
 
         this.combatStats.HPRegen = 0.005;
@@ -3263,9 +3263,7 @@ function initFoodSection() {
             element.add(new Option(value.name, value.hrid));
         }
 
-        element.addEventListener("change", (event) => {
-            foodSelectHandler(event, i);
-        });
+        element.addEventListener("change", (event) => foodSelectHandler(event, i));
     }
 
     updateAvailableFoodSlots();
@@ -3290,6 +3288,48 @@ function updateAvailableFoodSlots() {
 
         selectElement.disabled = i >= player.combatStats.foodSlots;
         triggerButton.disabled = i >= player.combatStats.foodSlots || !food[i];
+    }
+}
+
+// #endregion
+
+// #region Drinks
+
+function initDrinksSection() {
+    for (let i = 0; i < 3; i++) {
+        let element = document.getElementById("selectDrink_" + i);
+
+        for (const value of Object.values(_combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_5__).filter(
+            (item) => item.categoryHrid == "/item_categories/drink"
+        )) {
+            element.add(new Option(value.name, value.hrid));
+        }
+
+        element.addEventListener("change", (event) => drinkSelectHandler(event, i));
+    }
+
+    updateAvailableDrinkSlots();
+}
+
+function drinkSelectHandler(event, index) {
+    drinks[index] = event.target.value;
+
+    let triggerButton = document.getElementById("buttonDrinkTrigger_" + index);
+    triggerButton.disabled = !drinks[index];
+
+    if (drinks[index] && !triggerMap[drinks[index]]) {
+        let gameItem = _combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_5__[drinks[index]];
+        triggerMap[drinks[index]] = structuredClone(gameItem.consumableDetail.defaultCombatTriggers);
+    }
+}
+
+function updateAvailableDrinkSlots() {
+    for (let i = 0; i < 3; i++) {
+        let selectElement = document.getElementById("selectDrink_" + i);
+        let triggerButton = document.getElementById("buttonDrinkTrigger_" + i);
+
+        selectElement.disabled = i >= player.combatStats.drinkSlots;
+        triggerButton.disabled = i >= player.combatStats.drinkSlots || !drinks[i];
     }
 }
 
@@ -3579,6 +3619,7 @@ function updatePlayerStats() {
     });
 
     updateAvailableFoodSlots();
+    updateAvailableDrinkSlots();
 }
 
 function startSimulation() {
@@ -3678,6 +3719,7 @@ updatePlayerStats();
 initEquipmentSection();
 initLevelSection();
 initFoodSection();
+initDrinksSection();
 initTriggerModal();
 
 })();

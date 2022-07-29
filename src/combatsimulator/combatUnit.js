@@ -31,7 +31,7 @@ class CombatUnit {
         MPRegen: 0.01,
         dropRate: 0,
         foodSlots: 1,
-        drinkSlots: 0,
+        drinkSlots: 1,
         staminaLevel: 1,
         intelligenceLevel: 1,
         attackLevel: 1,

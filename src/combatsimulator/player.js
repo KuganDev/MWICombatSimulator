@@ -78,10 +78,10 @@ class Player extends CombatUnit {
 
         if (this.equipment["/equipment_types/pouch"]) {
             this.combatStats.foodSlots = 1 + this.equipment["/equipment_types/pouch"].getCombatStat("foodSlots");
-            this.combatStats.drinkSlots = this.equipment["/equipment_types/pouch"].getCombatStat("drinkSlots");
+            this.combatStats.drinkSlots = 1 + this.equipment["/equipment_types/pouch"].getCombatStat("drinkSlots");
         } else {
             this.combatStats.foodSlots = 1;
-            this.combatStats.drinkSlots = 0;
+            this.combatStats.drinkSlots = 1;
         }
 
         this.combatStats.HPRegen = 0.005;
