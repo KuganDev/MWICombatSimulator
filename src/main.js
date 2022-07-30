@@ -27,6 +27,11 @@ let triggerMap = {};
 let modalTriggers = [];
 
 buttonStartSimulation.onclick = function () {
+    let invalidElements = document.querySelectorAll(":invalid");
+    if (invalidElements.length > 0) {
+        invalidElements.forEach((element) => element.reportValidity());
+        return;
+    }
     startSimulation();
 };
 
