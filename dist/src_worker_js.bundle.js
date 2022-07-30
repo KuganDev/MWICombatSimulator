@@ -1971,6 +1971,8 @@ onmessage = function (event) {
         case "start_simulation":
             let player = _combatsimulator_player__WEBPACK_IMPORTED_MODULE_1__["default"].createFromDTO(event.data.player);
             let zone = new _combatsimulator_zone__WEBPACK_IMPORTED_MODULE_2__["default"](event.data.zoneHrid);
+            console.log(player);
+            console.log(zone);
             let simulationTimeLimit = event.data.simulationTimeLimit;
 
             let combatSimulator = new _combatsimulator_combatSimulator__WEBPACK_IMPORTED_MODULE_0__["default"](player, zone);

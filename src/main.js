@@ -13,6 +13,7 @@ import combatTriggerDependencyDetailMap from "./combatsimulator/data/combatTrigg
 import combatTriggerConditionDetailMap from "./combatsimulator/data/combatTriggerConditionDetailMap.json";
 import combatTriggerComparatorDetailMap from "./combatsimulator/data/combatTriggerComparatorDetailMap.json";
 import abilitySlotsLevelRequirementList from "./combatsimulator/data/abilitySlotsLevelRequirementList.json";
+import actionDetailMap from "./combatsimulator/data/actionDetailMap.json";
 
 let buttonStartSimulation = document.getElementById("buttonStartSimulation");
 
@@ -530,6 +531,20 @@ function showElement(element) {
 
 // #endregion
 
+// #region Zones
+
+function initZones() {
+    let zoneSelect = document.getElementById("selectZone");
+
+    for (const value of Object.values(actionDetailMap)
+        .filter((action) => action.type == "/action_types/combat")
+        .sort((a, b) => a.sortIndex - b.sortIndex)) {
+        zoneSelect.add(new Option(value.name, value.hrid));
+    }
+}
+
+// #endregion
+
 function updatePlayerStats() {
     player.updateCombatStats();
 
@@ -573,54 +588,35 @@ function updatePlayerStats() {
 }
 
 function startSimulation() {
-    player.staminaLevel = 65;
-    player.intelligenceLevel = 69;
-    player.attackLevel = 71;
-    player.powerLevel = 69;
-    player.defenseLevel = 68;
-    player.equipment["/equipment_types/helm"] = new Equipment("/items/rainbow_helmet", 2);
-    player.equipment["/equipment_types/body"] = new Equipment("/items/rainbow_plate_body", 2);
-    player.equipment["/equipment_types/legs"] = new Equipment("/items/rainbow_plate_legs", 2);
-    player.equipment["/equipment_types/feet"] = new Equipment("/items/rainbow_boots", 2);
-    player.equipment["/equipment_types/hands"] = new Equipment("/items/rainbow_gauntlets", 2);
-    player.equipment["/equipment_types/main_hand"] = new Equipment("/items/gobo_smasher", 6);
-    // player.equipment["/equipment_types/off_hand"] = new Equipment("/items/rainbow_buckler", 2);
-    player.equipment["/equipment_types/pouch"] = new Equipment("/items/large_pouch", 0);
+    for (let i = 0; i < 3; i++) {
+        if (food[i]) {
+            let consumable = new Consumable(food[i], triggerMap[food[i]]);
+            player.food[i] = consumable;
+        }
+        if (drinks[i]) {
+            let consumable = new Consumable(drinks[i], triggerMap[drinks[i]]);
+            player.drinks[i] = consumable;
+        }
+    }
 
-    let zone = new Zone("/actions/combat/gobo_planet");
+    for (let i = 0; i < 4; i++) {
+        if (abilities[i]) {
+            let abilityLevelInput = document.getElementById("inputAbilityLevel_" + i);
+            let ability = new Ability(abilities[i], Number(abilityLevelInput.value), triggerMap[abilities[i]]);
+            player.abilities[i] = ability;
+        }
+    }
 
-    let ability1 = new Ability("/abilities/sweep", 12);
-    let ability2 = new Ability("/abilities/cleave", 1);
-    let ability3 = new Ability("/abilities/berserk", 13);
+    let zoneSelect = document.getElementById("selectZone");
+    let simulationTimeInput = document.getElementById("inputSimulationTime");
 
-    let trigger1 = new Trigger(
-        "/combat_trigger_dependencies/self",
-        "/combat_trigger_conditions/missing_hp",
-        "/combat_trigger_comparators/greater_than_equal",
-        400
-    );
-
-    let consumable1 = new Consumable("/items/mooberry_cake");
-    let consumable2 = new Consumable("/items/dragon_fruit_yogurt");
-    let consumable3 = new Consumable("/items/strawberry_cake");
-    let consumable4 = new Consumable("/items/power_coffee");
-    let consumable5 = new Consumable("/items/lucky_coffee");
-
-    player.food[0] = consumable1;
-    player.food[1] = consumable2;
-    player.food[2] = consumable3;
-    player.drinks[0] = consumable4;
-    player.drinks[1] = consumable5;
-    player.abilities[0] = ability1;
-    player.abilities[1] = ability2;
-    player.abilities[2] = ability3;
-
-    let simulationTimeLimit = 100 * 60 * 60 * 1e9;
+    let oneHour = 60 * 60 * 1e9;
+    let simulationTimeLimit = Number(simulationTimeInput.value) * oneHour;
 
     let workerMessage = {
         type: "start_simulation",
         player: player,
-        zoneHrid: "/actions/combat/gobo_planet",
+        zoneHrid: zoneSelect.value,
         simulationTimeLimit: simulationTimeLimit,
     };
 
@@ -671,4 +667,5 @@ initLevelSection();
 initFoodSection();
 initDrinksSection();
 initAbilitiesSection();
+initZones();
 initTriggerModal();

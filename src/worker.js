@@ -7,6 +7,8 @@ onmessage = function (event) {
         case "start_simulation":
             let player = Player.createFromDTO(event.data.player);
             let zone = new Zone(event.data.zoneHrid);
+            console.log(player);
+            console.log(zone);
             let simulationTimeLimit = event.data.simulationTimeLimit;
 
             let combatSimulator = new CombatSimulator(player, zone);
