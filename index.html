@@ -16,627 +16,623 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-7">
-                    <form>
-                        <div class="row mb-3">
-                            <div class="col-md-3">
-                                <!-- #region Levels -->
-                                <div class="row mb-3">
-                                    <b>Levels</b>
-                                </div>
-                                <div class="row mb-2">
-                                    <label for="inputLevel_stamina" class="col-md-6 col-form-label">Stamina</label>
-                                    <div class="col-md-6">
-                                        <input
-                                            type="number"
-                                            id="inputLevel_stamina"
-                                            class="form-control"
-                                            value="1"
-                                            min="1"
-                                            max="400"
-                                            required
-                                        />
-                                    </div>
-                                </div>
-                                <div class="row mb-2">
-                                    <label for="inputLevel_intelligence" class="col-md-6 col-form-label"
-                                        >Intelligence</label
-                                    >
-                                    <div class="col-md-6">
-                                        <input
-                                            type="number"
-                                            id="inputLevel_intelligence"
-                                            class="form-control"
-                                            value="1"
-                                            min="1"
-                                            max="400"
-                                            required
-                                        />
-                                    </div>
-                                </div>
-                                <div class="row mb-2">
-                                    <label for="inputLevel_attack" class="col-md-6 col-form-label">Attack</label>
-                                    <div class="col-md-6">
-                                        <input
-                                            type="number"
-                                            id="inputLevel_attack"
-                                            class="form-control"
-                                            value="1"
-                                            min="1"
-                                            max="400"
-                                            required
-                                        />
-                                    </div>
-                                </div>
-                                <div class="row mb-2">
-                                    <label for="inputLevel_power" class="col-md-6 col-form-label">Power</label>
-                                    <div class="col-md-6">
-                                        <input
-                                            type="number"
-                                            id="inputLevel_power"
-                                            class="form-control"
-                                            value="1"
-                                            min="1"
-                                            max="400"
-                                            required
-                                        />
-                                    </div>
-                                </div>
-                                <div class="row mb-2">
-                                    <label for="inputLevel_defense" class="col-md-6 col-form-label">Defense</label>
-                                    <div class="col-md-6">
-                                        <input
-                                            type="number"
-                                            id="inputLevel_defense"
-                                            class="form-control"
-                                            value="1"
-                                            min="1"
-                                            max="400"
-                                            required
-                                        />
-                                    </div>
-                                </div>
-                                <!-- #endregion -->
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <!-- #region Levels -->
+                            <div class="row mb-3">
+                                <b>Levels</b>
                             </div>
-                            <div class="col-md-6">
-                                <!-- #region Equipment -->
-                                <div class="row mb-3">
-                                    <div class="col-md-2"><b>Slot</b></div>
-                                    <div class="col-md-6"><b>Item</b></div>
-                                    <div class="col-md-4"><b>Enhancement Level</b></div>
-                                </div>
-                                <div class="row mb-2">
-                                    <label for="selectEquipment_head" class="col-md-2 col-form-label">Head</label>
-                                    <div class="col-md-6">
-                                        <select id="selectEquipment_head" class="form-select">
-                                            <option value="">Empty</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <input
-                                            type="number"
-                                            id="inputEquipmentEnhancementLevel_head"
-                                            class="form-control"
-                                            value="0"
-                                            min="0"
-                                            max="20"
-                                            required
-                                        />
-                                    </div>
-                                </div>
-                                <div class="row mb-2">
-                                    <label for="selectEquipment_body" class="col-md-2 col-form-label">Body</label>
-                                    <div class="col-md-6">
-                                        <select id="selectEquipment_body" class="form-select">
-                                            <option value="">Empty</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <input
-                                            type="number"
-                                            id="inputEquipmentEnhancementLevel_body"
-                                            class="form-control"
-                                            value="0"
-                                            min="0"
-                                            max="20"
-                                            required
-                                        />
-                                    </div>
-                                </div>
-                                <div class="row mb-2">
-                                    <label for="selectEquipment_legs" class="col-md-2 col-form-label">Legs</label>
-                                    <div class="col-md-6">
-                                        <select id="selectEquipment_legs" class="form-select">
-                                            <option value="">Empty</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <input
-                                            type="number"
-                                            id="inputEquipmentEnhancementLevel_legs"
-                                            class="form-control"
-                                            value="0"
-                                            min="0"
-                                            max="20"
-                                            required
-                                        />
-                                    </div>
-                                </div>
-                                <div class="row mb-2">
-                                    <label for="selectEquipment_feet" class="col-md-2 col-form-label">Feet</label>
-                                    <div class="col-md-6">
-                                        <select id="selectEquipment_feet" class="form-select">
-                                            <option value="">Empty</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <input
-                                            type="number"
-                                            id="inputEquipmentEnhancementLevel_feet"
-                                            class="form-control"
-                                            value="0"
-                                            min="0"
-                                            max="20"
-                                            required
-                                        />
-                                    </div>
-                                </div>
-                                <div class="row mb-2">
-                                    <label for="selectEquipment_hands" class="col-md-2 col-form-label">Hands</label>
-                                    <div class="col-md-6">
-                                        <select id="selectEquipment_hands" class="form-select">
-                                            <option value="">Empty</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <input
-                                            type="number"
-                                            id="inputEquipmentEnhancementLevel_hands"
-                                            class="form-control"
-                                            value="0"
-                                            min="0"
-                                            max="20"
-                                            required
-                                        />
-                                    </div>
-                                </div>
-                                <div class="row mb-2">
-                                    <label for="selectEquipment_weapon" class="col-md-2 col-form-label">Weapon</label>
-                                    <div class="col-md-6">
-                                        <select id="selectEquipment_weapon" class="form-select">
-                                            <option value="">Empty</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <input
-                                            type="number"
-                                            id="inputEquipmentEnhancementLevel_weapon"
-                                            class="form-control"
-                                            value="0"
-                                            min="0"
-                                            max="20"
-                                            required
-                                        />
-                                    </div>
-                                </div>
-                                <div class="row mb-2">
-                                    <label for="selectEquipment_off_hand" class="col-md-2 col-form-label"
-                                        >Offhand</label
-                                    >
-                                    <div class="col-md-6">
-                                        <select id="selectEquipment_off_hand" class="form-select">
-                                            <option value="">Empty</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <input
-                                            type="number"
-                                            id="inputEquipmentEnhancementLevel_off_hand"
-                                            class="form-control"
-                                            value="0"
-                                            min="0"
-                                            max="20"
-                                            required
-                                        />
-                                    </div>
-                                </div>
-                                <div class="row mb-2">
-                                    <label for="selectEquipment_pouch" class="col-md-2 col-form-label">Pouch</label>
-                                    <div class="col-md-6">
-                                        <select id="selectEquipment_pouch" class="form-select">
-                                            <option value="">Empty</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <input
-                                            type="number"
-                                            id="inputEquipmentEnhancementLevel_pouch"
-                                            class="form-control"
-                                            value="0"
-                                            min="0"
-                                            max="20"
-                                            required
-                                        />
-                                    </div>
-                                </div>
-                                <!-- #endregion -->
-                            </div>
-                            <div class="col-md-3">
-                                <!-- #region Combat stats -->
-                                <div class="row mb-3">
-                                    <b>Combat Stats</b>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-8">Max HP:</div>
-                                    <div class="col-md-4" id="combatStat_maxHitpoints"></div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-8">Max MP:</div>
-                                    <div class="col-md-4" id="combatStat_maxManapoints"></div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-8">Combat Style:</div>
-                                    <div class="col-md-4" id="combatStat_combatStyleHrid"></div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-8">Attack Interval:</div>
-                                    <div class="col-md-4" id="combatStat_attackInterval"></div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-8">Stab Accuracy:</div>
-                                    <div class="col-md-4" id="combatStat_stabAccuracyRating"></div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-8">Stab Damage:</div>
-                                    <div class="col-md-4" id="combatStat_stabMaxDamage"></div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-8">Slash Accuracy:</div>
-                                    <div class="col-md-4" id="combatStat_slashAccuracyRating"></div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-8">Slash Damage:</div>
-                                    <div class="col-md-4" id="combatStat_slashMaxDamage"></div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-8">Smash Accuracy:</div>
-                                    <div class="col-md-4" id="combatStat_smashAccuracyRating"></div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-8">Smash Damage:</div>
-                                    <div class="col-md-4" id="combatStat_smashMaxDamage"></div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-8">Stab Evasion:</div>
-                                    <div class="col-md-4" id="combatStat_stabEvasionRating"></div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-8">Slash Evasion:</div>
-                                    <div class="col-md-4" id="combatStat_slashEvasionRating"></div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-8">Smash Evasion:</div>
-                                    <div class="col-md-4" id="combatStat_smashEvasionRating"></div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-8">Armor:</div>
-                                    <div class="col-md-4" id="combatStat_armor"></div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-8">Life Steal:</div>
-                                    <div class="col-md-4" id="combatStat_lifeSteal"></div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-8">HP Regen:</div>
-                                    <div class="col-md-4" id="combatStat_HPRegen"></div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-8">MP Regen:</div>
-                                    <div class="col-md-4" id="combatStat_MPRegen"></div>
-                                </div>
-                                <!-- #endregion -->
-                            </div>
-                        </div>
-                        <div class="row mb-3">
-                            <div class="col-md">
-                                <!-- #region Food -->
-                                <div class="row mb-3">
-                                    <b>Food</b>
-                                </div>
-                                <div class="row mb-2">
-                                    <div class="col">
-                                        <select id="selectFood_0" class="form-select">
-                                            <option value="">Empty</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-auto">
-                                        <button
-                                            id="buttonFoodTrigger_0"
-                                            class="btn btn-primary"
-                                            type="button"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#triggerModal"
-                                            data-bs-triggertype="food"
-                                            data-bs-triggerindex="0"
-                                        >
-                                            Trigger
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="row mb-2">
-                                    <div class="col">
-                                        <select id="selectFood_1" class="form-select">
-                                            <option value="">Empty</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-auto">
-                                        <button
-                                            id="buttonFoodTrigger_1"
-                                            class="btn btn-primary"
-                                            type="button"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#triggerModal"
-                                            data-bs-triggertype="food"
-                                            data-bs-triggerindex="1"
-                                        >
-                                            Trigger
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="row mb-2">
-                                    <div class="col">
-                                        <select id="selectFood_2" class="form-select">
-                                            <option value="">Empty</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-auto">
-                                        <button
-                                            id="buttonFoodTrigger_2"
-                                            class="btn btn-primary"
-                                            type="button"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#triggerModal"
-                                            data-bs-triggertype="food"
-                                            data-bs-triggerindex="2"
-                                        >
-                                            Trigger
-                                        </button>
-                                    </div>
-                                </div>
-                                <!-- #endregion -->
-                            </div>
-                            <div class="col-md">
-                                <!-- #region Drinks -->
-                                <div class="row mb-3">
-                                    <b>Drinks</b>
-                                </div>
-                                <div class="row mb-2">
-                                    <div class="col">
-                                        <select id="selectDrink_0" class="form-select">
-                                            <option value="">Empty</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-auto">
-                                        <button
-                                            id="buttonDrinkTrigger_0"
-                                            class="btn btn-primary"
-                                            type="button"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#triggerModal"
-                                            data-bs-triggertype="drink"
-                                            data-bs-triggerindex="0"
-                                        >
-                                            Trigger
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="row mb-2">
-                                    <div class="col">
-                                        <select id="selectDrink_1" class="form-select">
-                                            <option value="">Empty</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-auto">
-                                        <button
-                                            id="buttonDrinkTrigger_1"
-                                            class="btn btn-primary"
-                                            type="button"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#triggerModal"
-                                            data-bs-triggertype="drink"
-                                            data-bs-triggerindex="1"
-                                        >
-                                            Trigger
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="row mb-2">
-                                    <div class="col">
-                                        <select id="selectDrink_2" class="form-select">
-                                            <option value="">Empty</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-auto">
-                                        <button
-                                            id="buttonDrinkTrigger_2"
-                                            class="btn btn-primary"
-                                            type="button"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#triggerModal"
-                                            data-bs-triggertype="drink"
-                                            data-bs-triggerindex="2"
-                                        >
-                                            Trigger
-                                        </button>
-                                    </div>
-                                </div>
-                                <!-- #endregion -->
-                            </div>
-                            <div class="col-md-4">
-                                <!-- #region Abilities -->
-                                <div class="row mb-3">
-                                    <div class="col-md-5">
-                                        <b>Abilities</b>
-                                    </div>
-                                    <div class="col">
-                                        <b>Level</b>
-                                    </div>
-                                </div>
-                                <div class="row mb-2">
-                                    <div class="col-md-5">
-                                        <select id="selectAbility_0" class="form-select">
-                                            <option value="">Empty</option>
-                                        </select>
-                                    </div>
-                                    <div class="col">
-                                        <input
-                                            type="number"
-                                            id="inputAbilityLevel_0"
-                                            class="form-control"
-                                            value="1"
-                                            min="1"
-                                            max="400"
-                                            required
-                                        />
-                                    </div>
-                                    <div class="col-md-auto">
-                                        <button
-                                            id="buttonAbilityTrigger_0"
-                                            class="btn btn-primary"
-                                            type="button"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#triggerModal"
-                                            data-bs-triggertype="ability"
-                                            data-bs-triggerindex="0"
-                                        >
-                                            Trigger
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="row mb-2">
-                                    <div class="col-md-5">
-                                        <select id="selectAbility_1" class="form-select">
-                                            <option value="">Empty</option>
-                                        </select>
-                                    </div>
-                                    <div class="col">
-                                        <input
-                                            type="number"
-                                            id="inputAbilityLevel_1"
-                                            class="form-control"
-                                            value="1"
-                                            min="1"
-                                            max="400"
-                                            required
-                                        />
-                                    </div>
-                                    <div class="col-md-auto">
-                                        <button
-                                            id="buttonAbilityTrigger_1"
-                                            class="btn btn-primary"
-                                            type="button"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#triggerModal"
-                                            data-bs-triggertype="ability"
-                                            data-bs-triggerindex="1"
-                                        >
-                                            Trigger
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="row mb-2">
-                                    <div class="col-md-5">
-                                        <select id="selectAbility_2" class="form-select">
-                                            <option value="">Empty</option>
-                                        </select>
-                                    </div>
-                                    <div class="col">
-                                        <input
-                                            type="number"
-                                            id="inputAbilityLevel_2"
-                                            class="form-control"
-                                            value="1"
-                                            min="1"
-                                            max="400"
-                                            required
-                                        />
-                                    </div>
-                                    <div class="col-md-auto">
-                                        <button
-                                            id="buttonAbilityTrigger_2"
-                                            class="btn btn-primary"
-                                            type="button"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#triggerModal"
-                                            data-bs-triggertype="ability"
-                                            data-bs-triggerindex="2"
-                                        >
-                                            Trigger
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="row mb-2">
-                                    <div class="col-md-5">
-                                        <select id="selectAbility_3" class="form-select">
-                                            <option value="">Empty</option>
-                                        </select>
-                                    </div>
-                                    <div class="col">
-                                        <input
-                                            type="number"
-                                            id="inputAbilityLevel_3"
-                                            class="form-control"
-                                            value="1"
-                                            min="1"
-                                            max="400"
-                                            required
-                                        />
-                                    </div>
-                                    <div class="col-md-auto">
-                                        <button
-                                            id="buttonAbilityTrigger_3"
-                                            class="btn btn-primary"
-                                            type="button"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#triggerModal"
-                                            data-bs-triggertype="ability"
-                                            data-bs-triggerindex="3"
-                                        >
-                                            Trigger
-                                        </button>
-                                    </div>
-                                </div>
-                                <!-- #endregion-->
-                            </div>
-                        </div>
-                        <div class="row">
-                            <!-- #region Simulation Controls -->
-                            <label for="selectZone" class="col-md-auto col-form-label">Zone</label>
-                            <div class="col-md-3">
-                                <select id="selectZone" class="form-select"></select>
-                            </div>
-                            <label for="inputSimulationTime" class="col-md-auto col-form-label">Duration</label>
-                            <div class="col-md-2">
-                                <div class="input-group">
+                            <div class="row mb-2">
+                                <label for="inputLevel_stamina" class="col-md-6 col-form-label">Stamina</label>
+                                <div class="col-md-6">
                                     <input
                                         type="number"
-                                        id="inputSimulationTime"
+                                        id="inputLevel_stamina"
                                         class="form-control"
-                                        value="100"
+                                        value="1"
                                         min="1"
-                                        max="2500"
+                                        max="400"
                                         required
                                     />
-                                    <span class="input-group-text">hours</span>
                                 </div>
                             </div>
-                            <div class="col">
-                                <button id="buttonStartSimulation" class="btn btn-primary" type="button">
-                                    Start Simulation
-                                </button>
+                            <div class="row mb-2">
+                                <label for="inputLevel_intelligence" class="col-md-6 col-form-label"
+                                    >Intelligence</label
+                                >
+                                <div class="col-md-6">
+                                    <input
+                                        type="number"
+                                        id="inputLevel_intelligence"
+                                        class="form-control"
+                                        value="1"
+                                        min="1"
+                                        max="400"
+                                        required
+                                    />
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <label for="inputLevel_attack" class="col-md-6 col-form-label">Attack</label>
+                                <div class="col-md-6">
+                                    <input
+                                        type="number"
+                                        id="inputLevel_attack"
+                                        class="form-control"
+                                        value="1"
+                                        min="1"
+                                        max="400"
+                                        required
+                                    />
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <label for="inputLevel_power" class="col-md-6 col-form-label">Power</label>
+                                <div class="col-md-6">
+                                    <input
+                                        type="number"
+                                        id="inputLevel_power"
+                                        class="form-control"
+                                        value="1"
+                                        min="1"
+                                        max="400"
+                                        required
+                                    />
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <label for="inputLevel_defense" class="col-md-6 col-form-label">Defense</label>
+                                <div class="col-md-6">
+                                    <input
+                                        type="number"
+                                        id="inputLevel_defense"
+                                        class="form-control"
+                                        value="1"
+                                        min="1"
+                                        max="400"
+                                        required
+                                    />
+                                </div>
                             </div>
                             <!-- #endregion -->
                         </div>
-                    </form>
+                        <div class="col-md-6">
+                            <!-- #region Equipment -->
+                            <div class="row mb-3">
+                                <div class="col-md-2"><b>Slot</b></div>
+                                <div class="col-md-6"><b>Item</b></div>
+                                <div class="col-md-4"><b>Enhancement Level</b></div>
+                            </div>
+                            <div class="row mb-2">
+                                <label for="selectEquipment_head" class="col-md-2 col-form-label">Head</label>
+                                <div class="col-md-6">
+                                    <select id="selectEquipment_head" class="form-select">
+                                        <option value="">Empty</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <input
+                                        type="number"
+                                        id="inputEquipmentEnhancementLevel_head"
+                                        class="form-control"
+                                        value="0"
+                                        min="0"
+                                        max="20"
+                                        required
+                                    />
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <label for="selectEquipment_body" class="col-md-2 col-form-label">Body</label>
+                                <div class="col-md-6">
+                                    <select id="selectEquipment_body" class="form-select">
+                                        <option value="">Empty</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <input
+                                        type="number"
+                                        id="inputEquipmentEnhancementLevel_body"
+                                        class="form-control"
+                                        value="0"
+                                        min="0"
+                                        max="20"
+                                        required
+                                    />
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <label for="selectEquipment_legs" class="col-md-2 col-form-label">Legs</label>
+                                <div class="col-md-6">
+                                    <select id="selectEquipment_legs" class="form-select">
+                                        <option value="">Empty</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <input
+                                        type="number"
+                                        id="inputEquipmentEnhancementLevel_legs"
+                                        class="form-control"
+                                        value="0"
+                                        min="0"
+                                        max="20"
+                                        required
+                                    />
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <label for="selectEquipment_feet" class="col-md-2 col-form-label">Feet</label>
+                                <div class="col-md-6">
+                                    <select id="selectEquipment_feet" class="form-select">
+                                        <option value="">Empty</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <input
+                                        type="number"
+                                        id="inputEquipmentEnhancementLevel_feet"
+                                        class="form-control"
+                                        value="0"
+                                        min="0"
+                                        max="20"
+                                        required
+                                    />
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <label for="selectEquipment_hands" class="col-md-2 col-form-label">Hands</label>
+                                <div class="col-md-6">
+                                    <select id="selectEquipment_hands" class="form-select">
+                                        <option value="">Empty</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <input
+                                        type="number"
+                                        id="inputEquipmentEnhancementLevel_hands"
+                                        class="form-control"
+                                        value="0"
+                                        min="0"
+                                        max="20"
+                                        required
+                                    />
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <label for="selectEquipment_weapon" class="col-md-2 col-form-label">Weapon</label>
+                                <div class="col-md-6">
+                                    <select id="selectEquipment_weapon" class="form-select">
+                                        <option value="">Empty</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <input
+                                        type="number"
+                                        id="inputEquipmentEnhancementLevel_weapon"
+                                        class="form-control"
+                                        value="0"
+                                        min="0"
+                                        max="20"
+                                        required
+                                    />
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <label for="selectEquipment_off_hand" class="col-md-2 col-form-label">Offhand</label>
+                                <div class="col-md-6">
+                                    <select id="selectEquipment_off_hand" class="form-select">
+                                        <option value="">Empty</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <input
+                                        type="number"
+                                        id="inputEquipmentEnhancementLevel_off_hand"
+                                        class="form-control"
+                                        value="0"
+                                        min="0"
+                                        max="20"
+                                        required
+                                    />
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <label for="selectEquipment_pouch" class="col-md-2 col-form-label">Pouch</label>
+                                <div class="col-md-6">
+                                    <select id="selectEquipment_pouch" class="form-select">
+                                        <option value="">Empty</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <input
+                                        type="number"
+                                        id="inputEquipmentEnhancementLevel_pouch"
+                                        class="form-control"
+                                        value="0"
+                                        min="0"
+                                        max="20"
+                                        required
+                                    />
+                                </div>
+                            </div>
+                            <!-- #endregion -->
+                        </div>
+                        <div class="col-md-3">
+                            <!-- #region Combat stats -->
+                            <div class="row mb-3">
+                                <b>Combat Stats</b>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-8">Max HP:</div>
+                                <div class="col-md-4" id="combatStat_maxHitpoints"></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-8">Max MP:</div>
+                                <div class="col-md-4" id="combatStat_maxManapoints"></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-8">Combat Style:</div>
+                                <div class="col-md-4" id="combatStat_combatStyleHrid"></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-8">Attack Interval:</div>
+                                <div class="col-md-4" id="combatStat_attackInterval"></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-8">Stab Accuracy:</div>
+                                <div class="col-md-4" id="combatStat_stabAccuracyRating"></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-8">Stab Damage:</div>
+                                <div class="col-md-4" id="combatStat_stabMaxDamage"></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-8">Slash Accuracy:</div>
+                                <div class="col-md-4" id="combatStat_slashAccuracyRating"></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-8">Slash Damage:</div>
+                                <div class="col-md-4" id="combatStat_slashMaxDamage"></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-8">Smash Accuracy:</div>
+                                <div class="col-md-4" id="combatStat_smashAccuracyRating"></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-8">Smash Damage:</div>
+                                <div class="col-md-4" id="combatStat_smashMaxDamage"></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-8">Stab Evasion:</div>
+                                <div class="col-md-4" id="combatStat_stabEvasionRating"></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-8">Slash Evasion:</div>
+                                <div class="col-md-4" id="combatStat_slashEvasionRating"></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-8">Smash Evasion:</div>
+                                <div class="col-md-4" id="combatStat_smashEvasionRating"></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-8">Armor:</div>
+                                <div class="col-md-4" id="combatStat_armor"></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-8">Life Steal:</div>
+                                <div class="col-md-4" id="combatStat_lifeSteal"></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-8">HP Regen:</div>
+                                <div class="col-md-4" id="combatStat_HPRegen"></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-8">MP Regen:</div>
+                                <div class="col-md-4" id="combatStat_MPRegen"></div>
+                            </div>
+                            <!-- #endregion -->
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md">
+                            <!-- #region Food -->
+                            <div class="row mb-3">
+                                <b>Food</b>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col">
+                                    <select id="selectFood_0" class="form-select">
+                                        <option value="">Empty</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-auto">
+                                    <button
+                                        id="buttonFoodTrigger_0"
+                                        class="btn btn-primary"
+                                        type="button"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#triggerModal"
+                                        data-bs-triggertype="food"
+                                        data-bs-triggerindex="0"
+                                    >
+                                        Trigger
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col">
+                                    <select id="selectFood_1" class="form-select">
+                                        <option value="">Empty</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-auto">
+                                    <button
+                                        id="buttonFoodTrigger_1"
+                                        class="btn btn-primary"
+                                        type="button"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#triggerModal"
+                                        data-bs-triggertype="food"
+                                        data-bs-triggerindex="1"
+                                    >
+                                        Trigger
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col">
+                                    <select id="selectFood_2" class="form-select">
+                                        <option value="">Empty</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-auto">
+                                    <button
+                                        id="buttonFoodTrigger_2"
+                                        class="btn btn-primary"
+                                        type="button"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#triggerModal"
+                                        data-bs-triggertype="food"
+                                        data-bs-triggerindex="2"
+                                    >
+                                        Trigger
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- #endregion -->
+                        </div>
+                        <div class="col-md">
+                            <!-- #region Drinks -->
+                            <div class="row mb-3">
+                                <b>Drinks</b>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col">
+                                    <select id="selectDrink_0" class="form-select">
+                                        <option value="">Empty</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-auto">
+                                    <button
+                                        id="buttonDrinkTrigger_0"
+                                        class="btn btn-primary"
+                                        type="button"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#triggerModal"
+                                        data-bs-triggertype="drink"
+                                        data-bs-triggerindex="0"
+                                    >
+                                        Trigger
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col">
+                                    <select id="selectDrink_1" class="form-select">
+                                        <option value="">Empty</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-auto">
+                                    <button
+                                        id="buttonDrinkTrigger_1"
+                                        class="btn btn-primary"
+                                        type="button"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#triggerModal"
+                                        data-bs-triggertype="drink"
+                                        data-bs-triggerindex="1"
+                                    >
+                                        Trigger
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col">
+                                    <select id="selectDrink_2" class="form-select">
+                                        <option value="">Empty</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-auto">
+                                    <button
+                                        id="buttonDrinkTrigger_2"
+                                        class="btn btn-primary"
+                                        type="button"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#triggerModal"
+                                        data-bs-triggertype="drink"
+                                        data-bs-triggerindex="2"
+                                    >
+                                        Trigger
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- #endregion -->
+                        </div>
+                        <div class="col-md-4">
+                            <!-- #region Abilities -->
+                            <div class="row mb-3">
+                                <div class="col-md-5">
+                                    <b>Abilities</b>
+                                </div>
+                                <div class="col">
+                                    <b>Level</b>
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-md-5">
+                                    <select id="selectAbility_0" class="form-select">
+                                        <option value="">Empty</option>
+                                    </select>
+                                </div>
+                                <div class="col">
+                                    <input
+                                        type="number"
+                                        id="inputAbilityLevel_0"
+                                        class="form-control"
+                                        value="1"
+                                        min="1"
+                                        max="400"
+                                        required
+                                    />
+                                </div>
+                                <div class="col-md-auto">
+                                    <button
+                                        id="buttonAbilityTrigger_0"
+                                        class="btn btn-primary"
+                                        type="button"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#triggerModal"
+                                        data-bs-triggertype="ability"
+                                        data-bs-triggerindex="0"
+                                    >
+                                        Trigger
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-md-5">
+                                    <select id="selectAbility_1" class="form-select">
+                                        <option value="">Empty</option>
+                                    </select>
+                                </div>
+                                <div class="col">
+                                    <input
+                                        type="number"
+                                        id="inputAbilityLevel_1"
+                                        class="form-control"
+                                        value="1"
+                                        min="1"
+                                        max="400"
+                                        required
+                                    />
+                                </div>
+                                <div class="col-md-auto">
+                                    <button
+                                        id="buttonAbilityTrigger_1"
+                                        class="btn btn-primary"
+                                        type="button"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#triggerModal"
+                                        data-bs-triggertype="ability"
+                                        data-bs-triggerindex="1"
+                                    >
+                                        Trigger
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-md-5">
+                                    <select id="selectAbility_2" class="form-select">
+                                        <option value="">Empty</option>
+                                    </select>
+                                </div>
+                                <div class="col">
+                                    <input
+                                        type="number"
+                                        id="inputAbilityLevel_2"
+                                        class="form-control"
+                                        value="1"
+                                        min="1"
+                                        max="400"
+                                        required
+                                    />
+                                </div>
+                                <div class="col-md-auto">
+                                    <button
+                                        id="buttonAbilityTrigger_2"
+                                        class="btn btn-primary"
+                                        type="button"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#triggerModal"
+                                        data-bs-triggertype="ability"
+                                        data-bs-triggerindex="2"
+                                    >
+                                        Trigger
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-md-5">
+                                    <select id="selectAbility_3" class="form-select">
+                                        <option value="">Empty</option>
+                                    </select>
+                                </div>
+                                <div class="col">
+                                    <input
+                                        type="number"
+                                        id="inputAbilityLevel_3"
+                                        class="form-control"
+                                        value="1"
+                                        min="1"
+                                        max="400"
+                                        required
+                                    />
+                                </div>
+                                <div class="col-md-auto">
+                                    <button
+                                        id="buttonAbilityTrigger_3"
+                                        class="btn btn-primary"
+                                        type="button"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#triggerModal"
+                                        data-bs-triggertype="ability"
+                                        data-bs-triggerindex="3"
+                                    >
+                                        Trigger
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- #endregion-->
+                        </div>
+                    </div>
+                    <div class="row">
+                        <!-- #region Simulation Controls -->
+                        <label for="selectZone" class="col-md-auto col-form-label">Zone</label>
+                        <div class="col-md-3">
+                            <select id="selectZone" class="form-select"></select>
+                        </div>
+                        <label for="inputSimulationTime" class="col-md-auto col-form-label">Duration</label>
+                        <div class="col-md-2">
+                            <div class="input-group">
+                                <input
+                                    type="number"
+                                    id="inputSimulationTime"
+                                    class="form-control"
+                                    value="100"
+                                    min="1"
+                                    max="2500"
+                                    required
+                                />
+                                <span class="input-group-text">hours</span>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <button id="buttonStartSimulation" class="btn btn-primary" type="button">
+                                Start Simulation
+                            </button>
+                        </div>
+                        <!-- #endregion -->
+                    </div>
                 </div>
                 <div class="col-md-5">
                     <div class="row mb-3">
