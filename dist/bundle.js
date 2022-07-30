@@ -3112,6 +3112,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _combatsimulator_data_combatTriggerComparatorDetailMap_json__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./combatsimulator/data/combatTriggerComparatorDetailMap.json */ "./src/combatsimulator/data/combatTriggerComparatorDetailMap.json");
 /* harmony import */ var _combatsimulator_data_abilitySlotsLevelRequirementList_json__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./combatsimulator/data/abilitySlotsLevelRequirementList.json */ "./src/combatsimulator/data/abilitySlotsLevelRequirementList.json");
 /* harmony import */ var _combatsimulator_data_actionDetailMap_json__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./combatsimulator/data/actionDetailMap.json */ "./src/combatsimulator/data/actionDetailMap.json");
+/* harmony import */ var _combatsimulator_data_combatMonsterDetailMap_json__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./combatsimulator/data/combatMonsterDetailMap.json */ "./src/combatsimulator/data/combatMonsterDetailMap.json");
 
 
 
@@ -3128,6 +3129,9 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+
+
+const ONE_HOUR = 60 * 60 * 1e9;
 
 let buttonStartSimulation = document.getElementById("buttonStartSimulation");
 
@@ -3152,6 +3156,7 @@ buttonStartSimulation.onclick = function () {
 worker.onmessage = function (event) {
     switch (event.data.type) {
         case "simulation_result":
+            showSimulationResult(event.data.simResult);
             printSimResult(event.data.simResult);
             break;
     }
@@ -3676,6 +3681,193 @@ function initZones() {
 
 // #endregion
 
+// #region Simulation Result
+
+function showSimulationResult(simResult) {
+    showKills(simResult);
+    showDeaths(simResult);
+    showExperienceGained(simResult);
+    showConsumablesUsed(simResult);
+}
+
+function showKills(simResult) {
+    let resultDiv = document.getElementById("simulationResultKills");
+    let newChildren = [];
+
+    let hoursSimulated = simResult.simulatedTime / ONE_HOUR;
+    let playerDeaths = simResult.deaths["player"] ?? 0;
+    let encountersPerHour = ((simResult.encounters - playerDeaths) / hoursSimulated).toFixed(1);
+
+    let encountersRow = createRow(["col-md-6", "col-md-6 text-end"], ["Encounters", encountersPerHour]);
+    newChildren.push(encountersRow);
+
+    let monsters = Object.keys(simResult.deaths)
+        .filter((enemy) => enemy != "player")
+        .sort();
+
+    for (const monster of monsters) {
+        let killsPerHour = (simResult.deaths[monster] / hoursSimulated).toFixed(1);
+        let monsterRow = createRow(
+            ["col-md-6", "col-md-6 text-end"],
+            [_combatsimulator_data_combatMonsterDetailMap_json__WEBPACK_IMPORTED_MODULE_16__[monster].name, killsPerHour]
+        );
+        newChildren.push(monsterRow);
+    }
+
+    resultDiv.replaceChildren(...newChildren);
+}
+
+function showDeaths(simResult) {
+    let resultDiv = document.getElementById("simulationResultPlayerDeaths");
+
+    let hoursSimulated = simResult.simulatedTime / ONE_HOUR;
+    let playerDeaths = simResult.deaths["player"] ?? 0;
+    let deathsPerHour = (playerDeaths / hoursSimulated).toFixed(2);
+
+    let deathRow = createRow(["col-md-6", "col-md-6 text-end"], ["Player", deathsPerHour]);
+    resultDiv.replaceChildren(deathRow);
+}
+
+function showExperienceGained(simResult) {
+    let resultDiv = document.getElementById("simulationResultExperienceGain");
+    let newChildren = [];
+
+    let hoursSimulated = simResult.simulatedTime / ONE_HOUR;
+
+    let totalExperience = Object.values(simResult.experienceGained["player"]).reduce((prev, cur) => prev + cur, 0);
+    let totalExperiencePerHour = (totalExperience / hoursSimulated).toFixed(0);
+    let totalRow = createRow(["col-md-6", "col-md-6 text-end"], ["Total", totalExperiencePerHour]);
+    newChildren.push(totalRow);
+
+    ["Stamina", "Intelligence", "Attack", "Power", "Defense"].forEach((skill) => {
+        let experience = simResult.experienceGained["player"][skill.toLowerCase()] ?? 0;
+        let experiencePerHour = (experience / hoursSimulated).toFixed(0);
+        let experienceRow = createRow(["col-md-6", "col-md-6 text-end"], [skill, experiencePerHour]);
+        newChildren.push(experienceRow);
+    });
+
+    resultDiv.replaceChildren(...newChildren);
+}
+
+function showConsumablesUsed(simResult) {
+    let resultDiv = document.getElementById("simulationResultConsumablesUsed");
+    let newChildren = [];
+
+    let hoursSimulated = simResult.simulatedTime / ONE_HOUR;
+
+    if (!simResult.consumablesUsed["player"]) {
+        resultDiv.replaceChildren(...newChildren);
+        return;
+    }
+
+    let consumablesUsed = Object.entries(simResult.consumablesUsed["player"]).sort((a, b) => b[1] - a[1]);
+
+    for (const [consumable, amount] of consumablesUsed) {
+        let consumablesPerHour = (amount / hoursSimulated).toFixed(0);
+        let consumableRow = createRow(
+            ["col-md-6", "col-md-6 text-end"],
+            [_combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_5__[consumable].name, consumablesPerHour]
+        );
+        newChildren.push(consumableRow);
+    }
+
+    resultDiv.replaceChildren(...newChildren);
+}
+
+function createRow(columnClassNames, columnValues) {
+    let row = createElement("div", "row");
+
+    for (let i = 0; i < columnClassNames.length; i++) {
+        let column = createElement("div", columnClassNames[i], columnValues[i]);
+        row.appendChild(column);
+    }
+
+    return row;
+}
+
+function createElement(tagName, className, innerHTML = "") {
+    let element = document.createElement(tagName);
+    element.className = className;
+    element.innerHTML = innerHTML;
+
+    return element;
+}
+
+function printSimResult(simResult) {
+    console.log(simResult);
+    return;
+
+    console.log("Simulated hours:", simResult.simulatedTime / (60 * 60 * 1e9));
+
+    console.log("Encounters per hour:", simResult.encounters / (simResult.simulatedTime / (60 * 60 * 1e9)));
+
+    console.log("Deaths per hour:");
+    for (const [key, value] of Object.entries(simResult.deaths)) {
+        console.log(key, value / (simResult.simulatedTime / (60 * 60 * 1e9)));
+    }
+
+    console.log("Experience per hour:");
+    for (const [key, value] of Object.entries(simResult.experienceGained["player"])) {
+        console.log(key, value / (simResult.simulatedTime / (60 * 60 * 1e9)));
+    }
+
+    for (const [source, targets] of Object.entries(simResult.attacks)) {
+        console.log("Attack stats for", source);
+        for (const [target, abilities] of Object.entries(targets)) {
+            console.log("   Against", target);
+            for (const [ability, attacks] of Object.entries(abilities)) {
+                console.log("       ", ability);
+                let misses = attacks["miss"] ?? 0;
+                let attempts = Object.values(attacks).reduce((prev, cur) => prev + cur);
+                console.log("           Casts:", attempts);
+                console.log("           Hitchance:", 1 - misses / attempts);
+                let totalDamage = Object.entries(attacks)
+                    .filter(([key, value]) => key != "miss")
+                    .map(([key, value]) => key * value)
+                    .reduce((prev, cur) => prev + cur);
+                console.log("           Average hit:", totalDamage / (attempts - misses));
+            }
+        }
+    }
+}
+
+// #endregion
+
+function startSimulation() {
+    for (let i = 0; i < 3; i++) {
+        if (food[i]) {
+            let consumable = new _combatsimulator_consumable_js__WEBPACK_IMPORTED_MODULE_8__["default"](food[i], triggerMap[food[i]]);
+            player.food[i] = consumable;
+        }
+        if (drinks[i]) {
+            let consumable = new _combatsimulator_consumable_js__WEBPACK_IMPORTED_MODULE_8__["default"](drinks[i], triggerMap[drinks[i]]);
+            player.drinks[i] = consumable;
+        }
+    }
+
+    for (let i = 0; i < 4; i++) {
+        if (abilities[i]) {
+            let abilityLevelInput = document.getElementById("inputAbilityLevel_" + i);
+            let ability = new _combatsimulator_ability_js__WEBPACK_IMPORTED_MODULE_7__["default"](abilities[i], Number(abilityLevelInput.value), triggerMap[abilities[i]]);
+            player.abilities[i] = ability;
+        }
+    }
+
+    let zoneSelect = document.getElementById("selectZone");
+    let simulationTimeInput = document.getElementById("inputSimulationTime");
+
+    let simulationTimeLimit = Number(simulationTimeInput.value) * ONE_HOUR;
+
+    let workerMessage = {
+        type: "start_simulation",
+        player: player,
+        zoneHrid: zoneSelect.value,
+        simulationTimeLimit: simulationTimeLimit,
+    };
+
+    worker.postMessage(workerMessage);
+}
+
 function updatePlayerStats() {
     player.updateCombatStats();
 
@@ -3716,79 +3908,6 @@ function updatePlayerStats() {
     updateAvailableFoodSlots();
     updateAvailableDrinkSlots();
     updateAvailableAbilitySlots();
-}
-
-function startSimulation() {
-    for (let i = 0; i < 3; i++) {
-        if (food[i]) {
-            let consumable = new _combatsimulator_consumable_js__WEBPACK_IMPORTED_MODULE_8__["default"](food[i], triggerMap[food[i]]);
-            player.food[i] = consumable;
-        }
-        if (drinks[i]) {
-            let consumable = new _combatsimulator_consumable_js__WEBPACK_IMPORTED_MODULE_8__["default"](drinks[i], triggerMap[drinks[i]]);
-            player.drinks[i] = consumable;
-        }
-    }
-
-    for (let i = 0; i < 4; i++) {
-        if (abilities[i]) {
-            let abilityLevelInput = document.getElementById("inputAbilityLevel_" + i);
-            let ability = new _combatsimulator_ability_js__WEBPACK_IMPORTED_MODULE_7__["default"](abilities[i], Number(abilityLevelInput.value), triggerMap[abilities[i]]);
-            player.abilities[i] = ability;
-        }
-    }
-
-    let zoneSelect = document.getElementById("selectZone");
-    let simulationTimeInput = document.getElementById("inputSimulationTime");
-
-    let oneHour = 60 * 60 * 1e9;
-    let simulationTimeLimit = Number(simulationTimeInput.value) * oneHour;
-
-    let workerMessage = {
-        type: "start_simulation",
-        player: player,
-        zoneHrid: zoneSelect.value,
-        simulationTimeLimit: simulationTimeLimit,
-    };
-
-    worker.postMessage(workerMessage);
-}
-
-function printSimResult(simResult) {
-    console.log(simResult);
-
-    console.log("Simulated hours:", simResult.simulatedTime / (60 * 60 * 1e9));
-
-    console.log("Encounters per hour:", simResult.encounters / (simResult.simulatedTime / (60 * 60 * 1e9)));
-
-    console.log("Deaths per hour:");
-    for (const [key, value] of Object.entries(simResult.deaths)) {
-        console.log(key, value / (simResult.simulatedTime / (60 * 60 * 1e9)));
-    }
-
-    console.log("Experience per hour:");
-    for (const [key, value] of Object.entries(simResult.experienceGained["player"])) {
-        console.log(key, value / (simResult.simulatedTime / (60 * 60 * 1e9)));
-    }
-
-    for (const [source, targets] of Object.entries(simResult.attacks)) {
-        console.log("Attack stats for", source);
-        for (const [target, abilities] of Object.entries(targets)) {
-            console.log("   Against", target);
-            for (const [ability, attacks] of Object.entries(abilities)) {
-                console.log("       ", ability);
-                let misses = attacks["miss"] ?? 0;
-                let attempts = Object.values(attacks).reduce((prev, cur) => prev + cur);
-                console.log("           Casts:", attempts);
-                console.log("           Hitchance:", 1 - misses / attempts);
-                let totalDamage = Object.entries(attacks)
-                    .filter(([key, value]) => key != "miss")
-                    .map(([key, value]) => key * value)
-                    .reduce((prev, cur) => prev + cur);
-                console.log("           Average hit:", totalDamage / (attempts - misses));
-            }
-        }
-    }
 }
 
 updatePlayerStats();
