@@ -3170,10 +3170,13 @@ function initEquipmentSelect(equipmentType) {
     }
     let selectElement = document.getElementById(selectId);
 
-    for (const value of Object.values(_combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_5__)
+    let gameEquipment = Object.values(_combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_5__)
         .filter((item) => item.categoryHrid == "/item_categories/equipment")
-        .filter((item) => item.equipmentDetail.type == "/equipment_types/" + equipmentType)) {
-        selectElement.add(new Option(value.name, value.hrid));
+        .filter((item) => item.equipmentDetail.type == "/equipment_types/" + equipmentType)
+        .sort((a, b) => a.sortIndex - b.sortIndex);
+
+    for (const equipment of Object.values(gameEquipment)) {
+        selectElement.add(new Option(equipment.name, equipment.hrid));
     }
 
     selectElement.addEventListener("change", (event) => {
@@ -3272,10 +3275,12 @@ function initFoodSection() {
     for (let i = 0; i < 3; i++) {
         let element = document.getElementById("selectFood_" + i);
 
-        for (const value of Object.values(_combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_5__).filter(
-            (item) => item.categoryHrid == "/item_categories/food"
-        )) {
-            element.add(new Option(value.name, value.hrid));
+        let gameFoods = Object.values(_combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_5__)
+            .filter((item) => item.categoryHrid == "/item_categories/food")
+            .sort((a, b) => a.sortIndex - b.sortIndex);
+
+        for (const food of Object.values(gameFoods)) {
+            element.add(new Option(food.name, food.hrid));
         }
 
         element.addEventListener("change", (event) => foodSelectHandler(event, i));
@@ -3314,10 +3319,13 @@ function initDrinksSection() {
     for (let i = 0; i < 3; i++) {
         let element = document.getElementById("selectDrink_" + i);
 
-        for (const value of Object.values(_combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_5__).filter(
-            (item) => item.categoryHrid == "/item_categories/drink"
-        )) {
-            element.add(new Option(value.name, value.hrid));
+        let gameDrinks = Object.values(_combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_5__)
+            .filter((item) => item.categoryHrid == "/item_categories/drink")
+            .filter((item) => item.consumableDetail.usableInActionTypeMap["/action_types/combat"])
+            .sort((a, b) => a.sortIndex - b.sortIndex);
+
+        for (const drink of Object.values(gameDrinks)) {
+            element.add(new Option(drink.name, drink.hrid));
         }
 
         element.addEventListener("change", (event) => drinkSelectHandler(event, i));
@@ -3356,8 +3364,10 @@ function initAbilitiesSection() {
     for (let i = 0; i < 4; i++) {
         let selectElement = document.getElementById("selectAbility_" + i);
 
-        for (const value of Object.values(_combatsimulator_data_abilityDetailMap_json__WEBPACK_IMPORTED_MODULE_4__)) {
-            selectElement.add(new Option(value.name, value.hrid));
+        let gameAbilities = Object.values(_combatsimulator_data_abilityDetailMap_json__WEBPACK_IMPORTED_MODULE_4__).sort((a, b) => a.sortIndex - b.sortIndex);
+
+        for (const ability of Object.values(gameAbilities)) {
+            selectElement.add(new Option(ability.name, ability.hrid));
         }
 
         selectElement.addEventListener("change", (event) => abilitySelectHandler(event, i));
@@ -3650,10 +3660,12 @@ function showElement(element) {
 function initZones() {
     let zoneSelect = document.getElementById("selectZone");
 
-    for (const value of Object.values(_combatsimulator_data_actionDetailMap_json__WEBPACK_IMPORTED_MODULE_15__)
+    let gameZones = Object.values(_combatsimulator_data_actionDetailMap_json__WEBPACK_IMPORTED_MODULE_15__)
         .filter((action) => action.type == "/action_types/combat")
-        .sort((a, b) => a.sortIndex - b.sortIndex)) {
-        zoneSelect.add(new Option(value.name, value.hrid));
+        .sort((a, b) => a.sortIndex - b.sortIndex);
+
+    for (const zone of Object.values(gameZones)) {
+        zoneSelect.add(new Option(zone.name, zone.hrid));
     }
 }
 
