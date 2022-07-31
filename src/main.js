@@ -95,6 +95,7 @@ function initEnhancementLevelInput(equipmentType) {
     }
 
     let inputElement = document.getElementById(inputId);
+    inputElement.value = 0;
     inputElement.addEventListener("change", (event) => {
         enhancementLevelInputHandler(event, equipmentType);
     });
@@ -204,6 +205,7 @@ function updatePlayerStats() {
 function initLevelSection() {
     ["stamina", "intelligence", "attack", "power", "defense"].forEach((skill) => {
         let element = document.getElementById("inputLevel_" + skill);
+        element.value = 1;
         element.addEventListener("change", (event) => {
             levelInputHandler(event, skill);
         });
@@ -311,6 +313,9 @@ function updateAvailableDrinkSlots() {
 function initAbilitiesSection() {
     for (let i = 0; i < 4; i++) {
         let selectElement = document.getElementById("selectAbility_" + i);
+        let inputElement = document.getElementById("inputAbilityLevel_" + i);
+
+        inputElement.value = 1;
 
         let gameAbilities = Object.values(abilityDetailMap).sort((a, b) => a.sortIndex - b.sortIndex);
 
@@ -1008,6 +1013,9 @@ function createElement(tagName, className, innerHTML = "") {
 // #region Simulation Controls
 
 function initSimulationControls() {
+    let simulationTimeInput = document.getElementById("inputSimulationTime");
+    simulationTimeInput.value = 100;
+
     buttonStartSimulation.addEventListener("click", (event) => {
         let invalidElements = document.querySelectorAll(":invalid");
         if (invalidElements.length > 0) {
