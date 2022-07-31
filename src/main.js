@@ -576,6 +576,7 @@ function showSimulationResult(simResult) {
     showConsumablesUsed(simResult);
     showHitpointsGained(simResult);
     showManapointsGained(simResult);
+    showDamageDone(simResult);
 }
 
 function showKills(simResult) {
@@ -761,6 +762,109 @@ function showManapointsGained(simResult) {
     let ranOutOfManaText = simResult.playerRanOutOfMana ? "Yes" : "No";
     let ranOutOfManaRow = createRow(["col-md-6", "col-md-6 text-end"], ["Ran out of mana", ranOutOfManaText]);
     newChildren.push(ranOutOfManaRow);
+
+    resultDiv.replaceChildren(...newChildren);
+}
+
+function showDamageDone(simResult) {
+    let totalDamageDone = {};
+    let targetIndex = 1;
+
+    let secondsSimulated = simResult.simulatedTime / ONE_SECOND;
+
+    for (let i = 1; i < 5; i++) {
+        let accordion = document.getElementById("simulationResultDamageDoneAccordionEnemy" + i);
+        hideElement(accordion);
+    }
+
+    for (const [target, abilities] of Object.entries(simResult.attacks["player"])) {
+        let targetDamageDone = {};
+
+        for (const [ability, abilityCasts] of Object.entries(abilities)) {
+            let casts = Object.values(abilityCasts).reduce((prev, cur) => prev + cur, 0);
+            let misses = abilityCasts["miss"] ?? 0;
+            let damage = Object.entries(abilityCasts)
+                .filter((entry) => entry[0] != "miss")
+                .reduce((prev, cur) => prev + Number(cur[0]) * cur[1], 0);
+
+            targetDamageDone[ability] = {
+                casts,
+                misses,
+                damage,
+            };
+            if (totalDamageDone[ability]) {
+                totalDamageDone[ability].casts += casts;
+                totalDamageDone[ability].misses += misses;
+                totalDamageDone[ability].damage += damage;
+            } else {
+                totalDamageDone[ability] = {
+                    casts,
+                    misses,
+                    damage,
+                };
+            }
+        }
+
+        let resultDiv = document.getElementById("simulationResultDamageDoneEnemy" + targetIndex);
+        createDamageDoneTable(resultDiv, targetDamageDone, secondsSimulated);
+
+        let resultAccordion = document.getElementById("simulationResultDamageDoneAccordionEnemy" + targetIndex);
+        showElement(resultAccordion);
+
+        let resultAccordionButton = document.getElementById(
+            "buttonSimulationResultDamageDoneAccordionEnemy" + targetIndex
+        );
+        let targetName = combatMonsterDetailMap[target].name;
+        resultAccordionButton.innerHTML = "<b>Damage Done (" + targetName + ")</b>";
+
+        targetIndex++;
+    }
+
+    let totalResultDiv = document.getElementById("simulationResultTotalDamageDone");
+    createDamageDoneTable(totalResultDiv, totalDamageDone, secondsSimulated);
+}
+
+function createDamageDoneTable(resultDiv, damageDone, secondsSimulated) {
+    let newChildren = [];
+
+    let sortedDamageDone = Object.entries(damageDone).sort((a, b) => b[1].damage - a[1].damage);
+
+    let totalCasts = sortedDamageDone.reduce((prev, cur) => prev + cur[1].casts, 0);
+    let totalMisses = sortedDamageDone.reduce((prev, cur) => prev + cur[1].misses, 0);
+    let totalDamage = sortedDamageDone.reduce((prev, cur) => prev + cur[1].damage, 0);
+    let totalHitChance = ((100 * (totalCasts - totalMisses)) / totalCasts).toFixed(1);
+    let totalDamagePerSecond = (totalDamage / secondsSimulated).toFixed(2);
+
+    let totalRow = createRow(
+        ["col-md-5", "col-md-3 text-end", "col-md-2 text-end", "col-md-2 text-end"],
+        ["Total", totalHitChance + "%", totalDamagePerSecond, "100%"]
+    );
+    newChildren.push(totalRow);
+
+    for (const [ability, damageInfo] of sortedDamageDone) {
+        let abilityText;
+        switch (ability) {
+            case "autoAttack":
+                abilityText = "Auto Attack";
+                break;
+            case "bleed":
+                abilityText = "Bleed";
+                break;
+            default:
+                abilityText = abilityDetailMap[ability].name;
+                break;
+        }
+
+        let hitChance = ((100 * (damageInfo.casts - damageInfo.misses)) / damageInfo.casts).toFixed(1);
+        let damagePerSecond = (damageInfo.damage / secondsSimulated).toFixed(2);
+        let percentage = ((100 * damageInfo.damage) / totalDamage).toFixed(0);
+
+        let row = createRow(
+            ["col-md-5", "col-md-3 text-end", "col-md-2 text-end", "col-md-2 text-end"],
+            [abilityText, hitChance + "%", damagePerSecond, percentage + "%"]
+        );
+        newChildren.push(row);
+    }
 
     resultDiv.replaceChildren(...newChildren);
 }
