@@ -48,7 +48,7 @@ class Ability {
     }
 
     static createFromDTO(dto) {
-        let triggers = dto.triggers.map(trigger => Trigger.createFromDTO(trigger));
+        let triggers = dto.triggers.map((trigger) => Trigger.createFromDTO(trigger));
         let ability = new Ability(dto.hrid, dto.level, triggers);
 
         return ability;
@@ -56,10 +56,6 @@ class Ability {
 
     shouldTrigger(currentTime, source, target, friendlies, enemies) {
         if (this.lastUsed + this.cooldownDuration > currentTime) {
-            return false;
-        }
-
-        if (source.combatStats.currentManapoints < this.manaCost) {
             return false;
         }
 

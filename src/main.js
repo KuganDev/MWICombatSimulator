@@ -575,6 +575,7 @@ function showSimulationResult(simResult) {
     showExperienceGained(simResult);
     showConsumablesUsed(simResult);
     showHitpointsGained(simResult);
+    showManapointsGained(simResult);
 }
 
 function showKills(simResult) {
@@ -700,7 +701,7 @@ function showHitpointsGained(simResult) {
                 break;
         }
         let hitpointsPerSecond = (amount / secondsSimulated).toFixed(2);
-        let percentage = (100 * amount / totalHitpointsGained).toFixed(0);
+        let percentage = ((100 * amount) / totalHitpointsGained).toFixed(0);
 
         let row = createRow(
             ["col-md-6", "col-md-3 text-end", "col-md-3 text-end"],
@@ -708,6 +709,58 @@ function showHitpointsGained(simResult) {
         );
         newChildren.push(row);
     }
+
+    resultDiv.replaceChildren(...newChildren);
+}
+
+function showManapointsGained(simResult) {
+    let resultDiv = document.getElementById("simulationResultManaRestored");
+    let newChildren = [];
+
+    let secondsSimulated = simResult.simulatedTime / ONE_SECOND;
+
+    if (!simResult.manapointsGained["player"]) {
+        resultDiv.replaceChildren(...newChildren);
+        return;
+    }
+
+    let manapointsGained = Object.entries(simResult.manapointsGained["player"]).sort((a, b) => b[1] - a[1]);
+
+    let totalManapointsGained = manapointsGained.reduce((prev, cur) => prev + cur[1], 0);
+    let totalManapointsPerSecond = (totalManapointsGained / secondsSimulated).toFixed(2);
+    let totalRow = createRow(
+        ["col-md-6", "col-md-3 text-end", "col-md-3 text-end"],
+        ["Total", totalManapointsPerSecond, "100%"]
+    );
+    newChildren.push(totalRow);
+
+    for (const [source, amount] of manapointsGained) {
+        if (amount == 0) {
+            continue;
+        }
+
+        let sourceText;
+        switch (source) {
+            case "regen":
+                sourceText = "Regen";
+                break;
+            default:
+                sourceText = itemDetailMap[source].name;
+                break;
+        }
+        let manapointsPerSecond = (amount / secondsSimulated).toFixed(2);
+        let percentage = ((100 * amount) / totalManapointsGained).toFixed(0);
+
+        let row = createRow(
+            ["col-md-6", "col-md-3 text-end", "col-md-3 text-end"],
+            [sourceText, manapointsPerSecond, percentage + "%"]
+        );
+        newChildren.push(row);
+    }
+
+    let ranOutOfManaText = simResult.playerRanOutOfMana ? "Yes" : "No";
+    let ranOutOfManaRow = createRow(["col-md-6", "col-md-6 text-end"], ["Ran out of mana", ranOutOfManaText]);
+    newChildren.push(ranOutOfManaRow);
 
     resultDiv.replaceChildren(...newChildren);
 }

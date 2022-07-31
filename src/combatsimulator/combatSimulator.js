@@ -147,10 +147,7 @@ class CombatSimulator {
             target = CombatUtilities.getTarget(this.players);
         }
 
-        let { damageDone, damagePrevented, maxDamage, didHit } = CombatUtilities.processAttack(
-            event.source,
-            target
-        );
+        let { damageDone, damagePrevented, maxDamage, didHit } = CombatUtilities.processAttack(event.source, target);
         // console.log("Hit for", damageDone);
 
         if (event.source.combatStats.lifeSteal > 0) {
@@ -211,10 +208,7 @@ class CombatSimulator {
     }
 
     addNextAutoAttackEvent(source) {
-        let autoAttackEvent = new AutoAttackEvent(
-            this.simulationTime + source.combatStats.attackInterval,
-            source
-        );
+        let autoAttackEvent = new AutoAttackEvent(this.simulationTime + source.combatStats.attackInterval, source);
         this.eventQueue.addEvent(autoAttackEvent);
     }
 
@@ -352,8 +346,7 @@ class CombatSimulator {
 
         for (const ability of unit.abilities) {
             if (ability && ability.shouldTrigger(this.simulationTime, unit, target, friendlies, enemies)) {
-                this.useAbility(unit, ability);
-                triggeredSomething = true;
+                triggeredSomething = this.tryUseAbility(unit, ability);
             }
         }
 
@@ -402,11 +395,14 @@ class CombatSimulator {
         }
     }
 
-    useAbility(source, ability) {
+    tryUseAbility(source, ability) {
         console.assert(source.combatStats.currentHitpoints > 0, "Dead unit is trying to cast an ability");
 
         if (source.combatStats.currentManapoints < ability.manaCost) {
-            return;
+            if (source.isPlayer) {
+                this.simResult.playerRanOutOfMana = true;
+            }
+            return false;
         }
 
         // console.log("Casting:", ability);
@@ -491,6 +487,8 @@ class CombatSimulator {
         }
 
         this.checkEncounterEnd();
+
+        return true;
     }
 }
 

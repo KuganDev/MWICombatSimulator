@@ -986,7 +986,7 @@ class Ability {
     }
 
     static createFromDTO(dto) {
-        let triggers = dto.triggers.map(trigger => _trigger__WEBPACK_IMPORTED_MODULE_2__["default"].createFromDTO(trigger));
+        let triggers = dto.triggers.map((trigger) => _trigger__WEBPACK_IMPORTED_MODULE_2__["default"].createFromDTO(trigger));
         let ability = new Ability(dto.hrid, dto.level, triggers);
 
         return ability;
@@ -994,10 +994,6 @@ class Ability {
 
     shouldTrigger(currentTime, source, target, friendlies, enemies) {
         if (this.lastUsed + this.cooldownDuration > currentTime) {
-            return false;
-        }
-
-        if (source.combatStats.currentManapoints < this.manaCost) {
             return false;
         }
 
@@ -1219,10 +1215,7 @@ class CombatSimulator {
             target = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].getTarget(this.players);
         }
 
-        let { damageDone, damagePrevented, maxDamage, didHit } = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].processAttack(
-            event.source,
-            target
-        );
+        let { damageDone, damagePrevented, maxDamage, didHit } = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].processAttack(event.source, target);
         // console.log("Hit for", damageDone);
 
         if (event.source.combatStats.lifeSteal > 0) {
@@ -1283,10 +1276,7 @@ class CombatSimulator {
     }
 
     addNextAutoAttackEvent(source) {
-        let autoAttackEvent = new _events_autoAttackEvent__WEBPACK_IMPORTED_MODULE_1__["default"](
-            this.simulationTime + source.combatStats.attackInterval,
-            source
-        );
+        let autoAttackEvent = new _events_autoAttackEvent__WEBPACK_IMPORTED_MODULE_1__["default"](this.simulationTime + source.combatStats.attackInterval, source);
         this.eventQueue.addEvent(autoAttackEvent);
     }
 
@@ -1424,8 +1414,7 @@ class CombatSimulator {
 
         for (const ability of unit.abilities) {
             if (ability && ability.shouldTrigger(this.simulationTime, unit, target, friendlies, enemies)) {
-                this.useAbility(unit, ability);
-                triggeredSomething = true;
+                triggeredSomething = this.tryUseAbility(unit, ability);
             }
         }
 
@@ -1474,11 +1463,14 @@ class CombatSimulator {
         }
     }
 
-    useAbility(source, ability) {
+    tryUseAbility(source, ability) {
         console.assert(source.combatStats.currentHitpoints > 0, "Dead unit is trying to cast an ability");
 
         if (source.combatStats.currentManapoints < ability.manaCost) {
-            return;
+            if (source.isPlayer) {
+                this.simResult.playerRanOutOfMana = true;
+            }
+            return false;
         }
 
         // console.log("Casting:", ability);
@@ -1563,6 +1555,8 @@ class CombatSimulator {
         }
 
         this.checkEncounterEnd();
+
+        return true;
     }
 }
 
@@ -2581,6 +2575,7 @@ class SimResult {
         this.consumablesUsed = {};
         this.hitpointsGained = {};
         this.manapointsGained = {};
+        this.playerRanOutOfMana = false;
     }
 
     addDeath(unit) {
@@ -3690,6 +3685,7 @@ function showSimulationResult(simResult) {
     showExperienceGained(simResult);
     showConsumablesUsed(simResult);
     showHitpointsGained(simResult);
+    showManapointsGained(simResult);
 }
 
 function showKills(simResult) {
@@ -3815,7 +3811,7 @@ function showHitpointsGained(simResult) {
                 break;
         }
         let hitpointsPerSecond = (amount / secondsSimulated).toFixed(2);
-        let percentage = (100 * amount / totalHitpointsGained).toFixed(0);
+        let percentage = ((100 * amount) / totalHitpointsGained).toFixed(0);
 
         let row = createRow(
             ["col-md-6", "col-md-3 text-end", "col-md-3 text-end"],
@@ -3823,6 +3819,58 @@ function showHitpointsGained(simResult) {
         );
         newChildren.push(row);
     }
+
+    resultDiv.replaceChildren(...newChildren);
+}
+
+function showManapointsGained(simResult) {
+    let resultDiv = document.getElementById("simulationResultManaRestored");
+    let newChildren = [];
+
+    let secondsSimulated = simResult.simulatedTime / ONE_SECOND;
+
+    if (!simResult.manapointsGained["player"]) {
+        resultDiv.replaceChildren(...newChildren);
+        return;
+    }
+
+    let manapointsGained = Object.entries(simResult.manapointsGained["player"]).sort((a, b) => b[1] - a[1]);
+
+    let totalManapointsGained = manapointsGained.reduce((prev, cur) => prev + cur[1], 0);
+    let totalManapointsPerSecond = (totalManapointsGained / secondsSimulated).toFixed(2);
+    let totalRow = createRow(
+        ["col-md-6", "col-md-3 text-end", "col-md-3 text-end"],
+        ["Total", totalManapointsPerSecond, "100%"]
+    );
+    newChildren.push(totalRow);
+
+    for (const [source, amount] of manapointsGained) {
+        if (amount == 0) {
+            continue;
+        }
+
+        let sourceText;
+        switch (source) {
+            case "regen":
+                sourceText = "Regen";
+                break;
+            default:
+                sourceText = _combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_5__[source].name;
+                break;
+        }
+        let manapointsPerSecond = (amount / secondsSimulated).toFixed(2);
+        let percentage = ((100 * amount) / totalManapointsGained).toFixed(0);
+
+        let row = createRow(
+            ["col-md-6", "col-md-3 text-end", "col-md-3 text-end"],
+            [sourceText, manapointsPerSecond, percentage + "%"]
+        );
+        newChildren.push(row);
+    }
+
+    let ranOutOfManaText = simResult.playerRanOutOfMana ? "Yes" : "No";
+    let ranOutOfManaRow = createRow(["col-md-6", "col-md-6 text-end"], ["Ran out of mana", ranOutOfManaText]);
+    newChildren.push(ranOutOfManaRow);
 
     resultDiv.replaceChildren(...newChildren);
 }

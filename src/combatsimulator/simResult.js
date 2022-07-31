@@ -7,6 +7,7 @@ class SimResult {
         this.consumablesUsed = {};
         this.hitpointsGained = {};
         this.manapointsGained = {};
+        this.playerRanOutOfMana = false;
     }
 
     addDeath(unit) {
