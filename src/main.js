@@ -930,7 +930,7 @@ function showDamageTaken(simResult) {
             "buttonSimulationResultDamageTakenAccordionEnemy" + enemyIndex
         );
         let sourceName = combatMonsterDetailMap[source].name;
-        resultAccordionButton.innerHTML = "<b>Damage Done (" + sourceName + ")</b>";
+        resultAccordionButton.innerHTML = "<b>Damage Taken (" + sourceName + ")</b>";
 
         enemyIndex++;
     }
