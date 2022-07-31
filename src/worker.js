@@ -2,7 +2,7 @@ import CombatSimulator from "./combatsimulator/combatSimulator";
 import Player from "./combatsimulator/player";
 import Zone from "./combatsimulator/zone";
 
-onmessage = function (event) {
+onmessage = async function (event) {
     switch (event.data.type) {
         case "start_simulation":
             let player = Player.createFromDTO(event.data.player);
@@ -12,8 +12,11 @@ onmessage = function (event) {
             let simulationTimeLimit = event.data.simulationTimeLimit;
 
             let combatSimulator = new CombatSimulator(player, zone);
+            combatSimulator.addEventListener("progress", (event) => {
+                this.postMessage({ type: "simulation_progress", progress: event.detail});
+            });
 
-            let simResult = combatSimulator.simulate(simulationTimeLimit);
+            let simResult = await combatSimulator.simulate(simulationTimeLimit);
 
             this.postMessage({ type: "simulation_result", simResult: simResult });
             break;

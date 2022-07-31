@@ -20,6 +20,7 @@ const ONE_SECOND = 1e9;
 const ONE_HOUR = 60 * 60 * ONE_SECOND;
 
 let buttonStartSimulation = document.getElementById("buttonStartSimulation");
+let progressbar = document.getElementById("simulationProgressBar");
 
 let worker = new Worker(new URL("worker.js", import.meta.url));
 
@@ -36,14 +37,22 @@ buttonStartSimulation.onclick = function () {
         invalidElements.forEach((element) => element.reportValidity());
         return;
     }
+    buttonStartSimulation.disabled = true;
     startSimulation();
 };
 
 worker.onmessage = function (event) {
     switch (event.data.type) {
         case "simulation_result":
+            progressbar.style.width = "100%";
+            progressbar.innerHTML = "100%";
             showSimulationResult(event.data.simResult);
-            printSimResult(event.data.simResult);
+            buttonStartSimulation.disabled = false;
+            break;
+        case "simulation_progress":
+            let progress = Math.floor(100 * event.data.progress);
+            progressbar.style.width = progress + "%";
+            progressbar.innerHTML = progress + "%";
             break;
     }
 };
@@ -949,44 +958,6 @@ function createElement(tagName, className, innerHTML = "") {
     element.innerHTML = innerHTML;
 
     return element;
-}
-
-function printSimResult(simResult) {
-    console.log(simResult);
-    return;
-
-    console.log("Simulated hours:", simResult.simulatedTime / (60 * 60 * 1e9));
-
-    console.log("Encounters per hour:", simResult.encounters / (simResult.simulatedTime / (60 * 60 * 1e9)));
-
-    console.log("Deaths per hour:");
-    for (const [key, value] of Object.entries(simResult.deaths)) {
-        console.log(key, value / (simResult.simulatedTime / (60 * 60 * 1e9)));
-    }
-
-    console.log("Experience per hour:");
-    for (const [key, value] of Object.entries(simResult.experienceGained["player"])) {
-        console.log(key, value / (simResult.simulatedTime / (60 * 60 * 1e9)));
-    }
-
-    for (const [source, targets] of Object.entries(simResult.attacks)) {
-        console.log("Attack stats for", source);
-        for (const [target, abilities] of Object.entries(targets)) {
-            console.log("   Against", target);
-            for (const [ability, attacks] of Object.entries(abilities)) {
-                console.log("       ", ability);
-                let misses = attacks["miss"] ?? 0;
-                let attempts = Object.values(attacks).reduce((prev, cur) => prev + cur);
-                console.log("           Casts:", attempts);
-                console.log("           Hitchance:", 1 - misses / attempts);
-                let totalDamage = Object.entries(attacks)
-                    .filter(([key, value]) => key != "miss")
-                    .map(([key, value]) => key * value)
-                    .reduce((prev, cur) => prev + cur);
-                console.log("           Average hit:", totalDamage / (attempts - misses));
-            }
-        }
-    }
 }
 
 // #endregion

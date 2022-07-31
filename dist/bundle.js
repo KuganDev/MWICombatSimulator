@@ -1079,8 +1079,9 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-class CombatSimulator {
+class CombatSimulator extends EventTarget {
     constructor(player, zone) {
+        super();
         this.players = [player];
         this.zone = zone;
 
@@ -1088,15 +1089,26 @@ class CombatSimulator {
         this.simResult = new _simResult__WEBPACK_IMPORTED_MODULE_11__["default"]();
     }
 
-    simulate(simulationTimeLimit) {
+    async simulate(simulationTimeLimit) {
         this.reset();
+
+        let ticks = 0;
 
         let combatStartEvent = new _events_combatStartEvent__WEBPACK_IMPORTED_MODULE_4__["default"](0);
         this.eventQueue.addEvent(combatStartEvent);
 
         while (this.simulationTime < simulationTimeLimit) {
             let nextEvent = this.eventQueue.getNextEvent();
-            this.processEvent(nextEvent);
+            await this.processEvent(nextEvent);
+
+            ticks++;
+            if (ticks == 1000) {
+                ticks = 0;
+                let progressEvent = new CustomEvent("progress", {
+                    detail: Math.min(this.simulationTime / simulationTimeLimit, 1),
+                });
+                this.dispatchEvent(progressEvent);
+            }
         }
 
         this.simResult.simulatedTime = this.simulationTime;
@@ -1110,7 +1122,7 @@ class CombatSimulator {
         this.simResult = new _simResult__WEBPACK_IMPORTED_MODULE_11__["default"]();
     }
 
-    processEvent(event) {
+    async processEvent(event) {
         this.simulationTime = event.time;
 
         // console.log(this.simulationTime / 1e9, event.type, event);
@@ -3130,6 +3142,7 @@ const ONE_SECOND = 1e9;
 const ONE_HOUR = 60 * 60 * ONE_SECOND;
 
 let buttonStartSimulation = document.getElementById("buttonStartSimulation");
+let progressbar = document.getElementById("simulationProgressBar");
 
 let worker = new Worker(new URL(/* worker import */ __webpack_require__.p + __webpack_require__.u("src_worker_js"), __webpack_require__.b));
 
@@ -3146,14 +3159,22 @@ buttonStartSimulation.onclick = function () {
         invalidElements.forEach((element) => element.reportValidity());
         return;
     }
+    buttonStartSimulation.disabled = true;
     startSimulation();
 };
 
 worker.onmessage = function (event) {
     switch (event.data.type) {
         case "simulation_result":
+            progressbar.style.width = "100%";
+            progressbar.innerHTML = "100%";
             showSimulationResult(event.data.simResult);
-            printSimResult(event.data.simResult);
+            buttonStartSimulation.disabled = false;
+            break;
+        case "simulation_progress":
+            let progress = Math.floor(100 * event.data.progress);
+            progressbar.style.width = progress + "%";
+            progressbar.innerHTML = progress + "%";
             break;
     }
 };
@@ -4059,44 +4080,6 @@ function createElement(tagName, className, innerHTML = "") {
     element.innerHTML = innerHTML;
 
     return element;
-}
-
-function printSimResult(simResult) {
-    console.log(simResult);
-    return;
-
-    console.log("Simulated hours:", simResult.simulatedTime / (60 * 60 * 1e9));
-
-    console.log("Encounters per hour:", simResult.encounters / (simResult.simulatedTime / (60 * 60 * 1e9)));
-
-    console.log("Deaths per hour:");
-    for (const [key, value] of Object.entries(simResult.deaths)) {
-        console.log(key, value / (simResult.simulatedTime / (60 * 60 * 1e9)));
-    }
-
-    console.log("Experience per hour:");
-    for (const [key, value] of Object.entries(simResult.experienceGained["player"])) {
-        console.log(key, value / (simResult.simulatedTime / (60 * 60 * 1e9)));
-    }
-
-    for (const [source, targets] of Object.entries(simResult.attacks)) {
-        console.log("Attack stats for", source);
-        for (const [target, abilities] of Object.entries(targets)) {
-            console.log("   Against", target);
-            for (const [ability, attacks] of Object.entries(abilities)) {
-                console.log("       ", ability);
-                let misses = attacks["miss"] ?? 0;
-                let attempts = Object.values(attacks).reduce((prev, cur) => prev + cur);
-                console.log("           Casts:", attempts);
-                console.log("           Hitchance:", 1 - misses / attempts);
-                let totalDamage = Object.entries(attacks)
-                    .filter(([key, value]) => key != "miss")
-                    .map(([key, value]) => key * value)
-                    .reduce((prev, cur) => prev + cur);
-                console.log("           Average hit:", totalDamage / (attempts - misses));
-            }
-        }
-    }
 }
 
 // #endregion

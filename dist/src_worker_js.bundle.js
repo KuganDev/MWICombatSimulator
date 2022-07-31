@@ -158,8 +158,9 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-class CombatSimulator {
+class CombatSimulator extends EventTarget {
     constructor(player, zone) {
+        super();
         this.players = [player];
         this.zone = zone;
 
@@ -167,15 +168,26 @@ class CombatSimulator {
         this.simResult = new _simResult__WEBPACK_IMPORTED_MODULE_11__["default"]();
     }
 
-    simulate(simulationTimeLimit) {
+    async simulate(simulationTimeLimit) {
         this.reset();
+
+        let ticks = 0;
 
         let combatStartEvent = new _events_combatStartEvent__WEBPACK_IMPORTED_MODULE_4__["default"](0);
         this.eventQueue.addEvent(combatStartEvent);
 
         while (this.simulationTime < simulationTimeLimit) {
             let nextEvent = this.eventQueue.getNextEvent();
-            this.processEvent(nextEvent);
+            await this.processEvent(nextEvent);
+
+            ticks++;
+            if (ticks == 1000) {
+                ticks = 0;
+                let progressEvent = new CustomEvent("progress", {
+                    detail: Math.min(this.simulationTime / simulationTimeLimit, 1),
+                });
+                this.dispatchEvent(progressEvent);
+            }
         }
 
         this.simResult.simulatedTime = this.simulationTime;
@@ -189,7 +201,7 @@ class CombatSimulator {
         this.simResult = new _simResult__WEBPACK_IMPORTED_MODULE_11__["default"]();
     }
 
-    processEvent(event) {
+    async processEvent(event) {
         this.simulationTime = event.time;
 
         // console.log(this.simulationTime / 1e9, event.type, event);
@@ -1961,7 +1973,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-onmessage = function (event) {
+onmessage = async function (event) {
     switch (event.data.type) {
         case "start_simulation":
             let player = _combatsimulator_player__WEBPACK_IMPORTED_MODULE_1__["default"].createFromDTO(event.data.player);
@@ -1971,8 +1983,11 @@ onmessage = function (event) {
             let simulationTimeLimit = event.data.simulationTimeLimit;
 
             let combatSimulator = new _combatsimulator_combatSimulator__WEBPACK_IMPORTED_MODULE_0__["default"](player, zone);
+            combatSimulator.addEventListener("progress", (event) => {
+                this.postMessage({ type: "simulation_progress", progress: event.detail});
+            });
 
-            let simResult = combatSimulator.simulate(simulationTimeLimit);
+            let simResult = await combatSimulator.simulate(simulationTimeLimit);
 
             this.postMessage({ type: "simulation_result", simResult: simResult });
             break;

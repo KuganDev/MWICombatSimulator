@@ -11,8 +11,9 @@ import PlayerRespawnEvent from "./events/playerRespawnEvent";
 import RegenTickEvent from "./events/regenTickEvent";
 import SimResult from "./simResult";
 
-class CombatSimulator {
+class CombatSimulator extends EventTarget {
     constructor(player, zone) {
+        super();
         this.players = [player];
         this.zone = zone;
 
@@ -20,15 +21,26 @@ class CombatSimulator {
         this.simResult = new SimResult();
     }
 
-    simulate(simulationTimeLimit) {
+    async simulate(simulationTimeLimit) {
         this.reset();
+
+        let ticks = 0;
 
         let combatStartEvent = new CombatStartEvent(0);
         this.eventQueue.addEvent(combatStartEvent);
 
         while (this.simulationTime < simulationTimeLimit) {
             let nextEvent = this.eventQueue.getNextEvent();
-            this.processEvent(nextEvent);
+            await this.processEvent(nextEvent);
+
+            ticks++;
+            if (ticks == 1000) {
+                ticks = 0;
+                let progressEvent = new CustomEvent("progress", {
+                    detail: Math.min(this.simulationTime / simulationTimeLimit, 1),
+                });
+                this.dispatchEvent(progressEvent);
+            }
         }
 
         this.simResult.simulatedTime = this.simulationTime;
@@ -42,7 +54,7 @@ class CombatSimulator {
         this.simResult = new SimResult();
     }
 
-    processEvent(event) {
+    async processEvent(event) {
         this.simulationTime = event.time;
 
         // console.log(this.simulationTime / 1e9, event.type, event);
