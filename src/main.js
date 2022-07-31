@@ -825,7 +825,7 @@ function showDamageDone(simResult) {
 
     let secondsSimulated = simResult.simulatedTime / ONE_SECOND;
 
-    for (let i = 1; i < 5; i++) {
+    for (let i = 1; i < 6; i++) {
         let accordion = document.getElementById("simulationResultDamageDoneAccordionEnemy" + i);
         hideElement(accordion);
     }
@@ -883,7 +883,7 @@ function showDamageTaken(simResult) {
 
     let secondsSimulated = simResult.simulatedTime / ONE_SECOND;
 
-    for (let i = 1; i < 5; i++) {
+    for (let i = 1; i < 6; i++) {
         let accordion = document.getElementById("simulationResultDamageTakenAccordionEnemy" + i);
         hideElement(accordion);
     }
