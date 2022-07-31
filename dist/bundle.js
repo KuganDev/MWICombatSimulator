@@ -1520,7 +1520,7 @@ class CombatSimulator extends EventTarget {
                             break;
                     }
 
-                    for (const target of targets.filter((unit) => unit.combatStats.currentHitpoints > 0)) {
+                    for (const target of targets.filter((unit) => unit && unit.combatStats.currentHitpoints > 0)) {
                         let { damageDone, damagePrevented, maxDamage, didHit } = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].processAttack(
                             source,
                             target,
