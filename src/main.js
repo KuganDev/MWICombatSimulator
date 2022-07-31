@@ -31,15 +31,7 @@ let abilities = [null, null, null, null];
 let triggerMap = {};
 let modalTriggers = [];
 
-buttonStartSimulation.onclick = function () {
-    let invalidElements = document.querySelectorAll(":invalid");
-    if (invalidElements.length > 0) {
-        invalidElements.forEach((element) => element.reportValidity());
-        return;
-    }
-    buttonStartSimulation.disabled = true;
-    startSimulation();
-};
+// #region Worker
 
 worker.onmessage = function (event) {
     switch (event.data.type) {
@@ -54,8 +46,13 @@ worker.onmessage = function (event) {
             progressbar.style.width = progress + "%";
             progressbar.innerHTML = progress + "%";
             break;
+        case "simulation_error":
+            showErrorModal(event.data.error.toString());
+            break;
     }
 };
+
+// #endregion
 
 // #region Equipment
 
@@ -152,6 +149,52 @@ function enhancementLevelInputHandler(event, type) {
     let equipment = new Equipment(player.equipment[equipmentType].hrid, Number(event.target.value));
     player.equipment[equipmentType] = equipment;
     updatePlayerStats();
+}
+
+// #endregion
+
+// #region Combat Stats
+
+function updatePlayerStats() {
+    player.updateCombatStats();
+
+    [
+        "maxHitpoints",
+        "maxManapoints",
+        "stabAccuracyRating",
+        "stabMaxDamage",
+        "slashAccuracyRating",
+        "slashMaxDamage",
+        "smashAccuracyRating",
+        "smashMaxDamage",
+        "stabEvasionRating",
+        "slashEvasionRating",
+        "smashEvasionRating",
+        "armor",
+    ].forEach((stat) => {
+        let element = document.getElementById("combatStat_" + stat);
+        element.innerHTML = Math.floor(player.combatStats[stat]);
+    });
+
+    let combatStyleElement = document.getElementById("combatStat_combatStyleHrid");
+    let combatStyle = player.combatStats.combatStyleHrid;
+    combatStyleElement.innerHTML = combatStyle.charAt(0).toUpperCase() + combatStyle.slice(1);
+
+    let attackIntervalElement = document.getElementById("combatStat_attackInterval");
+    attackIntervalElement.innerHTML = (player.combatStats.attackInterval / 1e9).toLocaleString() + "s";
+
+    ["lifeSteal", "HPRegen", "MPRegen"].forEach((stat) => {
+        let element = document.getElementById("combatStat_" + stat);
+        let value = (100 * player.combatStats[stat]).toLocaleString([], {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 2,
+        });
+        element.innerHTML = value + "%";
+    });
+
+    updateAvailableFoodSlots();
+    updateAvailableDrinkSlots();
+    updateAvailableAbilitySlots();
 }
 
 // #endregion
@@ -962,6 +1005,18 @@ function createElement(tagName, className, innerHTML = "") {
 
 // #endregion
 
+// #region Simulation Controls
+
+buttonStartSimulation.onclick = function () {
+    let invalidElements = document.querySelectorAll(":invalid");
+    if (invalidElements.length > 0) {
+        invalidElements.forEach((element) => element.reportValidity());
+        return;
+    }
+    buttonStartSimulation.disabled = true;
+    startSimulation();
+};
+
 function startSimulation() {
     for (let i = 0; i < 3; i++) {
         if (food[i] && i < player.combatStats.foodSlots) {
@@ -1004,47 +1059,51 @@ function startSimulation() {
     worker.postMessage(workerMessage);
 }
 
-function updatePlayerStats() {
-    player.updateCombatStats();
+// #endregion
 
-    [
-        "maxHitpoints",
-        "maxManapoints",
-        "stabAccuracyRating",
-        "stabMaxDamage",
-        "slashAccuracyRating",
-        "slashMaxDamage",
-        "smashAccuracyRating",
-        "smashMaxDamage",
-        "stabEvasionRating",
-        "slashEvasionRating",
-        "smashEvasionRating",
-        "armor",
-    ].forEach((stat) => {
-        let element = document.getElementById("combatStat_" + stat);
-        element.innerHTML = Math.floor(player.combatStats[stat]);
+// #region Error Handling
+
+function initErrorHandling() {
+    window.addEventListener("error", (event) => {
+        showErrorModal(event.message);
     });
 
-    let combatStyleElement = document.getElementById("combatStat_combatStyleHrid");
-    let combatStyle = player.combatStats.combatStyleHrid;
-    combatStyleElement.innerHTML = combatStyle.charAt(0).toUpperCase() + combatStyle.slice(1);
-
-    let attackIntervalElement = document.getElementById("combatStat_attackInterval");
-    attackIntervalElement.innerHTML = (player.combatStats.attackInterval / 1e9).toLocaleString() + "s";
-
-    ["lifeSteal", "HPRegen", "MPRegen"].forEach((stat) => {
-        let element = document.getElementById("combatStat_" + stat);
-        let value = (100 * player.combatStats[stat]).toLocaleString([], {
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 2,
-        });
-        element.innerHTML = value + "%";
+    let copyErrorButton = document.getElementById("buttonCopyError");
+    copyErrorButton.addEventListener("click", (event) => {
+        let errorInput = document.getElementById("inputError");
+        navigator.clipboard.writeText(errorInput.value);
     });
-
-    updateAvailableFoodSlots();
-    updateAvailableDrinkSlots();
-    updateAvailableAbilitySlots();
 }
+
+function showErrorModal(error) {
+    let zoneSelect = document.getElementById("selectZone");
+    let simulationTimeInput = document.getElementById("inputSimulationTime");
+
+    let state = {
+        error: error,
+        player: player,
+        food: food,
+        drinks: drinks,
+        abilities: abilities,
+        triggerMap: triggerMap,
+        modalTriggers: modalTriggers,
+        zone: zoneSelect.value,
+        simulationTime: simulationTimeInput.value,
+    };
+
+    for (let i = 0; i < 4; i++) {
+        let abilityLevelInput = document.getElementById("inputAbilityLevel_" + i);
+        state["abilityLevel" + i] = abilityLevelInput.value;
+    }
+
+    let errorInput = document.getElementById("inputError");
+    errorInput.value = JSON.stringify(state);
+
+    let errorModal = new bootstrap.Modal(document.getElementById("errorModal"));
+    errorModal.show();
+}
+
+// #endregion
 
 updatePlayerStats();
 
@@ -1055,3 +1114,4 @@ initDrinksSection();
 initAbilitiesSection();
 initZones();
 initTriggerModal();
+initErrorHandling();
