@@ -3131,7 +3131,8 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const ONE_HOUR = 60 * 60 * 1e9;
+const ONE_SECOND = 1e9;
+const ONE_HOUR = 60 * 60 * ONE_SECOND;
 
 let buttonStartSimulation = document.getElementById("buttonStartSimulation");
 
@@ -3688,6 +3689,7 @@ function showSimulationResult(simResult) {
     showDeaths(simResult);
     showExperienceGained(simResult);
     showConsumablesUsed(simResult);
+    showHitpointsGained(simResult);
 }
 
 function showKills(simResult) {
@@ -3769,6 +3771,57 @@ function showConsumablesUsed(simResult) {
             [_combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_5__[consumable].name, consumablesPerHour]
         );
         newChildren.push(consumableRow);
+    }
+
+    resultDiv.replaceChildren(...newChildren);
+}
+
+function showHitpointsGained(simResult) {
+    let resultDiv = document.getElementById("simulationResultHealthRestored");
+    let newChildren = [];
+
+    let secondsSimulated = simResult.simulatedTime / ONE_SECOND;
+
+    if (!simResult.hitpointsGained["player"]) {
+        resultDiv.replaceChildren(...newChildren);
+        return;
+    }
+
+    let hitpointsGained = Object.entries(simResult.hitpointsGained["player"]).sort((a, b) => b[1] - a[1]);
+
+    let totalHitpointsGained = hitpointsGained.reduce((prev, cur) => prev + cur[1], 0);
+    let totalHitpointsPerSecond = (totalHitpointsGained / secondsSimulated).toFixed(2);
+    let totalRow = createRow(
+        ["col-md-6", "col-md-3 text-end", "col-md-3 text-end"],
+        ["Total", totalHitpointsPerSecond, "100%"]
+    );
+    newChildren.push(totalRow);
+
+    for (const [source, amount] of hitpointsGained) {
+        if (amount == 0) {
+            continue;
+        }
+
+        let sourceText;
+        switch (source) {
+            case "regen":
+                sourceText = "Regen";
+                break;
+            case "lifesteal":
+                sourceText = "Life Steal";
+                break;
+            default:
+                sourceText = _combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_5__[source].name;
+                break;
+        }
+        let hitpointsPerSecond = (amount / secondsSimulated).toFixed(2);
+        let percentage = (100 * amount / totalHitpointsGained).toFixed(0);
+
+        let row = createRow(
+            ["col-md-6", "col-md-3 text-end", "col-md-3 text-end"],
+            [sourceText, hitpointsPerSecond, percentage + "%"]
+        );
+        newChildren.push(row);
     }
 
     resultDiv.replaceChildren(...newChildren);
