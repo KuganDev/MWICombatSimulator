@@ -4129,15 +4129,17 @@ function createElement(tagName, className, innerHTML = "") {
 
 // #region Simulation Controls
 
-buttonStartSimulation.onclick = function () {
-    let invalidElements = document.querySelectorAll(":invalid");
-    if (invalidElements.length > 0) {
-        invalidElements.forEach((element) => element.reportValidity());
-        return;
-    }
-    buttonStartSimulation.disabled = true;
-    startSimulation();
-};
+function initSimulationControls() {
+    buttonStartSimulation.addEventListener("click", (event) => {
+        let invalidElements = document.querySelectorAll(":invalid");
+        if (invalidElements.length > 0) {
+            invalidElements.forEach((element) => element.reportValidity());
+            return;
+        }
+        buttonStartSimulation.disabled = true;
+        startSimulation();
+    });
+}
 
 function startSimulation() {
     for (let i = 0; i < 3; i++) {
@@ -4236,6 +4238,7 @@ initDrinksSection();
 initAbilitiesSection();
 initZones();
 initTriggerModal();
+initSimulationControls();
 initErrorHandling();
 
 })();
