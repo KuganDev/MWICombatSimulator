@@ -2770,16 +2770,13 @@ class Trigger {
             case "/combat_trigger_conditions/berserk":
             case "/combat_trigger_conditions/defense_coffee":
             case "/combat_trigger_conditions/frenzy":
-            case "/combat_trigger_conditions/intelligence_coffee":
+            case "/combat_trigger_conditions/intelligence_coffee_max_mp":
+            case "/combat_trigger_conditions/intelligence_coffee_mp_regen":
             case "/combat_trigger_conditions/lucky_coffee":
             case "/combat_trigger_conditions/power_coffee":
             case "/combat_trigger_conditions/precision":
-            case "/combat_trigger_conditions/stamina_coffee":
-            case "/combat_trigger_conditions/super_attack_coffee":
-            case "/combat_trigger_conditions/super_defense_coffee":
-            case "/combat_trigger_conditions/super_intelligence_coffee":
-            case "/combat_trigger_conditions/super_power_coffee":
-            case "/combat_trigger_conditions/super_stamina_coffee":
+            case "/combat_trigger_conditions/stamina_coffee_hp_regen":
+            case "/combat_trigger_conditions/stamina_coffee_max_hp":
             case "/combat_trigger_conditions/swiftness_coffee":
             case "/combat_trigger_conditions/toughness":
             case "/combat_trigger_conditions/vampirism":
