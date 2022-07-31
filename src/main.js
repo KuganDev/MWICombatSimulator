@@ -993,21 +993,28 @@ function printSimResult(simResult) {
 
 function startSimulation() {
     for (let i = 0; i < 3; i++) {
-        if (food[i]) {
+        if (food[i] && i < player.combatStats.foodSlots) {
             let consumable = new Consumable(food[i], triggerMap[food[i]]);
             player.food[i] = consumable;
+        } else {
+            player.food[i] = null;
         }
-        if (drinks[i]) {
+
+        if (drinks[i] && i < player.combatStats.drinkSlots) {
             let consumable = new Consumable(drinks[i], triggerMap[drinks[i]]);
             player.drinks[i] = consumable;
+        } else {
+            player.drinks[i] = null;
         }
     }
 
     for (let i = 0; i < 4; i++) {
-        if (abilities[i]) {
+        if (abilities[i] && player.intelligenceLevel >= abilitySlotsLevelRequirementList[i + 1]) {
             let abilityLevelInput = document.getElementById("inputAbilityLevel_" + i);
             let ability = new Ability(abilities[i], Number(abilityLevelInput.value), triggerMap[abilities[i]]);
             player.abilities[i] = ability;
+        } else {
+            player.abilities[i] = null;
         }
     }
 
