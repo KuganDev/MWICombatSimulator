@@ -3687,6 +3687,7 @@ function showSimulationResult(simResult) {
     showHitpointsGained(simResult);
     showManapointsGained(simResult);
     showDamageDone(simResult);
+    showDamageTaken(simResult);
 }
 
 function showKills(simResult) {
@@ -3878,7 +3879,7 @@ function showManapointsGained(simResult) {
 
 function showDamageDone(simResult) {
     let totalDamageDone = {};
-    let targetIndex = 1;
+    let enemyIndex = 1;
 
     let secondsSimulated = simResult.simulatedTime / ONE_SECOND;
 
@@ -3915,26 +3916,88 @@ function showDamageDone(simResult) {
             }
         }
 
-        let resultDiv = document.getElementById("simulationResultDamageDoneEnemy" + targetIndex);
-        createDamageDoneTable(resultDiv, targetDamageDone, secondsSimulated);
+        let resultDiv = document.getElementById("simulationResultDamageDoneEnemy" + enemyIndex);
+        createDamageTable(resultDiv, targetDamageDone, secondsSimulated);
 
-        let resultAccordion = document.getElementById("simulationResultDamageDoneAccordionEnemy" + targetIndex);
+        let resultAccordion = document.getElementById("simulationResultDamageDoneAccordionEnemy" + enemyIndex);
         showElement(resultAccordion);
 
         let resultAccordionButton = document.getElementById(
-            "buttonSimulationResultDamageDoneAccordionEnemy" + targetIndex
+            "buttonSimulationResultDamageDoneAccordionEnemy" + enemyIndex
         );
         let targetName = _combatsimulator_data_combatMonsterDetailMap_json__WEBPACK_IMPORTED_MODULE_16__[target].name;
         resultAccordionButton.innerHTML = "<b>Damage Done (" + targetName + ")</b>";
 
-        targetIndex++;
+        enemyIndex++;
     }
 
     let totalResultDiv = document.getElementById("simulationResultTotalDamageDone");
-    createDamageDoneTable(totalResultDiv, totalDamageDone, secondsSimulated);
+    createDamageTable(totalResultDiv, totalDamageDone, secondsSimulated);
 }
 
-function createDamageDoneTable(resultDiv, damageDone, secondsSimulated) {
+function showDamageTaken(simResult) {
+    let totalDamageTaken = {};
+    let enemyIndex = 1;
+
+    let secondsSimulated = simResult.simulatedTime / ONE_SECOND;
+
+    for (let i = 1; i < 5; i++) {
+        let accordion = document.getElementById("simulationResultDamageTakenAccordionEnemy" + i);
+        hideElement(accordion);
+    }
+
+    for (const [source, targets] of Object.entries(simResult.attacks)) {
+        if (source == "player") {
+            continue;
+        }
+
+        let sourceDamageTaken = {};
+
+        for (const [ability, abilityCasts] of Object.entries(targets["player"])) {
+            let casts = Object.values(abilityCasts).reduce((prev, cur) => prev + cur, 0);
+            let misses = abilityCasts["miss"] ?? 0;
+            let damage = Object.entries(abilityCasts)
+                .filter((entry) => entry[0] != "miss")
+                .reduce((prev, cur) => prev + Number(cur[0]) * cur[1], 0);
+
+            sourceDamageTaken[ability] = {
+                casts,
+                misses,
+                damage,
+            };
+            if (totalDamageTaken[ability]) {
+                totalDamageTaken[ability].casts += casts;
+                totalDamageTaken[ability].misses += misses;
+                totalDamageTaken[ability].damage += damage;
+            } else {
+                totalDamageTaken[ability] = {
+                    casts,
+                    misses,
+                    damage,
+                };
+            }
+        }
+
+        let resultDiv = document.getElementById("simulationResultDamageTakenEnemy" + enemyIndex);
+        createDamageTable(resultDiv, sourceDamageTaken, secondsSimulated);
+
+        let resultAccordion = document.getElementById("simulationResultDamageTakenAccordionEnemy" + enemyIndex);
+        showElement(resultAccordion);
+
+        let resultAccordionButton = document.getElementById(
+            "buttonSimulationResultDamageTakenAccordionEnemy" + enemyIndex
+        );
+        let sourceName = _combatsimulator_data_combatMonsterDetailMap_json__WEBPACK_IMPORTED_MODULE_16__[source].name;
+        resultAccordionButton.innerHTML = "<b>Damage Done (" + sourceName + ")</b>";
+
+        enemyIndex++;
+    }
+
+    let totalResultDiv = document.getElementById("simulationResultTotalDamageTaken");
+    createDamageTable(totalResultDiv, totalDamageTaken, secondsSimulated);
+}
+
+function createDamageTable(resultDiv, damageDone, secondsSimulated) {
     let newChildren = [];
 
     let sortedDamageDone = Object.entries(damageDone).sort((a, b) => b[1].damage - a[1].damage);
