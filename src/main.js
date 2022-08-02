@@ -128,6 +128,9 @@ function equipmentSelectHandler(event, type) {
         document.getElementById("selectEquipment_weapon").value = "";
         document.getElementById("inputEquipmentEnhancementLevel_weapon").value = 0;
     }
+    if (type == "main_hand") {
+        player.equipment["/equipment_types/two_hand"] = null;
+    }
 
     let selectType = type;
     if (type == "main_hand" || type == "two_hand") {
