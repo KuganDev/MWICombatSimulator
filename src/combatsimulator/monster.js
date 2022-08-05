@@ -8,11 +8,17 @@ class Monster extends CombatUnit {
 
         this.isPlayer = false;
         this.hrid = hrid;
+
+        let gameMonster = combatMonsterDetailMap[this.hrid];
+        console.assert(gameMonster, "No monster found for hrid:" + this.hrid);
+
+        for (let i = 0; i < gameMonster.abilities.length; i++) {
+            this.abilities[i] = new Ability(gameMonster.abilities[i].abilityHrid, gameMonster.abilities[i].level);
+        }
     }
 
     updateCombatStats() {
         let gameMonster = combatMonsterDetailMap[this.hrid];
-        console.assert(gameMonster, "No monster found for hrid:" + this.hrid);
 
         this.staminaLevel = gameMonster.combatDetails.staminaLevel;
         this.intelligenceLevel = gameMonster.combatDetails.intelligenceLevel;
@@ -25,10 +31,6 @@ class Monster extends CombatUnit {
 
         for (const [key, value] of Object.entries(gameMonster.combatDetails.combatStats)) {
             this.combatStats[key] = value;
-        }
-
-        for (let i = 0; i < gameMonster.abilities.length; i++) {
-            this.abilities[i] = new Ability(gameMonster.abilities[i].abilityHrid, gameMonster.abilities[i].level);
         }
 
         super.updateCombatStats();

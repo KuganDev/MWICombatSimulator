@@ -1502,11 +1502,17 @@ class Monster extends _combatUnit__WEBPACK_IMPORTED_MODULE_1__["default"] {
 
         this.isPlayer = false;
         this.hrid = hrid;
+
+        let gameMonster = _data_combatMonsterDetailMap_json__WEBPACK_IMPORTED_MODULE_2__[this.hrid];
+        console.assert(gameMonster, "No monster found for hrid:" + this.hrid);
+
+        for (let i = 0; i < gameMonster.abilities.length; i++) {
+            this.abilities[i] = new _ability__WEBPACK_IMPORTED_MODULE_0__["default"](gameMonster.abilities[i].abilityHrid, gameMonster.abilities[i].level);
+        }
     }
 
     updateCombatStats() {
         let gameMonster = _data_combatMonsterDetailMap_json__WEBPACK_IMPORTED_MODULE_2__[this.hrid];
-        console.assert(gameMonster, "No monster found for hrid:" + this.hrid);
 
         this.staminaLevel = gameMonster.combatDetails.staminaLevel;
         this.intelligenceLevel = gameMonster.combatDetails.intelligenceLevel;
@@ -1519,10 +1525,6 @@ class Monster extends _combatUnit__WEBPACK_IMPORTED_MODULE_1__["default"] {
 
         for (const [key, value] of Object.entries(gameMonster.combatDetails.combatStats)) {
             this.combatStats[key] = value;
-        }
-
-        for (let i = 0; i < gameMonster.abilities.length; i++) {
-            this.abilities[i] = new _ability__WEBPACK_IMPORTED_MODULE_0__["default"](gameMonster.abilities[i].abilityHrid, gameMonster.abilities[i].level);
         }
 
         super.updateCombatStats();
