@@ -2,927 +2,6 @@
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
-/***/ "./node_modules/heap-js/dist/heap-js.es5.js":
-/*!**************************************************!*\
-  !*** ./node_modules/heap-js/dist/heap-js.es5.js ***!
-  \**************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "Heap": () => (/* binding */ Heap),
-/* harmony export */   "default": () => (/* binding */ Heap),
-/* harmony export */   "toInt": () => (/* binding */ toInt)
-/* harmony export */ });
-var __generator = ( false) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-var __read = ( false) || function (o, n) {
-    var m = typeof Symbol === "function" && o[Symbol.iterator];
-    if (!m) return o;
-    var i = m.call(o), r, ar = [], e;
-    try {
-        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
-    }
-    catch (error) { e = { error: error }; }
-    finally {
-        try {
-            if (r && !r.done && (m = i["return"])) m.call(i);
-        }
-        finally { if (e) throw e.error; }
-    }
-    return ar;
-};
-var __spreadArray = ( false) || function (to, from, pack) {
-    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
-        if (ar || !(i in from)) {
-            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
-            ar[i] = from[i];
-        }
-    }
-    return to.concat(ar || Array.prototype.slice.call(from));
-};
-var toInt = function (n) { return ~~n; };
-/**
- * Heap
- * @type {Class}
- */
-var Heap = /** @class */ (function () {
-    /**
-     * Heap instance constructor.
-     * @param  {Function} compare Optional comparison function, defaults to Heap.minComparator<number>
-     */
-    function Heap(compare) {
-        if (compare === void 0) { compare = Heap.minComparator; }
-        var _this = this;
-        this.compare = compare;
-        this.heapArray = [];
-        this._limit = 0;
-        /**
-         * Alias of add
-         */
-        this.offer = this.add;
-        /**
-         * Alias of peek
-         */
-        this.element = this.peek;
-        /**
-         * Alias of pop
-         */
-        this.poll = this.pop;
-        /**
-         * Returns the inverse to the comparison function.
-         * @return {Function}
-         */
-        this._invertedCompare = function (a, b) {
-            return -1 * _this.compare(a, b);
-        };
-    }
-    /*
-              Static methods
-     */
-    /**
-     * Gets children indices for given index.
-     * @param  {Number} idx     Parent index
-     * @return {Array(Number)}  Array of children indices
-     */
-    Heap.getChildrenIndexOf = function (idx) {
-        return [idx * 2 + 1, idx * 2 + 2];
-    };
-    /**
-     * Gets parent index for given index.
-     * @param  {Number} idx  Children index
-     * @return {Number | undefined}      Parent index, -1 if idx is 0
-     */
-    Heap.getParentIndexOf = function (idx) {
-        if (idx <= 0) {
-            return -1;
-        }
-        var whichChildren = idx % 2 ? 1 : 2;
-        return Math.floor((idx - whichChildren) / 2);
-    };
-    /**
-     * Gets sibling index for given index.
-     * @param  {Number} idx  Children index
-     * @return {Number | undefined}      Sibling index, -1 if idx is 0
-     */
-    Heap.getSiblingIndexOf = function (idx) {
-        if (idx <= 0) {
-            return -1;
-        }
-        var whichChildren = idx % 2 ? 1 : -1;
-        return idx + whichChildren;
-    };
-    /**
-     * Min heap comparison function, default.
-     * @param  {any} a     First element
-     * @param  {any} b     Second element
-     * @return {Number}    0 if they're equal, positive if `a` goes up, negative if `b` goes up
-     */
-    Heap.minComparator = function (a, b) {
-        if (a > b) {
-            return 1;
-        }
-        else if (a < b) {
-            return -1;
-        }
-        else {
-            return 0;
-        }
-    };
-    /**
-     * Max heap comparison function.
-     * @param  {any} a     First element
-     * @param  {any} b     Second element
-     * @return {Number}    0 if they're equal, positive if `a` goes up, negative if `b` goes up
-     */
-    Heap.maxComparator = function (a, b) {
-        if (b > a) {
-            return 1;
-        }
-        else if (b < a) {
-            return -1;
-        }
-        else {
-            return 0;
-        }
-    };
-    /**
-     * Min number heap comparison function, default.
-     * @param  {Number} a     First element
-     * @param  {Number} b     Second element
-     * @return {Number}    0 if they're equal, positive if `a` goes up, negative if `b` goes up
-     */
-    Heap.minComparatorNumber = function (a, b) {
-        return a - b;
-    };
-    /**
-     * Max number heap comparison function.
-     * @param  {Number} a     First element
-     * @param  {Number} b     Second element
-     * @return {Number}    0 if they're equal, positive if `a` goes up, negative if `b` goes up
-     */
-    Heap.maxComparatorNumber = function (a, b) {
-        return b - a;
-    };
-    /**
-     * Default equality function.
-     * @param  {any} a    First element
-     * @param  {any} b    Second element
-     * @return {Boolean}  True if equal, false otherwise
-     */
-    Heap.defaultIsEqual = function (a, b) {
-        return a === b;
-    };
-    /**
-     * Prints a heap.
-     * @param  {Heap} heap Heap to be printed
-     * @returns {String}
-     */
-    Heap.print = function (heap) {
-        function deep(i) {
-            var pi = Heap.getParentIndexOf(i);
-            return Math.floor(Math.log2(pi + 1));
-        }
-        function repeat(str, times) {
-            var out = '';
-            for (; times > 0; --times) {
-                out += str;
-            }
-            return out;
-        }
-        var node = 0;
-        var lines = [];
-        var maxLines = deep(heap.length - 1) + 2;
-        var maxLength = 0;
-        while (node < heap.length) {
-            var i = deep(node) + 1;
-            if (node === 0) {
-                i = 0;
-            }
-            // Text representation
-            var nodeText = String(heap.get(node));
-            if (nodeText.length > maxLength) {
-                maxLength = nodeText.length;
-            }
-            // Add to line
-            lines[i] = lines[i] || [];
-            lines[i].push(nodeText);
-            node += 1;
-        }
-        return lines
-            .map(function (line, i) {
-            var times = Math.pow(2, maxLines - i) - 1;
-            return (repeat(' ', Math.floor(times / 2) * maxLength) +
-                line
-                    .map(function (el) {
-                    // centered
-                    var half = (maxLength - el.length) / 2;
-                    return repeat(' ', Math.ceil(half)) + el + repeat(' ', Math.floor(half));
-                })
-                    .join(repeat(' ', times * maxLength)));
-        })
-            .join('\n');
-    };
-    /*
-              Python style
-     */
-    /**
-     * Converts an array into an array-heap, in place
-     * @param  {Array}    arr      Array to be modified
-     * @param  {Function} compare  Optional compare function
-     * @return {Heap}              For convenience, it returns a Heap instance
-     */
-    Heap.heapify = function (arr, compare) {
-        var heap = new Heap(compare);
-        heap.heapArray = arr;
-        heap.init();
-        return heap;
-    };
-    /**
-     * Extract the peek of an array-heap
-     * @param  {Array}    heapArr  Array to be modified, should be a heap
-     * @param  {Function} compare  Optional compare function
-     * @return {any}               Returns the extracted peek
-     */
-    Heap.heappop = function (heapArr, compare) {
-        var heap = new Heap(compare);
-        heap.heapArray = heapArr;
-        return heap.pop();
-    };
-    /**
-     * Pushes a item into an array-heap
-     * @param  {Array}    heapArr  Array to be modified, should be a heap
-     * @param  {any}      item     Item to push
-     * @param  {Function} compare  Optional compare function
-     */
-    Heap.heappush = function (heapArr, item, compare) {
-        var heap = new Heap(compare);
-        heap.heapArray = heapArr;
-        heap.push(item);
-    };
-    /**
-     * Push followed by pop, faster
-     * @param  {Array}    heapArr  Array to be modified, should be a heap
-     * @param  {any}      item     Item to push
-     * @param  {Function} compare  Optional compare function
-     * @return {any}               Returns the extracted peek
-     */
-    Heap.heappushpop = function (heapArr, item, compare) {
-        var heap = new Heap(compare);
-        heap.heapArray = heapArr;
-        return heap.pushpop(item);
-    };
-    /**
-     * Replace peek with item
-     * @param  {Array}    heapArr  Array to be modified, should be a heap
-     * @param  {any}      item     Item as replacement
-     * @param  {Function} compare  Optional compare function
-     * @return {any}               Returns the extracted peek
-     */
-    Heap.heapreplace = function (heapArr, item, compare) {
-        var heap = new Heap(compare);
-        heap.heapArray = heapArr;
-        return heap.replace(item);
-    };
-    /**
-     * Return the `n` most valuable elements of a heap-like Array
-     * @param  {Array}    heapArr  Array, should be an array-heap
-     * @param  {number}   n        Max number of elements
-     * @param  {Function} compare  Optional compare function
-     * @return {any}               Elements
-     */
-    Heap.heaptop = function (heapArr, n, compare) {
-        if (n === void 0) { n = 1; }
-        var heap = new Heap(compare);
-        heap.heapArray = heapArr;
-        return heap.top(n);
-    };
-    /**
-     * Return the `n` least valuable elements of a heap-like Array
-     * @param  {Array}    heapArr  Array, should be an array-heap
-     * @param  {number}   n        Max number of elements
-     * @param  {Function} compare  Optional compare function
-     * @return {any}               Elements
-     */
-    Heap.heapbottom = function (heapArr, n, compare) {
-        if (n === void 0) { n = 1; }
-        var heap = new Heap(compare);
-        heap.heapArray = heapArr;
-        return heap.bottom(n);
-    };
-    /**
-     * Return the `n` most valuable elements of an iterable
-     * @param  {number}   n        Max number of elements
-     * @param  {Iterable} Iterable Iterable list of elements
-     * @param  {Function} compare  Optional compare function
-     * @return {any}               Elements
-     */
-    Heap.nlargest = function (n, iterable, compare) {
-        var heap = new Heap(compare);
-        heap.heapArray = __spreadArray([], __read(iterable), false);
-        heap.init();
-        return heap.top(n);
-    };
-    /**
-     * Return the `n` least valuable elements of an iterable
-     * @param  {number}   n        Max number of elements
-     * @param  {Iterable} Iterable Iterable list of elements
-     * @param  {Function} compare  Optional compare function
-     * @return {any}               Elements
-     */
-    Heap.nsmallest = function (n, iterable, compare) {
-        var heap = new Heap(compare);
-        heap.heapArray = __spreadArray([], __read(iterable), false);
-        heap.init();
-        return heap.bottom(n);
-    };
-    /*
-              Instance methods
-     */
-    /**
-     * Adds an element to the heap. Aliases: `offer`.
-     * Same as: push(element)
-     * @param {any} element Element to be added
-     * @return {Boolean} true
-     */
-    Heap.prototype.add = function (element) {
-        this._sortNodeUp(this.heapArray.push(element) - 1);
-        this._applyLimit();
-        return true;
-    };
-    /**
-     * Adds an array of elements to the heap.
-     * Similar as: push(element, element, ...).
-     * @param {Array} elements Elements to be added
-     * @return {Boolean} true
-     */
-    Heap.prototype.addAll = function (elements) {
-        var _a;
-        var i = this.length;
-        (_a = this.heapArray).push.apply(_a, __spreadArray([], __read(elements), false));
-        for (var l = this.length; i < l; ++i) {
-            this._sortNodeUp(i);
-        }
-        this._applyLimit();
-        return true;
-    };
-    /**
-     * Return the bottom (lowest value) N elements of the heap.
-     *
-     * @param  {Number} n  Number of elements.
-     * @return {Array}     Array of length <= N.
-     */
-    Heap.prototype.bottom = function (n) {
-        if (n === void 0) { n = 1; }
-        if (this.heapArray.length === 0 || n <= 0) {
-            // Nothing to do
-            return [];
-        }
-        else if (this.heapArray.length === 1) {
-            // Just the peek
-            return [this.heapArray[0]];
-        }
-        else if (n >= this.heapArray.length) {
-            // The whole heap
-            return __spreadArray([], __read(this.heapArray), false);
-        }
-        else {
-            // Some elements
-            var result = this._bottomN_push(~~n);
-            return result;
-        }
-    };
-    /**
-     * Check if the heap is sorted, useful for testing purposes.
-     * @return {Undefined | Element}  Returns an element if something wrong is found, otherwise it's undefined
-     */
-    Heap.prototype.check = function () {
-        var _this = this;
-        return this.heapArray.find(function (el, j) { return !!_this.getChildrenOf(j).find(function (ch) { return _this.compare(el, ch) > 0; }); });
-    };
-    /**
-     * Remove all of the elements from this heap.
-     */
-    Heap.prototype.clear = function () {
-        this.heapArray = [];
-    };
-    /**
-     * Clone this heap
-     * @return {Heap}
-     */
-    Heap.prototype.clone = function () {
-        var cloned = new Heap(this.comparator());
-        cloned.heapArray = this.toArray();
-        cloned._limit = this._limit;
-        return cloned;
-    };
-    /**
-     * Returns the comparison function.
-     * @return {Function}
-     */
-    Heap.prototype.comparator = function () {
-        return this.compare;
-    };
-    /**
-     * Returns true if this queue contains the specified element.
-     * @param  {any}      o   Element to be found
-     * @param  {Function} fn  Optional comparison function, receives (element, needle)
-     * @return {Boolean}
-     */
-    Heap.prototype.contains = function (o, fn) {
-        if (fn === void 0) { fn = Heap.defaultIsEqual; }
-        return this.heapArray.findIndex(function (el) { return fn(el, o); }) >= 0;
-    };
-    /**
-     * Initialise a heap, sorting nodes
-     * @param  {Array} array Optional initial state array
-     */
-    Heap.prototype.init = function (array) {
-        if (array) {
-            this.heapArray = __spreadArray([], __read(array), false);
-        }
-        for (var i = Math.floor(this.heapArray.length); i >= 0; --i) {
-            this._sortNodeDown(i);
-        }
-        this._applyLimit();
-    };
-    /**
-     * Test if the heap has no elements.
-     * @return {Boolean} True if no elements on the heap
-     */
-    Heap.prototype.isEmpty = function () {
-        return this.length === 0;
-    };
-    /**
-     * Get the leafs of the tree (no children nodes)
-     */
-    Heap.prototype.leafs = function () {
-        if (this.heapArray.length === 0) {
-            return [];
-        }
-        var pi = Heap.getParentIndexOf(this.heapArray.length - 1);
-        return this.heapArray.slice(pi + 1);
-    };
-    Object.defineProperty(Heap.prototype, "length", {
-        /**
-         * Length of the heap.
-         * @return {Number}
-         */
-        get: function () {
-            return this.heapArray.length;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Heap.prototype, "limit", {
-        /**
-         * Get length limit of the heap.
-         * @return {Number}
-         */
-        get: function () {
-            return this._limit;
-        },
-        /**
-         * Set length limit of the heap.
-         * @return {Number}
-         */
-        set: function (_l) {
-            this._limit = ~~_l;
-            this._applyLimit();
-        },
-        enumerable: false,
-        configurable: true
-    });
-    /**
-     * Top node. Aliases: `element`.
-     * Same as: `top(1)[0]`
-     * @return {any} Top node
-     */
-    Heap.prototype.peek = function () {
-        return this.heapArray[0];
-    };
-    /**
-     * Extract the top node (root). Aliases: `poll`.
-     * @return {any} Extracted top node, undefined if empty
-     */
-    Heap.prototype.pop = function () {
-        var last = this.heapArray.pop();
-        if (this.length > 0 && last !== undefined) {
-            return this.replace(last);
-        }
-        return last;
-    };
-    /**
-     * Pushes element(s) to the heap.
-     * @param  {...any} elements Elements to insert
-     * @return {Boolean} True if elements are present
-     */
-    Heap.prototype.push = function () {
-        var elements = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            elements[_i] = arguments[_i];
-        }
-        if (elements.length < 1) {
-            return false;
-        }
-        else if (elements.length === 1) {
-            return this.add(elements[0]);
-        }
-        else {
-            return this.addAll(elements);
-        }
-    };
-    /**
-     * Same as push & pop in sequence, but faster
-     * @param  {any} element Element to insert
-     * @return {any}  Extracted top node
-     */
-    Heap.prototype.pushpop = function (element) {
-        var _a;
-        if (this.compare(this.heapArray[0], element) < 0) {
-            _a = __read([this.heapArray[0], element], 2), element = _a[0], this.heapArray[0] = _a[1];
-            this._sortNodeDown(0);
-        }
-        return element;
-    };
-    /**
-     * Remove an element from the heap.
-     * @param  {any}   o      Element to be found
-     * @param  {Function} fn  Optional function to compare
-     * @return {Boolean}      True if the heap was modified
-     */
-    Heap.prototype.remove = function (o, fn) {
-        if (fn === void 0) { fn = Heap.defaultIsEqual; }
-        if (this.length > 0) {
-            if (o === undefined) {
-                this.pop();
-                return true;
-            }
-            else {
-                var idx = this.heapArray.findIndex(function (el) { return fn(el, o); });
-                if (idx >= 0) {
-                    if (idx === 0) {
-                        this.pop();
-                    }
-                    else if (idx === this.length - 1) {
-                        this.heapArray.pop();
-                    }
-                    else {
-                        this.heapArray.splice(idx, 1, this.heapArray.pop());
-                        this._sortNodeUp(idx);
-                        this._sortNodeDown(idx);
-                    }
-                    return true;
-                }
-            }
-        }
-        return false;
-    };
-    /**
-     * Pop the current peek value, and add the new item.
-     * @param  {any} element  Element to replace peek
-     * @return {any}         Old peek
-     */
-    Heap.prototype.replace = function (element) {
-        var peek = this.heapArray[0];
-        this.heapArray[0] = element;
-        this._sortNodeDown(0);
-        return peek;
-    };
-    /**
-     * Size of the heap
-     * @return {Number}
-     */
-    Heap.prototype.size = function () {
-        return this.length;
-    };
-    /**
-     * Return the top (highest value) N elements of the heap.
-     *
-     * @param  {Number} n  Number of elements.
-     * @return {Array}    Array of length <= N.
-     */
-    Heap.prototype.top = function (n) {
-        if (n === void 0) { n = 1; }
-        if (this.heapArray.length === 0 || n <= 0) {
-            // Nothing to do
-            return [];
-        }
-        else if (this.heapArray.length === 1 || n === 1) {
-            // Just the peek
-            return [this.heapArray[0]];
-        }
-        else if (n >= this.heapArray.length) {
-            // The whole peek
-            return __spreadArray([], __read(this.heapArray), false);
-        }
-        else {
-            // Some elements
-            var result = this._topN_push(~~n);
-            return result;
-        }
-    };
-    /**
-     * Clone the heap's internal array
-     * @return {Array}
-     */
-    Heap.prototype.toArray = function () {
-        return __spreadArray([], __read(this.heapArray), false);
-    };
-    /**
-     * String output, call to Array.prototype.toString()
-     * @return {String}
-     */
-    Heap.prototype.toString = function () {
-        return this.heapArray.toString();
-    };
-    /**
-     * Get the element at the given index.
-     * @param  {Number} i Index to get
-     * @return {any}       Element at that index
-     */
-    Heap.prototype.get = function (i) {
-        return this.heapArray[i];
-    };
-    /**
-     * Get the elements of these node's children
-     * @param  {Number} idx Node index
-     * @return {Array(any)}  Children elements
-     */
-    Heap.prototype.getChildrenOf = function (idx) {
-        var _this = this;
-        return Heap.getChildrenIndexOf(idx)
-            .map(function (i) { return _this.heapArray[i]; })
-            .filter(function (e) { return e !== undefined; });
-    };
-    /**
-     * Get the element of this node's parent
-     * @param  {Number} idx Node index
-     * @return {any}     Parent element
-     */
-    Heap.prototype.getParentOf = function (idx) {
-        var pi = Heap.getParentIndexOf(idx);
-        return this.heapArray[pi];
-    };
-    /**
-     * Iterator interface
-     */
-    Heap.prototype[Symbol.iterator] = function () {
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    if (!this.length) return [3 /*break*/, 2];
-                    return [4 /*yield*/, this.pop()];
-                case 1:
-                    _a.sent();
-                    return [3 /*break*/, 0];
-                case 2: return [2 /*return*/];
-            }
-        });
-    };
-    /**
-     * Returns an iterator. To comply with Java interface.
-     */
-    Heap.prototype.iterator = function () {
-        return this.toArray();
-    };
-    /**
-     * Limit heap size if needed
-     */
-    Heap.prototype._applyLimit = function () {
-        if (this._limit && this._limit < this.heapArray.length) {
-            var rm = this.heapArray.length - this._limit;
-            // It's much faster than splice
-            while (rm) {
-                this.heapArray.pop();
-                --rm;
-            }
-        }
-    };
-    /**
-     * Return the bottom (lowest value) N elements of the heap, without corner cases, unsorted
-     *
-     * @param  {Number} n  Number of elements.
-     * @return {Array}     Array of length <= N.
-     */
-    Heap.prototype._bottomN_push = function (n) {
-        // Use an inverted heap
-        var bottomHeap = new Heap(this.compare);
-        bottomHeap.limit = n;
-        bottomHeap.heapArray = this.heapArray.slice(-n);
-        bottomHeap.init();
-        var startAt = this.heapArray.length - 1 - n;
-        var parentStartAt = Heap.getParentIndexOf(startAt);
-        var indices = [];
-        for (var i = startAt; i > parentStartAt; --i) {
-            indices.push(i);
-        }
-        var arr = this.heapArray;
-        while (indices.length) {
-            var i = indices.shift();
-            if (this.compare(arr[i], bottomHeap.peek()) > 0) {
-                bottomHeap.replace(arr[i]);
-                if (i % 2) {
-                    indices.push(Heap.getParentIndexOf(i));
-                }
-            }
-        }
-        return bottomHeap.toArray();
-    };
-    /**
-     * Move a node to a new index, switching places
-     * @param  {Number} j First node index
-     * @param  {Number} k Another node index
-     */
-    Heap.prototype._moveNode = function (j, k) {
-        var _a;
-        _a = __read([this.heapArray[k], this.heapArray[j]], 2), this.heapArray[j] = _a[0], this.heapArray[k] = _a[1];
-    };
-    /**
-     * Move a node down the tree (to the leaves) to find a place where the heap is sorted.
-     * @param  {Number} i Index of the node
-     */
-    Heap.prototype._sortNodeDown = function (i) {
-        var _this = this;
-        var moveIt = i < this.heapArray.length - 1;
-        var self = this.heapArray[i];
-        var getPotentialParent = function (best, j) {
-            if (_this.heapArray.length > j && _this.compare(_this.heapArray[j], _this.heapArray[best]) < 0) {
-                best = j;
-            }
-            return best;
-        };
-        while (moveIt) {
-            var childrenIdx = Heap.getChildrenIndexOf(i);
-            var bestChildIndex = childrenIdx.reduce(getPotentialParent, childrenIdx[0]);
-            var bestChild = this.heapArray[bestChildIndex];
-            if (typeof bestChild !== 'undefined' && this.compare(self, bestChild) > 0) {
-                this._moveNode(i, bestChildIndex);
-                i = bestChildIndex;
-            }
-            else {
-                moveIt = false;
-            }
-        }
-    };
-    /**
-     * Move a node up the tree (to the root) to find a place where the heap is sorted.
-     * @param  {Number} i Index of the node
-     */
-    Heap.prototype._sortNodeUp = function (i) {
-        var moveIt = i > 0;
-        while (moveIt) {
-            var pi = Heap.getParentIndexOf(i);
-            if (pi >= 0 && this.compare(this.heapArray[pi], this.heapArray[i]) > 0) {
-                this._moveNode(i, pi);
-                i = pi;
-            }
-            else {
-                moveIt = false;
-            }
-        }
-    };
-    /**
-     * Return the top (highest value) N elements of the heap, without corner cases, unsorted
-     * Implementation: push.
-     *
-     * @param  {Number} n  Number of elements.
-     * @return {Array}     Array of length <= N.
-     */
-    Heap.prototype._topN_push = function (n) {
-        // Use an inverted heap
-        var topHeap = new Heap(this._invertedCompare);
-        topHeap.limit = n;
-        var indices = [0];
-        var arr = this.heapArray;
-        while (indices.length) {
-            var i = indices.shift();
-            if (i < arr.length) {
-                if (topHeap.length < n) {
-                    topHeap.push(arr[i]);
-                    indices.push.apply(indices, __spreadArray([], __read(Heap.getChildrenIndexOf(i)), false));
-                }
-                else if (this.compare(arr[i], topHeap.peek()) < 0) {
-                    topHeap.replace(arr[i]);
-                    indices.push.apply(indices, __spreadArray([], __read(Heap.getChildrenIndexOf(i)), false));
-                }
-            }
-        }
-        return topHeap.toArray();
-    };
-    /**
-     * Return the top (highest value) N elements of the heap, without corner cases, unsorted
-     * Implementation: init + push.
-     *
-     * @param  {Number} n  Number of elements.
-     * @return {Array}     Array of length <= N.
-     */
-    Heap.prototype._topN_fill = function (n) {
-        // Use an inverted heap
-        var heapArray = this.heapArray;
-        var topHeap = new Heap(this._invertedCompare);
-        topHeap.limit = n;
-        topHeap.heapArray = heapArray.slice(0, n);
-        topHeap.init();
-        var branch = Heap.getParentIndexOf(n - 1) + 1;
-        var indices = [];
-        for (var i = branch; i < n; ++i) {
-            indices.push.apply(indices, __spreadArray([], __read(Heap.getChildrenIndexOf(i).filter(function (l) { return l < heapArray.length; })), false));
-        }
-        if ((n - 1) % 2) {
-            indices.push(n);
-        }
-        while (indices.length) {
-            var i = indices.shift();
-            if (i < heapArray.length) {
-                if (this.compare(heapArray[i], topHeap.peek()) < 0) {
-                    topHeap.replace(heapArray[i]);
-                    indices.push.apply(indices, __spreadArray([], __read(Heap.getChildrenIndexOf(i)), false));
-                }
-            }
-        }
-        return topHeap.toArray();
-    };
-    /**
-     * Return the top (highest value) N elements of the heap, without corner cases, unsorted
-     * Implementation: heap.
-     *
-     * @param  {Number} n  Number of elements.
-     * @return {Array}     Array of length <= N.
-     */
-    Heap.prototype._topN_heap = function (n) {
-        var topHeap = this.clone();
-        var result = [];
-        for (var i = 0; i < n; ++i) {
-            result.push(topHeap.pop());
-        }
-        return result;
-    };
-    /**
-     * Return index of the top element
-     * @param list
-     */
-    Heap.prototype._topIdxOf = function (list) {
-        if (!list.length) {
-            return -1;
-        }
-        var idx = 0;
-        var top = list[idx];
-        for (var i = 1; i < list.length; ++i) {
-            var comp = this.compare(list[i], top);
-            if (comp < 0) {
-                idx = i;
-                top = list[i];
-            }
-        }
-        return idx;
-    };
-    /**
-     * Return the top element
-     * @param list
-     */
-    Heap.prototype._topOf = function () {
-        var list = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            list[_i] = arguments[_i];
-        }
-        var heap = new Heap(this.compare);
-        heap.init(list);
-        return heap.peek();
-    };
-    return Heap;
-}());
-
-
-
-
-/***/ }),
-
 /***/ "./src/combatsimulator/ability.js":
 /*!****************************************!*\
   !*** ./src/combatsimulator/ability.js ***!
@@ -1040,539 +119,6 @@ class Buff {
 }
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Buff);
-
-
-/***/ }),
-
-/***/ "./src/combatsimulator/combatSimulator.js":
-/*!************************************************!*\
-  !*** ./src/combatsimulator/combatSimulator.js ***!
-  \************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-/* harmony import */ var _combatUtilities__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./combatUtilities */ "./src/combatsimulator/combatUtilities.js");
-/* harmony import */ var _events_autoAttackEvent__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./events/autoAttackEvent */ "./src/combatsimulator/events/autoAttackEvent.js");
-/* harmony import */ var _events_bleedTickEvent__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./events/bleedTickEvent */ "./src/combatsimulator/events/bleedTickEvent.js");
-/* harmony import */ var _events_checkBuffExpirationEvent__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./events/checkBuffExpirationEvent */ "./src/combatsimulator/events/checkBuffExpirationEvent.js");
-/* harmony import */ var _events_combatStartEvent__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./events/combatStartEvent */ "./src/combatsimulator/events/combatStartEvent.js");
-/* harmony import */ var _events_consumableTickEvent__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./events/consumableTickEvent */ "./src/combatsimulator/events/consumableTickEvent.js");
-/* harmony import */ var _events_cooldownReadyEvent__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./events/cooldownReadyEvent */ "./src/combatsimulator/events/cooldownReadyEvent.js");
-/* harmony import */ var _events_enemyRespawnEvent__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./events/enemyRespawnEvent */ "./src/combatsimulator/events/enemyRespawnEvent.js");
-/* harmony import */ var _events_eventQueue__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./events/eventQueue */ "./src/combatsimulator/events/eventQueue.js");
-/* harmony import */ var _events_playerRespawnEvent__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./events/playerRespawnEvent */ "./src/combatsimulator/events/playerRespawnEvent.js");
-/* harmony import */ var _events_regenTickEvent__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./events/regenTickEvent */ "./src/combatsimulator/events/regenTickEvent.js");
-/* harmony import */ var _simResult__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./simResult */ "./src/combatsimulator/simResult.js");
-
-
-
-
-
-
-
-
-
-
-
-
-
-class CombatSimulator extends EventTarget {
-    constructor(player, zone) {
-        super();
-        this.players = [player];
-        this.zone = zone;
-
-        this.eventQueue = new _events_eventQueue__WEBPACK_IMPORTED_MODULE_8__["default"]();
-        this.simResult = new _simResult__WEBPACK_IMPORTED_MODULE_11__["default"]();
-    }
-
-    async simulate(simulationTimeLimit) {
-        this.reset();
-
-        let ticks = 0;
-
-        let combatStartEvent = new _events_combatStartEvent__WEBPACK_IMPORTED_MODULE_4__["default"](0);
-        this.eventQueue.addEvent(combatStartEvent);
-
-        while (this.simulationTime < simulationTimeLimit) {
-            let nextEvent = this.eventQueue.getNextEvent();
-            await this.processEvent(nextEvent);
-
-            ticks++;
-            if (ticks == 1000) {
-                ticks = 0;
-                let progressEvent = new CustomEvent("progress", {
-                    detail: Math.min(this.simulationTime / simulationTimeLimit, 1),
-                });
-                this.dispatchEvent(progressEvent);
-            }
-        }
-
-        this.simResult.simulatedTime = this.simulationTime;
-
-        return this.simResult;
-    }
-
-    reset() {
-        this.simulationTime = 0;
-        this.eventQueue.clear();
-        this.simResult = new _simResult__WEBPACK_IMPORTED_MODULE_11__["default"]();
-    }
-
-    async processEvent(event) {
-        this.simulationTime = event.time;
-
-        // console.log(this.simulationTime / 1e9, event.type, event);
-
-        switch (event.type) {
-            case _events_combatStartEvent__WEBPACK_IMPORTED_MODULE_4__["default"].type:
-                this.processCombatStartEvent(event);
-                break;
-            case _events_playerRespawnEvent__WEBPACK_IMPORTED_MODULE_9__["default"].type:
-                this.processPlayerRespawnEvent(event);
-                break;
-            case _events_enemyRespawnEvent__WEBPACK_IMPORTED_MODULE_7__["default"].type:
-                this.processEnemyRespawnEvent(event);
-                break;
-            case _events_autoAttackEvent__WEBPACK_IMPORTED_MODULE_1__["default"].type:
-                this.processAutoAttackEvent(event);
-                break;
-            case _events_consumableTickEvent__WEBPACK_IMPORTED_MODULE_5__["default"].type:
-                this.processConsumableTickEvent(event);
-                break;
-            case _events_bleedTickEvent__WEBPACK_IMPORTED_MODULE_2__["default"].type:
-                this.processBleedTickEvent(event);
-                break;
-            case _events_checkBuffExpirationEvent__WEBPACK_IMPORTED_MODULE_3__["default"].type:
-                this.processCheckBuffExpirationEvent(event);
-                break;
-            case _events_regenTickEvent__WEBPACK_IMPORTED_MODULE_10__["default"].type:
-                this.processRegenTickEvent(event);
-                break;
-            case _events_cooldownReadyEvent__WEBPACK_IMPORTED_MODULE_6__["default"].type:
-                // Only used to check triggers
-                break;
-        }
-
-        this.checkTriggers();
-    }
-
-    processCombatStartEvent(event) {
-        this.players[0].reset(this.simulationTime);
-
-        this.players[0].abilities
-            .filter((ability) => ability != null)
-            .forEach((ability) => {
-                let cooldownReadyEvent = new _events_cooldownReadyEvent__WEBPACK_IMPORTED_MODULE_6__["default"](ability.lastUsed + ability.cooldownDuration);
-                this.eventQueue.addEvent(cooldownReadyEvent);
-            });
-
-        let regenTickEvent = new _events_regenTickEvent__WEBPACK_IMPORTED_MODULE_10__["default"](this.simulationTime + 10 * 1e9, this.players[0]);
-        this.eventQueue.addEvent(regenTickEvent);
-
-        this.startNewEncounter();
-    }
-
-    processPlayerRespawnEvent(event) {
-        this.players[0].combatStats.currentHitpoints = this.players[0].combatStats.maxHitpoints / 2;
-        this.players[0].clearBuffs();
-
-        this.players[0].resetCooldowns(this.simulationTime);
-        this.players[0].abilities
-            .filter((ability) => ability != null)
-            .forEach((ability) => {
-                let cooldownReadyEvent = new _events_cooldownReadyEvent__WEBPACK_IMPORTED_MODULE_6__["default"](ability.lastUsed + ability.cooldownDuration);
-                this.eventQueue.addEvent(cooldownReadyEvent);
-            });
-
-        let regenTickEvent = new _events_regenTickEvent__WEBPACK_IMPORTED_MODULE_10__["default"](this.simulationTime + 10 * 1e9, this.players[0]);
-        this.eventQueue.addEvent(regenTickEvent);
-
-        this.startNewEncounter();
-    }
-
-    processEnemyRespawnEvent(event) {
-        this.startNewEncounter();
-    }
-
-    startNewEncounter() {
-        this.enemies = this.zone.getRandomEncounter();
-
-        this.enemies.forEach((enemy) => {
-            enemy.reset(this.simulationTime);
-            enemy.abilities
-                .filter((ability) => ability != null)
-                .forEach((ability) => {
-                    let cooldownReadyEvent = new _events_cooldownReadyEvent__WEBPACK_IMPORTED_MODULE_6__["default"](ability.lastUsed + ability.cooldownDuration);
-                    this.eventQueue.addEvent(cooldownReadyEvent);
-                });
-            // console.log(enemy.hrid, "spawned");
-        });
-
-        this.addNextAutoAttackEvent(this.players[0]);
-
-        this.enemies.forEach((enemy) => this.addNextAutoAttackEvent(enemy));
-    }
-
-    processAutoAttackEvent(event) {
-        // console.log("source:", event.source.hrid, "target:", event.target.hrid);
-
-        let target;
-        if (event.source.isPlayer) {
-            target = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].getTarget(this.enemies);
-        } else {
-            target = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].getTarget(this.players);
-        }
-
-        let { damageDone, damagePrevented, maxDamage, didHit } = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].processAttack(event.source, target);
-        // console.log("Hit for", damageDone);
-
-        if (event.source.combatStats.lifeSteal > 0) {
-            let lifeStealHeal = Math.floor(damageDone * event.source.combatStats.lifeSteal);
-            let hitpointsAdded = event.source.addHitpoints(lifeStealHeal);
-            this.simResult.addHitpointsGained(event.source, "lifesteal", hitpointsAdded);
-            // console.log("Added hitpoints from life steal:", hitpointsAdded);
-        }
-
-        this.simResult.addAttack(event.source, target, "autoAttack", didHit ? damageDone : "miss");
-
-        let targetStaminaExperience = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].calculateStaminaExperience(damagePrevented, damageDone);
-        let targetDefenseExperience = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].calculateDefenseExperience(damagePrevented);
-        let sourceAttackExperience = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].calculateAttackExperience(damageDone);
-        let sourcePowerExperience = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].calculatePowerExperience(maxDamage);
-
-        this.simResult.addExperienceGain(target, "stamina", targetStaminaExperience);
-        this.simResult.addExperienceGain(target, "defense", targetDefenseExperience);
-        this.simResult.addExperienceGain(event.source, "attack", sourceAttackExperience);
-        this.simResult.addExperienceGain(event.source, "power", sourcePowerExperience);
-
-        if (target.combatStats.currentHitpoints == 0) {
-            this.eventQueue.clearEventsForUnit(target);
-            this.simResult.addDeath(target);
-            // console.log(event.target.hrid, "died");
-        }
-
-        if (!this.checkEncounterEnd()) {
-            this.addNextAutoAttackEvent(event.source);
-        }
-    }
-
-    checkEncounterEnd() {
-        if (this.enemies && !this.enemies.find((enemy) => enemy.combatStats.currentHitpoints > 0)) {
-            this.eventQueue.clearEventsOfType(_events_autoAttackEvent__WEBPACK_IMPORTED_MODULE_1__["default"].type);
-            let enemyRespawnEvent = new _events_enemyRespawnEvent__WEBPACK_IMPORTED_MODULE_7__["default"](this.simulationTime + 3 * 1e9);
-            this.eventQueue.addEvent(enemyRespawnEvent);
-            this.enemies = null;
-
-            this.simResult.addEncounterEnd();
-            // console.log("All enemies died");
-
-            return true;
-        } else if (!this.players.find((player) => player.combatStats.currentHitpoints > 0)) {
-            this.eventQueue.clear();
-            // 120 seconds respawn and 30 seconds traveling to battle
-            let playerRespawnEvent = new _events_playerRespawnEvent__WEBPACK_IMPORTED_MODULE_9__["default"](this.simulationTime + 150 * 1e9);
-            this.eventQueue.addEvent(playerRespawnEvent);
-            this.enemies = null;
-
-            this.simResult.addEncounterEnd();
-            // console.log("Player died");
-
-            return true;
-        }
-
-        return false;
-    }
-
-    addNextAutoAttackEvent(source) {
-        let autoAttackEvent = new _events_autoAttackEvent__WEBPACK_IMPORTED_MODULE_1__["default"](this.simulationTime + source.combatStats.attackInterval, source);
-        this.eventQueue.addEvent(autoAttackEvent);
-    }
-
-    processConsumableTickEvent(event) {
-        if (event.consumable.hitpointRestore > 0) {
-            let tickValue = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].calculateTickValue(
-                event.consumable.hitpointRestore,
-                event.totalTicks,
-                event.currentTick
-            );
-            let hitpointsAdded = event.source.addHitpoints(tickValue);
-            this.simResult.addHitpointsGained(event.source, event.consumable.hrid, hitpointsAdded);
-            // console.log("Added hitpoints:", hitpointsAdded);
-        }
-
-        if (event.consumable.manapointRestore > 0) {
-            let tickValue = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].calculateTickValue(
-                event.consumable.manapointRestore,
-                event.totalTicks,
-                event.currentTick
-            );
-            let manapointsAdded = event.source.addManapoints(tickValue);
-            this.simResult.addManapointsGained(event.source, event.consumable.hrid, manapointsAdded);
-            // console.log("Added manapoints:", manapointsAdded);
-        }
-
-        if (event.currentTick < event.totalTicks) {
-            let consumableTickEvent = new _events_consumableTickEvent__WEBPACK_IMPORTED_MODULE_5__["default"](
-                this.simulationTime + 2 * 1e9,
-                event.source,
-                event.consumable,
-                event.totalTicks,
-                event.currentTick + 1
-            );
-            this.eventQueue.addEvent(consumableTickEvent);
-        }
-    }
-
-    processBleedTickEvent(event) {
-        let tickDamage = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].calculateTickValue(event.damage, event.totalTicks, event.currentTick);
-        let damage = Math.min(tickDamage, event.target.combatStats.currentHitpoints);
-
-        event.target.combatStats.currentHitpoints -= damage;
-        this.simResult.addAttack(event.sourceRef, event.target, "bleed", damage);
-
-        let targetStaminaExperience = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].calculateStaminaExperience(0, damage);
-
-        this.simResult.addExperienceGain(event.target, "stamina", targetStaminaExperience);
-        // console.log(event.target.hrid, "bleed for", damage);
-
-        if (event.currentTick < event.totalTicks) {
-            let bleedTickEvent = new _events_bleedTickEvent__WEBPACK_IMPORTED_MODULE_2__["default"](
-                this.simulationTime + 2 * 1e9,
-                event.sourceRef,
-                event.target,
-                event.damage,
-                event.totalTicks,
-                event.currentTick + 1
-            );
-            this.eventQueue.addEvent(bleedTickEvent);
-        }
-
-        if (event.target.combatStats.currentHitpoints == 0) {
-            this.eventQueue.clearEventsForUnit(event.target);
-            this.simResult.addDeath(event.target);
-        }
-
-        this.checkEncounterEnd();
-    }
-
-    processRegenTickEvent(event) {
-        let hitpointRegen = Math.floor(event.source.combatStats.maxHitpoints * event.source.combatStats.HPRegen);
-        let hitpointsAdded = event.source.addHitpoints(hitpointRegen);
-        this.simResult.addHitpointsGained(event.source, "regen", hitpointsAdded);
-        // console.log("Added hitpoints:", hitpointsAdded);
-
-        let manapointRegen = Math.floor(event.source.combatStats.maxManapoints * event.source.combatStats.MPRegen);
-        let manapointsAdded = event.source.addManapoints(manapointRegen);
-        this.simResult.addManapointsGained(event.source, "regen", manapointsAdded);
-        // console.log("Added manapoints:", manapointsAdded);
-
-        let regenTickEvent = new _events_regenTickEvent__WEBPACK_IMPORTED_MODULE_10__["default"](this.simulationTime + 10 * 1e9, event.source);
-        this.eventQueue.addEvent(regenTickEvent);
-    }
-
-    processCheckBuffExpirationEvent(event) {
-        event.source.removeExpiredBuffs(this.simulationTime);
-    }
-
-    checkTriggers() {
-        let triggeredSomething;
-
-        do {
-            triggeredSomething = false;
-
-            this.players
-                .filter((player) => player.combatStats.currentHitpoints > 0)
-                .forEach((player) => {
-                    if (this.checkTriggersForUnit(player, this.players, this.enemies)) {
-                        triggeredSomething = true;
-                    }
-                });
-
-            if (this.enemies) {
-                this.enemies
-                    .filter((enemy) => enemy.combatStats.currentHitpoints > 0)
-                    .forEach((enemy) => {
-                        if (this.checkTriggersForUnit(enemy, this.enemies, this.players)) {
-                            triggeredSomething = true;
-                        }
-                    });
-            }
-        } while (triggeredSomething);
-    }
-
-    checkTriggersForUnit(unit, friendlies, enemies) {
-        console.assert(unit.combatStats.currentHitpoints > 0, "Checking triggers for a dead unit");
-
-        let triggeredSomething = false;
-        let target = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].getTarget(enemies);
-
-        for (const food of unit.food) {
-            if (food && food.shouldTrigger(this.simulationTime, unit, target, friendlies, enemies)) {
-                this.useConsumable(unit, food);
-                triggeredSomething = true;
-            }
-        }
-
-        for (const drink of unit.drinks) {
-            if (drink && drink.shouldTrigger(this.simulationTime, unit, target, friendlies, enemies)) {
-                this.useConsumable(unit, drink);
-                triggeredSomething = true;
-            }
-        }
-
-        for (const ability of unit.abilities) {
-            if (ability && ability.shouldTrigger(this.simulationTime, unit, target, friendlies, enemies)) {
-                triggeredSomething = this.tryUseAbility(unit, ability);
-            }
-        }
-
-        return triggeredSomething;
-    }
-
-    useConsumable(source, consumable) {
-        // console.log("Consuming:", consumable);
-
-        console.assert(source.combatStats.currentHitpoints > 0, "Dead unit is trying to use a consumable");
-
-        consumable.lastUsed = this.simulationTime;
-        let cooldownReadyEvent = new _events_cooldownReadyEvent__WEBPACK_IMPORTED_MODULE_6__["default"](this.simulationTime + consumable.cooldownDuration);
-        this.eventQueue.addEvent(cooldownReadyEvent);
-
-        this.simResult.addConsumableUse(source, consumable);
-
-        if (consumable.recoveryDuration == 0) {
-            if (consumable.hitpointRestore > 0) {
-                let hitpointsAdded = source.addHitpoints(consumable.hitpointRestore);
-                this.simResult.addHitpointsGained(source, consumable.hrid, hitpointsAdded);
-                // console.log("Added hitpoints:", hitpointsAdded);
-            }
-
-            if (consumable.manapointRestore > 0) {
-                let manapointsAdded = source.addManapoints(consumable.manapointRestore);
-                this.simResult.addManapointsGained(source, consumable.hrid, manapointsAdded);
-                // console.log("Added manapoints:", manapointsAdded);
-            }
-        } else {
-            let consumableTickEvent = new _events_consumableTickEvent__WEBPACK_IMPORTED_MODULE_5__["default"](
-                this.simulationTime + 2 * 1e9,
-                source,
-                consumable,
-                consumable.recoveryDuration / (2 * 1e9),
-                1
-            );
-            this.eventQueue.addEvent(consumableTickEvent);
-        }
-
-        for (const buff of consumable.buffs) {
-            source.addBuff(buff, this.simulationTime);
-            // console.log("Added buff:", buff);
-            let checkBuffExpirationEvent = new _events_checkBuffExpirationEvent__WEBPACK_IMPORTED_MODULE_3__["default"](this.simulationTime + buff.duration, source);
-            this.eventQueue.addEvent(checkBuffExpirationEvent);
-        }
-    }
-
-    tryUseAbility(source, ability) {
-        console.assert(source.combatStats.currentHitpoints > 0, "Dead unit is trying to cast an ability");
-
-        if (source.combatStats.currentManapoints < ability.manaCost) {
-            if (source.isPlayer) {
-                this.simResult.playerRanOutOfMana = true;
-            }
-            return false;
-        }
-
-        // console.log("Casting:", ability);
-
-        source.combatStats.currentManapoints -= ability.manaCost;
-
-        let sourceIntelligenceExperience = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].calculateIntelligenceExperience(ability.manaCost);
-        this.simResult.addExperienceGain(source, "intelligence", sourceIntelligenceExperience);
-
-        ability.lastUsed = this.simulationTime;
-        let cooldownReadyEvent = new _events_cooldownReadyEvent__WEBPACK_IMPORTED_MODULE_6__["default"](this.simulationTime + ability.cooldownDuration);
-        this.eventQueue.addEvent(cooldownReadyEvent);
-
-        for (const abilityEffect of ability.abilityEffects) {
-            switch (abilityEffect.effectType) {
-                case "/ability_effect_types/buff":
-                    source.addBuff(abilityEffect.buff, this.simulationTime);
-                    // console.log("Added buff:", abilityEffect.buff);
-                    let checkBuffExpirationEvent = new _events_checkBuffExpirationEvent__WEBPACK_IMPORTED_MODULE_3__["default"](
-                        this.simulationTime + abilityEffect.buff.duration,
-                        source
-                    );
-                    this.eventQueue.addEvent(checkBuffExpirationEvent);
-                    break;
-                case "/ability_effect_types/damage":
-                    let targets;
-                    switch (abilityEffect.targetType) {
-                        case "enemy":
-                            targets = source.isPlayer
-                                ? [_combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].getTarget(this.enemies)]
-                                : [_combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].getTarget(this.players)];
-                            break;
-                        case "all enemies":
-                            targets = source.isPlayer ? this.enemies : this.players;
-                            break;
-                    }
-
-                    for (const target of targets.filter((unit) => unit && unit.combatStats.currentHitpoints > 0)) {
-                        let { damageDone, damagePrevented, maxDamage, didHit } = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].processAttack(
-                            source,
-                            target,
-                            abilityEffect
-                        );
-
-                        if (abilityEffect.bleedRatio > 0 && damageDone > 0) {
-                            let bleedTickEvent = new _events_bleedTickEvent__WEBPACK_IMPORTED_MODULE_2__["default"](
-                                this.simulationTime + 2 * 1e9,
-                                source,
-                                target,
-                                damageDone * abilityEffect.bleedRatio,
-                                abilityEffect.duration / (2 * 1e9),
-                                1
-                            );
-                            this.eventQueue.addEvent(bleedTickEvent);
-                        }
-
-                        // console.log("Ability hit", target.hrid, "for", damageDone);
-
-                        this.simResult.addAttack(source, target, ability.hrid, didHit ? damageDone : "miss");
-
-                        let targetStaminaExperience = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].calculateStaminaExperience(
-                            damagePrevented,
-                            damageDone
-                        );
-                        let targetDefenseExperience = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].calculateDefenseExperience(damagePrevented);
-                        let sourceAttackExperience = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].calculateAttackExperience(damageDone);
-                        let sourcePowerExperience = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].calculatePowerExperience(maxDamage);
-
-                        this.simResult.addExperienceGain(target, "stamina", targetStaminaExperience);
-                        this.simResult.addExperienceGain(target, "defense", targetDefenseExperience);
-                        this.simResult.addExperienceGain(source, "attack", sourceAttackExperience);
-                        this.simResult.addExperienceGain(source, "power", sourcePowerExperience);
-
-                        if (target.combatStats.currentHitpoints == 0) {
-                            this.eventQueue.clearEventsForUnit(target);
-                            this.simResult.addDeath(target);
-                            // console.log(target.hrid, "died");
-                        }
-                    }
-                    break;
-            }
-        }
-
-        this.checkEncounterEnd();
-
-        return true;
-    }
-}
-
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (CombatSimulator);
 
 
 /***/ }),
@@ -1798,137 +344,6 @@ class CombatUnit {
 
 /***/ }),
 
-/***/ "./src/combatsimulator/combatUtilities.js":
-/*!************************************************!*\
-  !*** ./src/combatsimulator/combatUtilities.js ***!
-  \************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-class CombatUtilities {
-    static getTarget(enemies) {
-        if (!enemies) {
-            return null;
-        }
-        let target = enemies.find((enemy) => enemy.combatStats.currentHitpoints > 0);
-
-        return target ?? null;
-    }
-
-    static randomInt(min, max) {
-        if (max < min) {
-            let temp = min;
-            min = max;
-            max = temp;
-        }
-
-        let minCeil = Math.ceil(min);
-        let maxFloor = Math.floor(max);
-
-        if (Math.floor(min) == maxFloor) {
-            return Math.floor((min + max) / 2 + Math.random());
-        }
-
-        let minTail = -1 * (min - minCeil);
-        let maxTail = max - maxFloor;
-
-        let balancedWeight = 2 * minTail + (maxFloor - minCeil);
-        let balancedAverage = (maxFloor + minCeil) / 2;
-        let average = (max + min) / 2;
-        let extraTailWeight = (balancedWeight * (average - balancedAverage)) / (maxFloor + 1 - average);
-        let extraTailChance = Math.abs(extraTailWeight / (extraTailWeight + balancedWeight));
-
-        if (Math.random() < extraTailChance) {
-            if (maxTail > minTail) {
-                return Math.floor(maxFloor + 1);
-            } else {
-                return Math.floor(minCeil - 1);
-            }
-        }
-
-        if (maxTail > minTail) {
-            return Math.floor(min + Math.random() * (maxFloor + minTail - min + 1));
-        } else {
-            return Math.floor(minCeil - maxTail + Math.random() * (max - (minCeil - maxTail) + 1));
-        }
-    }
-
-    static calculateHitChance(source, target, combatStyle) {
-        let sourceAccuracy = source.combatStats[combatStyle + "AccuracyRating"];
-        let targetEvasion = target.combatStats[combatStyle + "EvasionRating"];
-
-        let hitChance = Math.pow(sourceAccuracy, 1.4) / (Math.pow(sourceAccuracy, 1.4) + Math.pow(targetEvasion, 1.4));
-
-        return hitChance;
-    }
-
-    static processAttack(source, target, abilityEffect) {
-        let combatStyle = abilityEffect ? abilityEffect.combatStyleHrid : source.combatStats.combatStyleHrid;
-        let minDamage = 1;
-        let maxDamage = source.combatStats[combatStyle + "MaxDamage"];
-
-        if (abilityEffect) {
-            minDamage += abilityEffect.damageFlat;
-            maxDamage *= abilityEffect.damageRatio;
-            maxDamage += abilityEffect.damageFlat;
-        }
-
-        let damageRoll = CombatUtilities.randomInt(minDamage, maxDamage);
-        let premitigatedDamage = Math.min(damageRoll, target.combatStats.currentHitpoints);
-
-        let damageDone = 0;
-        let hitChance = CombatUtilities.calculateHitChance(source, target, combatStyle);
-
-        let didHit = false;
-        if (Math.random() < hitChance) {
-            didHit = true;
-            let damageTakenRatio = 100 / (100 + target.combatStats.armor);
-            let mitigatedDamage = damageTakenRatio * premitigatedDamage;
-            damageDone = CombatUtilities.randomInt(mitigatedDamage, mitigatedDamage);
-            target.combatStats.currentHitpoints -= damageDone;
-        }
-
-        let damagePrevented = premitigatedDamage - damageDone;
-
-        return { damageDone, damagePrevented, maxDamage, didHit };
-    }
-
-    static calculateTickValue(totalValue, totalTicks, currentTick) {
-        let currentSum = Math.floor((currentTick * totalValue) / totalTicks);
-        let previousSum = Math.floor(((currentTick - 1) * totalValue) / totalTicks);
-
-        return currentSum - previousSum;
-    }
-
-    static calculateStaminaExperience(damagePrevented, damageTaken) {
-        return 0.05 * damagePrevented + 0.5 * damageTaken;
-    }
-
-    static calculateIntelligenceExperience(manaUsed) {
-        return 0.5 * manaUsed;
-    }
-
-    static calculateAttackExperience(damageDone) {
-        return 0.45 + 0.125 * damageDone;
-    }
-
-    static calculatePowerExperience(maxDamage) {
-        return 0.3 + 0.04 * maxDamage;
-    }
-
-    static calculateDefenseExperience(damagePrevented) {
-        return 0.4 + 0.15 * damagePrevented;
-    }
-}
-
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (CombatUtilities);
-
-
-/***/ }),
-
 /***/ "./src/combatsimulator/consumable.js":
 /*!*******************************************!*\
   !*** ./src/combatsimulator/consumable.js ***!
@@ -2072,391 +487,6 @@ class Equipment {
 
 /***/ }),
 
-/***/ "./src/combatsimulator/events/autoAttackEvent.js":
-/*!*******************************************************!*\
-  !*** ./src/combatsimulator/events/autoAttackEvent.js ***!
-  \*******************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-/* harmony import */ var _combatEvent__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./combatEvent */ "./src/combatsimulator/events/combatEvent.js");
-
-
-class AutoAttackEvent extends _combatEvent__WEBPACK_IMPORTED_MODULE_0__["default"] {
-    static type = "autoAttack";
-
-    constructor(time, source) {
-        super(AutoAttackEvent.type, time);
-
-        this.source = source;
-    }
-}
-
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (AutoAttackEvent);
-
-
-/***/ }),
-
-/***/ "./src/combatsimulator/events/bleedTickEvent.js":
-/*!******************************************************!*\
-  !*** ./src/combatsimulator/events/bleedTickEvent.js ***!
-  \******************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-/* harmony import */ var _combatEvent__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./combatEvent */ "./src/combatsimulator/events/combatEvent.js");
-
-
-class BleedTickEvent extends _combatEvent__WEBPACK_IMPORTED_MODULE_0__["default"] {
-    static type = "bleedTick";
-
-    constructor(time, sourceRef, target, damage, totalTicks, currentTick) {
-        super(BleedTickEvent.type, time);
-
-        // Calling it 'source' would wrongly clear bleeds when the source dies
-        this.sourceRef = sourceRef;
-        this.target = target;
-        this.damage = damage;
-        this.totalTicks = totalTicks;
-        this.currentTick = currentTick;
-    }
-}
-
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (BleedTickEvent);
-
-
-/***/ }),
-
-/***/ "./src/combatsimulator/events/checkBuffExpirationEvent.js":
-/*!****************************************************************!*\
-  !*** ./src/combatsimulator/events/checkBuffExpirationEvent.js ***!
-  \****************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-/* harmony import */ var _combatEvent__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./combatEvent */ "./src/combatsimulator/events/combatEvent.js");
-
-
-class CheckBuffExpirationEvent extends _combatEvent__WEBPACK_IMPORTED_MODULE_0__["default"] {
-    static type = "checkBuffExpiration";
-
-    constructor(time, source) {
-        super(CheckBuffExpirationEvent.type, time);
-
-        this.source = source;
-    }
-}
-
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (CheckBuffExpirationEvent);
-
-
-/***/ }),
-
-/***/ "./src/combatsimulator/events/combatEvent.js":
-/*!***************************************************!*\
-  !*** ./src/combatsimulator/events/combatEvent.js ***!
-  \***************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-class CombatEvent {
-    constructor(type, time) {
-        this.type = type;
-        this.time = time;
-    }
-}
-
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (CombatEvent);
-
-
-/***/ }),
-
-/***/ "./src/combatsimulator/events/combatStartEvent.js":
-/*!********************************************************!*\
-  !*** ./src/combatsimulator/events/combatStartEvent.js ***!
-  \********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-/* harmony import */ var _combatEvent__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./combatEvent */ "./src/combatsimulator/events/combatEvent.js");
-
-
-class CombatStartEvent extends _combatEvent__WEBPACK_IMPORTED_MODULE_0__["default"] {
-    static type = "combatStart";
-
-    constructor(time) {
-        super(CombatStartEvent.type, time);
-    }
-}
-
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (CombatStartEvent);
-
-
-/***/ }),
-
-/***/ "./src/combatsimulator/events/consumableTickEvent.js":
-/*!***********************************************************!*\
-  !*** ./src/combatsimulator/events/consumableTickEvent.js ***!
-  \***********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-/* harmony import */ var _combatEvent__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./combatEvent */ "./src/combatsimulator/events/combatEvent.js");
-
-
-class ConsumableTickEvent extends _combatEvent__WEBPACK_IMPORTED_MODULE_0__["default"] {
-    static type = "consumableTick";
-
-    constructor(time, source, consumable, totalTicks, currentTick) {
-        super(ConsumableTickEvent.type, time);
-
-        this.source = source;
-        this.consumable = consumable;
-        this.totalTicks = totalTicks;
-        this.currentTick = currentTick;
-    }
-}
-
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (ConsumableTickEvent);
-
-
-/***/ }),
-
-/***/ "./src/combatsimulator/events/cooldownReadyEvent.js":
-/*!**********************************************************!*\
-  !*** ./src/combatsimulator/events/cooldownReadyEvent.js ***!
-  \**********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-/* harmony import */ var _combatEvent__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./combatEvent */ "./src/combatsimulator/events/combatEvent.js");
-
-
-class CooldownReadyEvent extends _combatEvent__WEBPACK_IMPORTED_MODULE_0__["default"] {
-    static type = "cooldownReady";
-
-    constructor(time) {
-        super(CooldownReadyEvent.type, time);
-    }
-}
-
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (CooldownReadyEvent);
-
-
-/***/ }),
-
-/***/ "./src/combatsimulator/events/enemyRespawnEvent.js":
-/*!*********************************************************!*\
-  !*** ./src/combatsimulator/events/enemyRespawnEvent.js ***!
-  \*********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-/* harmony import */ var _combatEvent__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./combatEvent */ "./src/combatsimulator/events/combatEvent.js");
-
-
-class EnemyRespawnEvent extends _combatEvent__WEBPACK_IMPORTED_MODULE_0__["default"] {
-    static type = "enemyRespawn";
-
-    constructor(time) {
-        super(EnemyRespawnEvent.type, time);
-    }
-}
-
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (EnemyRespawnEvent);
-
-
-/***/ }),
-
-/***/ "./src/combatsimulator/events/eventQueue.js":
-/*!**************************************************!*\
-  !*** ./src/combatsimulator/events/eventQueue.js ***!
-  \**************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-/* harmony import */ var heap_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! heap-js */ "./node_modules/heap-js/dist/heap-js.es5.js");
-
-
-class EventQueue {
-    constructor() {
-        this.minHeap = new heap_js__WEBPACK_IMPORTED_MODULE_0__["default"]((a, b) => a.time - b.time);
-    }
-
-    addEvent(event) {
-        this.minHeap.push(event);
-    }
-
-    getNextEvent() {
-        return this.minHeap.pop();
-    }
-
-    clear() {
-        this.minHeap = new heap_js__WEBPACK_IMPORTED_MODULE_0__["default"]((a, b) => a.time - b.time);
-    }
-
-    clearEventsForUnit(unit) {
-        this.clearMatching((event) => event.source == unit || event.target == unit);
-    }
-
-    clearEventsOfType(type) {
-        this.clearMatching((event) => event.type == type);
-    }
-
-    clearMatching(fn) {
-        let heapEvents = this.minHeap.toArray();
-
-        for (const event of heapEvents) {
-            if (fn(event)) {
-                this.minHeap.remove(event);
-            }
-        }
-    }
-}
-
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (EventQueue);
-
-
-/***/ }),
-
-/***/ "./src/combatsimulator/events/playerRespawnEvent.js":
-/*!**********************************************************!*\
-  !*** ./src/combatsimulator/events/playerRespawnEvent.js ***!
-  \**********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-/* harmony import */ var _combatEvent__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./combatEvent */ "./src/combatsimulator/events/combatEvent.js");
-
-
-class PlayerRespawnEvent extends _combatEvent__WEBPACK_IMPORTED_MODULE_0__["default"] {
-    static type = "playerRespawn";
-
-    constructor(time) {
-        super(PlayerRespawnEvent.type, time);
-    }
-}
-
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (PlayerRespawnEvent);
-
-
-/***/ }),
-
-/***/ "./src/combatsimulator/events/regenTickEvent.js":
-/*!******************************************************!*\
-  !*** ./src/combatsimulator/events/regenTickEvent.js ***!
-  \******************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-/* harmony import */ var _combatEvent__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./combatEvent */ "./src/combatsimulator/events/combatEvent.js");
-
-
-class RegenTickEvent extends _combatEvent__WEBPACK_IMPORTED_MODULE_0__["default"] {
-    static type = "regenTick";
-
-    constructor(time, source) {
-        super(RegenTickEvent.type, time);
-
-        this.source = source;
-    }
-}
-
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (RegenTickEvent);
-
-
-/***/ }),
-
-/***/ "./src/combatsimulator/monster.js":
-/*!****************************************!*\
-  !*** ./src/combatsimulator/monster.js ***!
-  \****************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-/* harmony import */ var _ability__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ability */ "./src/combatsimulator/ability.js");
-/* harmony import */ var _combatUnit__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./combatUnit */ "./src/combatsimulator/combatUnit.js");
-/* harmony import */ var _data_combatMonsterDetailMap_json__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./data/combatMonsterDetailMap.json */ "./src/combatsimulator/data/combatMonsterDetailMap.json");
-
-
-
-
-class Monster extends _combatUnit__WEBPACK_IMPORTED_MODULE_1__["default"] {
-    constructor(hrid) {
-        super();
-
-        this.isPlayer = false;
-        this.hrid = hrid;
-
-        let gameMonster = _data_combatMonsterDetailMap_json__WEBPACK_IMPORTED_MODULE_2__[this.hrid];
-        console.assert(gameMonster, "No monster found for hrid:" + this.hrid);
-
-        for (let i = 0; i < gameMonster.abilities.length; i++) {
-            this.abilities[i] = new _ability__WEBPACK_IMPORTED_MODULE_0__["default"](gameMonster.abilities[i].abilityHrid, gameMonster.abilities[i].level);
-        }
-    }
-
-    updateCombatStats() {
-        let gameMonster = _data_combatMonsterDetailMap_json__WEBPACK_IMPORTED_MODULE_2__[this.hrid];
-
-        this.staminaLevel = gameMonster.combatDetails.staminaLevel;
-        this.intelligenceLevel = gameMonster.combatDetails.intelligenceLevel;
-        this.attackLevel = gameMonster.combatDetails.attackLevel;
-        this.powerLevel = gameMonster.combatDetails.powerLevel;
-        this.defenseLevel = gameMonster.combatDetails.defenseLevel;
-
-        let gameCombatStyle = gameMonster.combatDetails.combatStyleHrid;
-        this.combatStats.combatStyleHrid = gameCombatStyle.slice(gameCombatStyle.lastIndexOf("/") + 1);
-
-        for (const [key, value] of Object.entries(gameMonster.combatDetails.combatStats)) {
-            this.combatStats[key] = value;
-        }
-
-        super.updateCombatStats();
-    }
-}
-
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Monster);
-
-
-/***/ }),
-
 /***/ "./src/combatsimulator/player.js":
 /*!***************************************!*\
   !*** ./src/combatsimulator/player.js ***!
@@ -2566,115 +596,6 @@ class Player extends _combatUnit__WEBPACK_IMPORTED_MODULE_1__["default"] {
 }
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Player);
-
-
-/***/ }),
-
-/***/ "./src/combatsimulator/simResult.js":
-/*!******************************************!*\
-  !*** ./src/combatsimulator/simResult.js ***!
-  \******************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-class SimResult {
-    constructor() {
-        this.deaths = {};
-        this.experienceGained = {};
-        this.encounters = 0;
-        this.attacks = {};
-        this.consumablesUsed = {};
-        this.hitpointsGained = {};
-        this.manapointsGained = {};
-        this.playerRanOutOfMana = false;
-    }
-
-    addDeath(unit) {
-        if (!this.deaths[unit.hrid]) {
-            this.deaths[unit.hrid] = 0;
-        }
-
-        this.deaths[unit.hrid] += 1;
-    }
-
-    addExperienceGain(unit, type, experience) {
-        if (!unit.isPlayer) {
-            return;
-        }
-
-        if (!this.experienceGained[unit.hrid]) {
-            this.experienceGained[unit.hrid] = {
-                stamina: 0,
-                intelligence: 0,
-                attack: 0,
-                power: 0,
-                defense: 0,
-            };
-        }
-
-        this.experienceGained[unit.hrid][type] += experience;
-    }
-
-    addEncounterEnd() {
-        this.encounters++;
-    }
-
-    addAttack(source, target, ability, hit) {
-        if (!this.attacks[source.hrid]) {
-            this.attacks[source.hrid] = {};
-        }
-        if (!this.attacks[source.hrid][target.hrid]) {
-            this.attacks[source.hrid][target.hrid] = {};
-        }
-        if (!this.attacks[source.hrid][target.hrid][ability]) {
-            this.attacks[source.hrid][target.hrid][ability] = {};
-        }
-
-        if (!this.attacks[source.hrid][target.hrid][ability][hit]) {
-            this.attacks[source.hrid][target.hrid][ability][hit] = 0;
-        }
-
-        this.attacks[source.hrid][target.hrid][ability][hit] += 1;
-    }
-
-    addConsumableUse(unit, consumable) {
-        if (!this.consumablesUsed[unit.hrid]) {
-            this.consumablesUsed[unit.hrid] = {};
-        }
-        if (!this.consumablesUsed[unit.hrid][consumable.hrid]) {
-            this.consumablesUsed[unit.hrid][consumable.hrid] = 0;
-        }
-
-        this.consumablesUsed[unit.hrid][consumable.hrid] += 1;
-    }
-
-    addHitpointsGained(unit, source, amount) {
-        if (!this.hitpointsGained[unit.hrid]) {
-            this.hitpointsGained[unit.hrid] = {};
-        }
-        if (!this.hitpointsGained[unit.hrid][source]) {
-            this.hitpointsGained[unit.hrid][source] = 0;
-        }
-
-        this.hitpointsGained[unit.hrid][source] += amount;
-    }
-
-    addManapointsGained(unit, source, amount) {
-        if (!this.manapointsGained[unit.hrid]) {
-            this.manapointsGained[unit.hrid] = {};
-        }
-        if (!this.manapointsGained[unit.hrid][source]) {
-            this.manapointsGained[unit.hrid][source] = 0;
-        }
-
-        this.manapointsGained[unit.hrid][source] += amount;
-    }
-}
-
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (SimResult);
 
 
 /***/ }),
@@ -2817,64 +738,6 @@ class Trigger {
 }
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Trigger);
-
-
-/***/ }),
-
-/***/ "./src/combatsimulator/zone.js":
-/*!*************************************!*\
-  !*** ./src/combatsimulator/zone.js ***!
-  \*************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-/* harmony import */ var _data_actionDetailMap_json__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./data/actionDetailMap.json */ "./src/combatsimulator/data/actionDetailMap.json");
-/* harmony import */ var _monster__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./monster */ "./src/combatsimulator/monster.js");
-
-
-
-class Zone {
-    constructor(hrid) {
-        this.hrid = hrid;
-
-        let gameZone = _data_actionDetailMap_json__WEBPACK_IMPORTED_MODULE_0__[this.hrid];
-        this.monsterSpawnRates = gameZone.monsterSpawnRates;
-
-        let totalProbability = this.monsterSpawnRates
-            .map((encounter) => encounter.rate * 100) // Avoid floating point inaccuracies
-            .reduce((prev, cur) => prev + cur, 0);
-        console.assert(
-            totalProbability / 100 == 1,
-            "Encounter probabilities do not add up to 1. Zone: " + this.hrid + " Probability:" + totalProbability
-        );
-    }
-
-    getRandomEncounter() {
-        let encounter = null;
-        let cumulativeProbability = 0;
-        let randomNumber = Math.random();
-
-        for (let i = 0; i < this.monsterSpawnRates.length; i++) {
-            cumulativeProbability += this.monsterSpawnRates[i].rate;
-            if (cumulativeProbability > randomNumber) {
-                encounter = this.monsterSpawnRates[i];
-                break;
-            }
-        }
-
-        // This could happen very rarely due to floating point inaccuracies
-        if (encounter == null) {
-            encounter = this.monsterSpawnRates[this.monsterSpawnRates.length - 1];
-        }
-
-        return encounter.combatMonsterHrids.map((hrid) => new _monster__WEBPACK_IMPORTED_MODULE_1__["default"](hrid));
-    }
-}
-
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Zone);
 
 
 /***/ }),
@@ -3103,27 +966,17 @@ var __webpack_exports__ = {};
   \*********************/
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _combatsimulator_equipment_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./combatsimulator/equipment.js */ "./src/combatsimulator/equipment.js");
-/* harmony import */ var _combatsimulator_monster_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./combatsimulator/monster.js */ "./src/combatsimulator/monster.js");
-/* harmony import */ var _combatsimulator_player_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./combatsimulator/player.js */ "./src/combatsimulator/player.js");
-/* harmony import */ var _combatsimulator_buff_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./combatsimulator/buff.js */ "./src/combatsimulator/buff.js");
-/* harmony import */ var _combatsimulator_data_abilityDetailMap_json__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./combatsimulator/data/abilityDetailMap.json */ "./src/combatsimulator/data/abilityDetailMap.json");
-/* harmony import */ var _combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./combatsimulator/data/itemDetailMap.json */ "./src/combatsimulator/data/itemDetailMap.json");
-/* harmony import */ var _combatsimulator_trigger_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./combatsimulator/trigger.js */ "./src/combatsimulator/trigger.js");
-/* harmony import */ var _combatsimulator_ability_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./combatsimulator/ability.js */ "./src/combatsimulator/ability.js");
-/* harmony import */ var _combatsimulator_consumable_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./combatsimulator/consumable.js */ "./src/combatsimulator/consumable.js");
-/* harmony import */ var _combatsimulator_zone_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./combatsimulator/zone.js */ "./src/combatsimulator/zone.js");
-/* harmony import */ var _combatsimulator_combatSimulator_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./combatsimulator/combatSimulator.js */ "./src/combatsimulator/combatSimulator.js");
-/* harmony import */ var _combatsimulator_data_combatTriggerDependencyDetailMap_json__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./combatsimulator/data/combatTriggerDependencyDetailMap.json */ "./src/combatsimulator/data/combatTriggerDependencyDetailMap.json");
-/* harmony import */ var _combatsimulator_data_combatTriggerConditionDetailMap_json__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./combatsimulator/data/combatTriggerConditionDetailMap.json */ "./src/combatsimulator/data/combatTriggerConditionDetailMap.json");
-/* harmony import */ var _combatsimulator_data_combatTriggerComparatorDetailMap_json__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./combatsimulator/data/combatTriggerComparatorDetailMap.json */ "./src/combatsimulator/data/combatTriggerComparatorDetailMap.json");
-/* harmony import */ var _combatsimulator_data_abilitySlotsLevelRequirementList_json__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./combatsimulator/data/abilitySlotsLevelRequirementList.json */ "./src/combatsimulator/data/abilitySlotsLevelRequirementList.json");
-/* harmony import */ var _combatsimulator_data_actionDetailMap_json__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./combatsimulator/data/actionDetailMap.json */ "./src/combatsimulator/data/actionDetailMap.json");
-/* harmony import */ var _combatsimulator_data_combatMonsterDetailMap_json__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./combatsimulator/data/combatMonsterDetailMap.json */ "./src/combatsimulator/data/combatMonsterDetailMap.json");
-
-
-
-
-
+/* harmony import */ var _combatsimulator_player_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./combatsimulator/player.js */ "./src/combatsimulator/player.js");
+/* harmony import */ var _combatsimulator_data_abilityDetailMap_json__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./combatsimulator/data/abilityDetailMap.json */ "./src/combatsimulator/data/abilityDetailMap.json");
+/* harmony import */ var _combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./combatsimulator/data/itemDetailMap.json */ "./src/combatsimulator/data/itemDetailMap.json");
+/* harmony import */ var _combatsimulator_ability_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./combatsimulator/ability.js */ "./src/combatsimulator/ability.js");
+/* harmony import */ var _combatsimulator_consumable_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./combatsimulator/consumable.js */ "./src/combatsimulator/consumable.js");
+/* harmony import */ var _combatsimulator_data_combatTriggerDependencyDetailMap_json__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./combatsimulator/data/combatTriggerDependencyDetailMap.json */ "./src/combatsimulator/data/combatTriggerDependencyDetailMap.json");
+/* harmony import */ var _combatsimulator_data_combatTriggerConditionDetailMap_json__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./combatsimulator/data/combatTriggerConditionDetailMap.json */ "./src/combatsimulator/data/combatTriggerConditionDetailMap.json");
+/* harmony import */ var _combatsimulator_data_combatTriggerComparatorDetailMap_json__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./combatsimulator/data/combatTriggerComparatorDetailMap.json */ "./src/combatsimulator/data/combatTriggerComparatorDetailMap.json");
+/* harmony import */ var _combatsimulator_data_abilitySlotsLevelRequirementList_json__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./combatsimulator/data/abilitySlotsLevelRequirementList.json */ "./src/combatsimulator/data/abilitySlotsLevelRequirementList.json");
+/* harmony import */ var _combatsimulator_data_actionDetailMap_json__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./combatsimulator/data/actionDetailMap.json */ "./src/combatsimulator/data/actionDetailMap.json");
+/* harmony import */ var _combatsimulator_data_combatMonsterDetailMap_json__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./combatsimulator/data/combatMonsterDetailMap.json */ "./src/combatsimulator/data/combatMonsterDetailMap.json");
 
 
 
@@ -3145,7 +998,7 @@ let progressbar = document.getElementById("simulationProgressBar");
 
 let worker = new Worker(new URL(/* worker import */ __webpack_require__.p + __webpack_require__.u("src_worker_js"), __webpack_require__.b));
 
-let player = new _combatsimulator_player_js__WEBPACK_IMPORTED_MODULE_2__["default"]();
+let player = new _combatsimulator_player_js__WEBPACK_IMPORTED_MODULE_1__["default"]();
 let food = [null, null, null];
 let drinks = [null, null, null];
 let abilities = [null, null, null, null];
@@ -3193,7 +1046,7 @@ function initEquipmentSelect(equipmentType) {
     }
     let selectElement = document.getElementById(selectId);
 
-    let gameEquipment = Object.values(_combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_5__)
+    let gameEquipment = Object.values(_combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_3__)
         .filter((item) => item.categoryHrid == "/item_categories/equipment")
         .filter((item) => item.equipmentDetail.type == "/equipment_types/" + equipmentType)
         .sort((a, b) => a.sortIndex - b.sortIndex);
@@ -3231,7 +1084,7 @@ function equipmentSelectHandler(event, type) {
         return;
     }
 
-    let gameItem = _combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_5__[event.target.value];
+    let gameItem = _combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_3__[event.target.value];
 
     // Weapon select has two handlers because of mainhand and twohand weapons. Ignore the handler with the wrong type
     if (gameItem.equipmentDetail.type != equipmentType) {
@@ -3349,7 +1202,7 @@ function initFoodSection() {
     for (let i = 0; i < 3; i++) {
         let element = document.getElementById("selectFood_" + i);
 
-        let gameFoods = Object.values(_combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_5__)
+        let gameFoods = Object.values(_combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_3__)
             .filter((item) => item.categoryHrid == "/item_categories/food")
             .sort((a, b) => a.sortIndex - b.sortIndex);
 
@@ -3370,7 +1223,7 @@ function foodSelectHandler(event, index) {
     triggerButton.disabled = !food[index];
 
     if (food[index] && !triggerMap[food[index]]) {
-        let gameItem = _combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_5__[food[index]];
+        let gameItem = _combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_3__[food[index]];
         triggerMap[food[index]] = structuredClone(gameItem.consumableDetail.defaultCombatTriggers);
     }
 }
@@ -3393,7 +1246,7 @@ function initDrinksSection() {
     for (let i = 0; i < 3; i++) {
         let element = document.getElementById("selectDrink_" + i);
 
-        let gameDrinks = Object.values(_combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_5__)
+        let gameDrinks = Object.values(_combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_3__)
             .filter((item) => item.categoryHrid == "/item_categories/drink")
             .filter((item) => item.consumableDetail.usableInActionTypeMap["/action_types/combat"])
             .sort((a, b) => a.sortIndex - b.sortIndex);
@@ -3415,7 +1268,7 @@ function drinkSelectHandler(event, index) {
     triggerButton.disabled = !drinks[index];
 
     if (drinks[index] && !triggerMap[drinks[index]]) {
-        let gameItem = _combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_5__[drinks[index]];
+        let gameItem = _combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_3__[drinks[index]];
         triggerMap[drinks[index]] = structuredClone(gameItem.consumableDetail.defaultCombatTriggers);
     }
 }
@@ -3441,7 +1294,7 @@ function initAbilitiesSection() {
 
         inputElement.value = 1;
 
-        let gameAbilities = Object.values(_combatsimulator_data_abilityDetailMap_json__WEBPACK_IMPORTED_MODULE_4__).sort((a, b) => a.sortIndex - b.sortIndex);
+        let gameAbilities = Object.values(_combatsimulator_data_abilityDetailMap_json__WEBPACK_IMPORTED_MODULE_2__).sort((a, b) => a.sortIndex - b.sortIndex);
 
         for (const ability of Object.values(gameAbilities)) {
             selectElement.add(new Option(ability.name, ability.hrid));
@@ -3460,7 +1313,7 @@ function abilitySelectHandler(event, index) {
     triggerButton.disabled = !abilities[index];
 
     if (abilities[index] && !triggerMap[abilities[index]]) {
-        let gameAbility = _combatsimulator_data_abilityDetailMap_json__WEBPACK_IMPORTED_MODULE_4__[abilities[index]];
+        let gameAbility = _combatsimulator_data_abilityDetailMap_json__WEBPACK_IMPORTED_MODULE_2__[abilities[index]];
         triggerMap[abilities[index]] = structuredClone(gameAbility.defaultCombatTriggers);
     }
 }
@@ -3471,9 +1324,9 @@ function updateAvailableAbilitySlots() {
         let inputElement = document.getElementById("inputAbilityLevel_" + i);
         let triggerButton = document.getElementById("buttonAbilityTrigger_" + i);
 
-        selectElement.disabled = player.intelligenceLevel < _combatsimulator_data_abilitySlotsLevelRequirementList_json__WEBPACK_IMPORTED_MODULE_14__[i + 1];
-        inputElement.disabled = player.intelligenceLevel < _combatsimulator_data_abilitySlotsLevelRequirementList_json__WEBPACK_IMPORTED_MODULE_14__[i + 1];
-        triggerButton.disabled = player.intelligenceLevel < _combatsimulator_data_abilitySlotsLevelRequirementList_json__WEBPACK_IMPORTED_MODULE_14__[i + 1] || !abilities[i];
+        selectElement.disabled = player.intelligenceLevel < _combatsimulator_data_abilitySlotsLevelRequirementList_json__WEBPACK_IMPORTED_MODULE_9__[i + 1];
+        inputElement.disabled = player.intelligenceLevel < _combatsimulator_data_abilitySlotsLevelRequirementList_json__WEBPACK_IMPORTED_MODULE_9__[i + 1];
+        triggerButton.disabled = player.intelligenceLevel < _combatsimulator_data_abilitySlotsLevelRequirementList_json__WEBPACK_IMPORTED_MODULE_9__[i + 1] || !abilities[i];
     }
 }
 
@@ -3596,9 +1449,9 @@ function triggerDefaultButtonHandler(event) {
     let triggerTarget = triggerTargetnput.value;
 
     if (triggerTarget.startsWith("/items/")) {
-        modalTriggers = structuredClone(_combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_5__[triggerTarget].consumableDetail.defaultCombatTriggers);
+        modalTriggers = structuredClone(_combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_3__[triggerTarget].consumableDetail.defaultCombatTriggers);
     } else {
-        modalTriggers = structuredClone(_combatsimulator_data_abilityDetailMap_json__WEBPACK_IMPORTED_MODULE_4__[triggerTarget].defaultCombatTriggers);
+        modalTriggers = structuredClone(_combatsimulator_data_abilityDetailMap_json__WEBPACK_IMPORTED_MODULE_2__[triggerTarget].defaultCombatTriggers);
     }
 
     updateTriggerModal();
@@ -3666,7 +1519,7 @@ function updateTriggerModal() {
 
         triggerComparatorSelect.value = modalTriggers[i].comparatorHrid;
 
-        if (_combatsimulator_data_combatTriggerComparatorDetailMap_json__WEBPACK_IMPORTED_MODULE_13__[modalTriggers[i].comparatorHrid].allowValue) {
+        if (_combatsimulator_data_combatTriggerComparatorDetailMap_json__WEBPACK_IMPORTED_MODULE_8__[modalTriggers[i].comparatorHrid].allowValue) {
             showElement(triggerValueInput);
             triggerValueInput.value = modalTriggers[i].value;
         } else {
@@ -3682,7 +1535,7 @@ function fillTriggerDependencySelect(element) {
     element.length = 0;
     element.add(new Option("", ""));
 
-    for (const dependency of Object.values(_combatsimulator_data_combatTriggerDependencyDetailMap_json__WEBPACK_IMPORTED_MODULE_11__).sort(
+    for (const dependency of Object.values(_combatsimulator_data_combatTriggerDependencyDetailMap_json__WEBPACK_IMPORTED_MODULE_6__).sort(
         (a, b) => a.sortIndex - b.sortIndex
     )) {
         element.add(new Option(dependency.name, dependency.hrid));
@@ -3690,13 +1543,13 @@ function fillTriggerDependencySelect(element) {
 }
 
 function fillTriggerConditionSelect(element, dependencyHrid) {
-    let dependency = _combatsimulator_data_combatTriggerDependencyDetailMap_json__WEBPACK_IMPORTED_MODULE_11__[dependencyHrid];
+    let dependency = _combatsimulator_data_combatTriggerDependencyDetailMap_json__WEBPACK_IMPORTED_MODULE_6__[dependencyHrid];
 
     let conditions;
     if (dependency.isSingleTarget) {
-        conditions = Object.values(_combatsimulator_data_combatTriggerConditionDetailMap_json__WEBPACK_IMPORTED_MODULE_12__).filter((condition) => condition.isSingleTarget);
+        conditions = Object.values(_combatsimulator_data_combatTriggerConditionDetailMap_json__WEBPACK_IMPORTED_MODULE_7__).filter((condition) => condition.isSingleTarget);
     } else {
-        conditions = Object.values(_combatsimulator_data_combatTriggerConditionDetailMap_json__WEBPACK_IMPORTED_MODULE_12__).filter((condition) => condition.isMultiTarget);
+        conditions = Object.values(_combatsimulator_data_combatTriggerConditionDetailMap_json__WEBPACK_IMPORTED_MODULE_7__).filter((condition) => condition.isMultiTarget);
     }
 
     element.length = 0;
@@ -3708,9 +1561,9 @@ function fillTriggerConditionSelect(element, dependencyHrid) {
 }
 
 function fillTriggerComparatorSelect(element, conditionHrid) {
-    let condition = _combatsimulator_data_combatTriggerConditionDetailMap_json__WEBPACK_IMPORTED_MODULE_12__[conditionHrid];
+    let condition = _combatsimulator_data_combatTriggerConditionDetailMap_json__WEBPACK_IMPORTED_MODULE_7__[conditionHrid];
 
-    let comparators = condition.allowedComparatorHrids.map((hrid) => _combatsimulator_data_combatTriggerComparatorDetailMap_json__WEBPACK_IMPORTED_MODULE_13__[hrid]);
+    let comparators = condition.allowedComparatorHrids.map((hrid) => _combatsimulator_data_combatTriggerComparatorDetailMap_json__WEBPACK_IMPORTED_MODULE_8__[hrid]);
 
     element.length = 0;
     element.add(new Option("", ""));
@@ -3737,7 +1590,7 @@ function showElement(element) {
 function initZones() {
     let zoneSelect = document.getElementById("selectZone");
 
-    let gameZones = Object.values(_combatsimulator_data_actionDetailMap_json__WEBPACK_IMPORTED_MODULE_15__)
+    let gameZones = Object.values(_combatsimulator_data_actionDetailMap_json__WEBPACK_IMPORTED_MODULE_10__)
         .filter((action) => action.type == "/action_types/combat")
         .sort((a, b) => a.sortIndex - b.sortIndex);
 
@@ -3780,7 +1633,7 @@ function showKills(simResult) {
         let killsPerHour = (simResult.deaths[monster] / hoursSimulated).toFixed(1);
         let monsterRow = createRow(
             ["col-md-6", "col-md-6 text-end"],
-            [_combatsimulator_data_combatMonsterDetailMap_json__WEBPACK_IMPORTED_MODULE_16__[monster].name, killsPerHour]
+            [_combatsimulator_data_combatMonsterDetailMap_json__WEBPACK_IMPORTED_MODULE_11__[monster].name, killsPerHour]
         );
         newChildren.push(monsterRow);
     }
@@ -3837,7 +1690,7 @@ function showConsumablesUsed(simResult) {
         let consumablesPerHour = (amount / hoursSimulated).toFixed(0);
         let consumableRow = createRow(
             ["col-md-6", "col-md-6 text-end"],
-            [_combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_5__[consumable].name, consumablesPerHour]
+            [_combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_3__[consumable].name, consumablesPerHour]
         );
         newChildren.push(consumableRow);
     }
@@ -3880,7 +1733,7 @@ function showHitpointsGained(simResult) {
                 sourceText = "Life Steal";
                 break;
             default:
-                sourceText = _combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_5__[source].name;
+                sourceText = _combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_3__[source].name;
                 break;
         }
         let hitpointsPerSecond = (amount / secondsSimulated).toFixed(2);
@@ -3928,7 +1781,7 @@ function showManapointsGained(simResult) {
                 sourceText = "Regen";
                 break;
             default:
-                sourceText = _combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_5__[source].name;
+                sourceText = _combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_3__[source].name;
                 break;
         }
         let manapointsPerSecond = (amount / secondsSimulated).toFixed(2);
@@ -3996,7 +1849,7 @@ function showDamageDone(simResult) {
         let resultAccordionButton = document.getElementById(
             "buttonSimulationResultDamageDoneAccordionEnemy" + enemyIndex
         );
-        let targetName = _combatsimulator_data_combatMonsterDetailMap_json__WEBPACK_IMPORTED_MODULE_16__[target].name;
+        let targetName = _combatsimulator_data_combatMonsterDetailMap_json__WEBPACK_IMPORTED_MODULE_11__[target].name;
         resultAccordionButton.innerHTML = "<b>Damage Done (" + targetName + ")</b>";
 
         enemyIndex++;
@@ -4058,7 +1911,7 @@ function showDamageTaken(simResult) {
         let resultAccordionButton = document.getElementById(
             "buttonSimulationResultDamageTakenAccordionEnemy" + enemyIndex
         );
-        let sourceName = _combatsimulator_data_combatMonsterDetailMap_json__WEBPACK_IMPORTED_MODULE_16__[source].name;
+        let sourceName = _combatsimulator_data_combatMonsterDetailMap_json__WEBPACK_IMPORTED_MODULE_11__[source].name;
         resultAccordionButton.innerHTML = "<b>Damage Taken (" + sourceName + ")</b>";
 
         enemyIndex++;
@@ -4095,7 +1948,7 @@ function createDamageTable(resultDiv, damageDone, secondsSimulated) {
                 abilityText = "Bleed";
                 break;
             default:
-                abilityText = _combatsimulator_data_abilityDetailMap_json__WEBPACK_IMPORTED_MODULE_4__[ability].name;
+                abilityText = _combatsimulator_data_abilityDetailMap_json__WEBPACK_IMPORTED_MODULE_2__[ability].name;
                 break;
         }
 
@@ -4154,14 +2007,14 @@ function initSimulationControls() {
 function startSimulation() {
     for (let i = 0; i < 3; i++) {
         if (food[i] && i < player.combatStats.foodSlots) {
-            let consumable = new _combatsimulator_consumable_js__WEBPACK_IMPORTED_MODULE_8__["default"](food[i], triggerMap[food[i]]);
+            let consumable = new _combatsimulator_consumable_js__WEBPACK_IMPORTED_MODULE_5__["default"](food[i], triggerMap[food[i]]);
             player.food[i] = consumable;
         } else {
             player.food[i] = null;
         }
 
         if (drinks[i] && i < player.combatStats.drinkSlots) {
-            let consumable = new _combatsimulator_consumable_js__WEBPACK_IMPORTED_MODULE_8__["default"](drinks[i], triggerMap[drinks[i]]);
+            let consumable = new _combatsimulator_consumable_js__WEBPACK_IMPORTED_MODULE_5__["default"](drinks[i], triggerMap[drinks[i]]);
             player.drinks[i] = consumable;
         } else {
             player.drinks[i] = null;
@@ -4169,9 +2022,9 @@ function startSimulation() {
     }
 
     for (let i = 0; i < 4; i++) {
-        if (abilities[i] && player.intelligenceLevel >= _combatsimulator_data_abilitySlotsLevelRequirementList_json__WEBPACK_IMPORTED_MODULE_14__[i + 1]) {
+        if (abilities[i] && player.intelligenceLevel >= _combatsimulator_data_abilitySlotsLevelRequirementList_json__WEBPACK_IMPORTED_MODULE_9__[i + 1]) {
             let abilityLevelInput = document.getElementById("inputAbilityLevel_" + i);
-            let ability = new _combatsimulator_ability_js__WEBPACK_IMPORTED_MODULE_7__["default"](abilities[i], Number(abilityLevelInput.value), triggerMap[abilities[i]]);
+            let ability = new _combatsimulator_ability_js__WEBPACK_IMPORTED_MODULE_4__["default"](abilities[i], Number(abilityLevelInput.value), triggerMap[abilities[i]]);
             player.abilities[i] = ability;
         } else {
             player.abilities[i] = null;
