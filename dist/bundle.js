@@ -1070,17 +1070,15 @@ function initEnhancementLevelInput(equipmentType) {
 
     let inputElement = document.getElementById(inputId);
     inputElement.value = 0;
-    inputElement.addEventListener("change", (event) => {
-        enhancementLevelInputHandler(event, equipmentType);
-    });
+    inputElement.addEventListener("change", enhancementLevelInputHandler);
 }
 
 function equipmentSelectHandler(event, type) {
     let equipmentType = "/equipment_types/" + type;
 
     if (!event.target.value) {
-        player.equipment[equipmentType] = null;
-        updatePlayerStats();
+        updateEquipmentState();
+        updateUI();
         return;
     }
 
@@ -1092,48 +1090,57 @@ function equipmentSelectHandler(event, type) {
     }
 
     if (type == "two_hand") {
-        player.equipment["/equipment_types/main_hand"] = null;
-        player.equipment["/equipment_types/off_hand"] = null;
         document.getElementById("selectEquipment_off_hand").value = "";
         document.getElementById("inputEquipmentEnhancementLevel_off_hand").value = 0;
     }
     if (type == "off_hand" && player.equipment["/equipment_types/two_hand"]) {
-        player.equipment["/equipment_types/two_hand"] = null;
         document.getElementById("selectEquipment_weapon").value = "";
         document.getElementById("inputEquipmentEnhancementLevel_weapon").value = 0;
     }
-    if (type == "main_hand") {
-        player.equipment["/equipment_types/two_hand"] = null;
-    }
 
-    let selectType = type;
-    if (type == "main_hand" || type == "two_hand") {
-        selectType = "weapon";
-    }
-
-    let enhancementLevel = document.getElementById("inputEquipmentEnhancementLevel_" + selectType).value;
-    let equipment = new _combatsimulator_equipment_js__WEBPACK_IMPORTED_MODULE_0__["default"](gameItem.hrid, Number(enhancementLevel));
-    player.equipment[equipmentType] = equipment;
-    updatePlayerStats();
+    updateEquipmentState();
+    updateUI();
 }
 
-function enhancementLevelInputHandler(event, type) {
-    let equipmentType = "/equipment_types/" + type;
+function enhancementLevelInputHandler() {
+    updateEquipmentState();
+    updateUI();
+}
 
-    if (!player.equipment[equipmentType]) {
-        return;
-    }
+function updateEquipmentState() {
+    ["head", "body", "legs", "feet", "hands", "main_hand", "two_hand", "off_hand", "pouch"].forEach((type) => {
+        let equipmentType = "/equipment_types/" + type;
+        let selectType = type;
+        if (type == "main_hand" || type == "two_hand") {
+            selectType = "weapon";
+        }
 
-    let equipment = new _combatsimulator_equipment_js__WEBPACK_IMPORTED_MODULE_0__["default"](player.equipment[equipmentType].hrid, Number(event.target.value));
-    player.equipment[equipmentType] = equipment;
-    updatePlayerStats();
+        let equipmentSelect = document.getElementById("selectEquipment_" + selectType);
+        let equipmentHrid = equipmentSelect.value;
+
+        if (!equipmentHrid) {
+            player.equipment[equipmentType] = null;
+            return;
+        }
+
+        let gameItem = _combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_3__[equipmentHrid];
+
+        // Clear old weapon if a weapon of a different type is equipped
+        if (gameItem.equipmentDetail.type != equipmentType) {
+            player.equipment[equipmentType] = null;
+            return;
+        }
+
+        let enhancementLevel = Number(document.getElementById("inputEquipmentEnhancementLevel_" + selectType).value);
+        player.equipment[equipmentType] = new _combatsimulator_equipment_js__WEBPACK_IMPORTED_MODULE_0__["default"](gameItem.hrid, enhancementLevel);
+    });
 }
 
 // #endregion
 
 // #region Combat Stats
 
-function updatePlayerStats() {
+function updateCombatStatsUI() {
     player.updateCombatStats();
 
     [
@@ -1169,10 +1176,6 @@ function updatePlayerStats() {
         });
         element.innerHTML = value + "%";
     });
-
-    updateAvailableFoodSlots();
-    updateAvailableDrinkSlots();
-    updateAvailableAbilitySlots();
 }
 
 // #endregion
@@ -1181,17 +1184,22 @@ function updatePlayerStats() {
 
 function initLevelSection() {
     ["stamina", "intelligence", "attack", "power", "defense"].forEach((skill) => {
-        let element = document.getElementById("inputLevel_" + skill);
-        element.value = 1;
-        element.addEventListener("change", (event) => {
-            levelInputHandler(event, skill);
-        });
+        let levelInput = document.getElementById("inputLevel_" + skill);
+        levelInput.value = 1;
+        levelInput.addEventListener("change", levelInputHandler);
     });
 }
 
-function levelInputHandler(event, skill) {
-    player[skill + "Level"] = Number(event.target.value);
-    updatePlayerStats();
+function levelInputHandler() {
+    updateLevels();
+    updateUI();
+}
+
+function updateLevels() {
+    ["stamina", "intelligence", "attack", "power", "defense"].forEach((skill) => {
+        let levelInput = document.getElementById("inputLevel_" + skill);
+        player[skill + "Level"] = Number(levelInput.value);
+    });
 }
 
 // #endregion
@@ -1210,25 +1218,27 @@ function initFoodSection() {
             element.add(new Option(food.name, food.hrid));
         }
 
-        element.addEventListener("change", (event) => foodSelectHandler(event, i));
-    }
-
-    updateAvailableFoodSlots();
-}
-
-function foodSelectHandler(event, index) {
-    food[index] = event.target.value;
-
-    let triggerButton = document.getElementById("buttonFoodTrigger_" + index);
-    triggerButton.disabled = !food[index];
-
-    if (food[index] && !triggerMap[food[index]]) {
-        let gameItem = _combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_3__[food[index]];
-        triggerMap[food[index]] = structuredClone(gameItem.consumableDetail.defaultCombatTriggers);
+        element.addEventListener("change", foodSelectHandler);
     }
 }
 
-function updateAvailableFoodSlots() {
+function foodSelectHandler() {
+    updateFoodState();
+    updateUI();
+}
+
+function updateFoodState() {
+    for (let i = 0; i < 3; i++) {
+        let foodSelect = document.getElementById("selectFood_" + i);
+        food[i] = foodSelect.value;
+        if (food[i] && !triggerMap[food[i]]) {
+            let gameItem = _combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_3__[food[i]];
+            triggerMap[food[i]] = structuredClone(gameItem.consumableDetail.defaultCombatTriggers);
+        }
+    }
+}
+
+function updateFoodUI() {
     for (let i = 0; i < 3; i++) {
         let selectElement = document.getElementById("selectFood_" + i);
         let triggerButton = document.getElementById("buttonFoodTrigger_" + i);
@@ -1255,25 +1265,27 @@ function initDrinksSection() {
             element.add(new Option(drink.name, drink.hrid));
         }
 
-        element.addEventListener("change", (event) => drinkSelectHandler(event, i));
-    }
-
-    updateAvailableDrinkSlots();
-}
-
-function drinkSelectHandler(event, index) {
-    drinks[index] = event.target.value;
-
-    let triggerButton = document.getElementById("buttonDrinkTrigger_" + index);
-    triggerButton.disabled = !drinks[index];
-
-    if (drinks[index] && !triggerMap[drinks[index]]) {
-        let gameItem = _combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_3__[drinks[index]];
-        triggerMap[drinks[index]] = structuredClone(gameItem.consumableDetail.defaultCombatTriggers);
+        element.addEventListener("change", drinkSelectHandler);
     }
 }
 
-function updateAvailableDrinkSlots() {
+function drinkSelectHandler() {
+    updateDrinksState();
+    updateDrinksUI();
+}
+
+function updateDrinksState() {
+    for (let i = 0; i < 3; i++) {
+        let drinkSelect = document.getElementById("selectDrink_" + i);
+        drinks[i] = drinkSelect.value;
+        if (drinks[i] && !triggerMap[drinks[i]]) {
+            let gameItem = _combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_3__[drinks[i]];
+            triggerMap[drinks[i]] = structuredClone(gameItem.consumableDetail.defaultCombatTriggers);
+        }
+    }
+}
+
+function updateDrinksUI() {
     for (let i = 0; i < 3; i++) {
         let selectElement = document.getElementById("selectDrink_" + i);
         let triggerButton = document.getElementById("buttonDrinkTrigger_" + i);
@@ -1300,25 +1312,27 @@ function initAbilitiesSection() {
             selectElement.add(new Option(ability.name, ability.hrid));
         }
 
-        selectElement.addEventListener("change", (event) => abilitySelectHandler(event, i));
-    }
-
-    updateAvailableAbilitySlots();
-}
-
-function abilitySelectHandler(event, index) {
-    abilities[index] = event.target.value;
-
-    let triggerButton = document.getElementById("buttonAbilityTrigger_" + index);
-    triggerButton.disabled = !abilities[index];
-
-    if (abilities[index] && !triggerMap[abilities[index]]) {
-        let gameAbility = _combatsimulator_data_abilityDetailMap_json__WEBPACK_IMPORTED_MODULE_2__[abilities[index]];
-        triggerMap[abilities[index]] = structuredClone(gameAbility.defaultCombatTriggers);
+        selectElement.addEventListener("change", abilitySelectHandler);
     }
 }
 
-function updateAvailableAbilitySlots() {
+function abilitySelectHandler() {
+    updateAbilityState();
+    updateAbilityUI();
+}
+
+function updateAbilityState() {
+    for (let i = 0; i < 4; i++) {
+        let abilitySelect = document.getElementById("selectAbility_" + i);
+        abilities[i] = abilitySelect.value;
+        if (abilities[i] && !triggerMap[abilities[i]]) {
+            let gameAbility = _combatsimulator_data_abilityDetailMap_json__WEBPACK_IMPORTED_MODULE_2__[abilities[i]];
+            triggerMap[abilities[i]] = structuredClone(gameAbility.defaultCombatTriggers);
+        }
+    }
+}
+
+function updateAbilityUI() {
     for (let i = 0; i < 4; i++) {
         let selectElement = document.getElementById("selectAbility_" + i);
         let inputElement = document.getElementById("inputAbilityLevel_" + i);
@@ -2005,6 +2019,9 @@ function initSimulationControls() {
 }
 
 function startSimulation() {
+    updateState();
+    updateUI();
+
     for (let i = 0; i < 3; i++) {
         if (food[i] && i < player.combatStats.foodSlots) {
             let consumable = new _combatsimulator_consumable_js__WEBPACK_IMPORTED_MODULE_5__["default"](food[i], triggerMap[food[i]]);
@@ -2092,7 +2109,20 @@ function showErrorModal(error) {
 
 // #endregion
 
-updatePlayerStats();
+function updateState() {
+    updateEquipmentState();
+    updateLevels();
+    updateFoodState();
+    updateDrinksState();
+    updateAbilityState();
+}
+
+function updateUI() {
+    updateCombatStatsUI();
+    updateFoodUI();
+    updateDrinksUI();
+    updateAbilityUI();
+}
 
 initEquipmentSection();
 initLevelSection();
@@ -2103,6 +2133,9 @@ initZones();
 initTriggerModal();
 initSimulationControls();
 initErrorHandling();
+
+updateState();
+updateUI();
 
 })();
 
