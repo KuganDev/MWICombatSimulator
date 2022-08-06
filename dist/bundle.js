@@ -2065,6 +2065,216 @@ function startSimulation() {
 
 // #endregion
 
+// #region Equipment Sets
+
+function initEquipmentSetsModal() {
+    let equipmentSetsModal = document.getElementById("equipmentSetsModal");
+    equipmentSetsModal.addEventListener("show.bs.modal", equipmentSetsModalShownHandler);
+
+    let equipmentSetNameInput = document.getElementById("inputEquipmentSetName");
+    equipmentSetNameInput.addEventListener("input", (event) => equipmentSetNameChangedHandler(event));
+
+    let createEquipmentSetButton = document.getElementById("buttonCreateNewEquipmentSet");
+    createEquipmentSetButton.addEventListener("click", createNewEquipmentSetHandler);
+}
+
+function equipmentSetsModalShownHandler() {
+    resetNewEquipmentSetControls();
+    updateEquipmentSetList();
+}
+
+function resetNewEquipmentSetControls() {
+    let equipmentSetNameInput = document.getElementById("inputEquipmentSetName");
+    equipmentSetNameInput.value = "";
+
+    let createEquipmentSetButton = document.getElementById("buttonCreateNewEquipmentSet");
+    createEquipmentSetButton.disabled = true;
+}
+
+function updateEquipmentSetList() {
+    let newChildren = [];
+    let equipmentSets = loadEquipmentSets();
+
+    for (const equipmentSetName of Object.keys(equipmentSets)) {
+        let row = createElement("div", "row mb-2");
+
+        let nameCol = createElement("div", "col align-self-center", equipmentSetName);
+        row.appendChild(nameCol);
+
+        let loadButtonCol = createElement("div", "col-md-auto");
+        let loadButton = createElement("button", "btn btn-primary", "Load");
+        loadButton.setAttribute("type", "button");
+        loadButton.addEventListener("click", (_) => loadEquipmentSetHandler(equipmentSetName));
+        loadButtonCol.appendChild(loadButton);
+        row.appendChild(loadButtonCol);
+
+        let saveButtonCol = createElement("div", "col-md-auto");
+        let saveButton = createElement("button", "btn btn-primary", "Save");
+        saveButton.setAttribute("type", "button");
+        saveButton.addEventListener("click", (_) => updateEquipmentSetHandler(equipmentSetName));
+        saveButtonCol.appendChild(saveButton);
+        row.appendChild(saveButtonCol);
+
+        let deleteButtonCol = createElement("div", "col-md-auto");
+        let deleteButton = createElement("button", "btn btn-danger", "Delete");
+        deleteButton.setAttribute("type", "button");
+        deleteButton.addEventListener("click", (_) => deleteEquipmentSetHandler(equipmentSetName));
+        deleteButtonCol.appendChild(deleteButton);
+        row.appendChild(deleteButtonCol);
+
+        newChildren.push(row);
+    }
+
+    let equipmentSetList = document.getElementById("equipmentSetList");
+    equipmentSetList.replaceChildren(...newChildren);
+}
+
+function equipmentSetNameChangedHandler(event) {
+    let invalid = false;
+
+    if (event.target.value.length == 0) {
+        invalid = true;
+    }
+
+    let equipmentSets = loadEquipmentSets();
+    if (equipmentSets[event.target.value]) {
+        invalid = true;
+    }
+
+    let createEquipmentSetButton = document.getElementById("buttonCreateNewEquipmentSet");
+    createEquipmentSetButton.disabled = invalid;
+}
+
+function createNewEquipmentSetHandler() {
+    let equipmentSetNameInput = document.getElementById("inputEquipmentSetName");
+    let equipmentSetName = equipmentSetNameInput.value;
+
+    let equipmentSet = getEquipmentSetFromUI();
+    let equipmentSets = loadEquipmentSets();
+    equipmentSets[equipmentSetName] = equipmentSet;
+    saveEquipmentSets(equipmentSets);
+
+    resetNewEquipmentSetControls();
+    updateEquipmentSetList();
+}
+
+function loadEquipmentSetHandler(name) {
+    let equipmentSets = loadEquipmentSets();
+    loadEquipmentSetIntoUI(equipmentSets[name]);
+}
+
+function updateEquipmentSetHandler(name) {
+    let equipmentSet = getEquipmentSetFromUI();
+    let equipmentSets = loadEquipmentSets();
+    equipmentSets[name] = equipmentSet;
+    saveEquipmentSets(equipmentSets);
+}
+
+function deleteEquipmentSetHandler(name) {
+    let equipmentSets = loadEquipmentSets();
+    delete equipmentSets[name];
+    saveEquipmentSets(equipmentSets);
+
+    updateEquipmentSetList();
+}
+
+function loadEquipmentSets() {
+    return JSON.parse(localStorage.getItem("equipmentSets")) ?? {};
+}
+
+function saveEquipmentSets(equipmentSets) {
+    localStorage.setItem("equipmentSets", JSON.stringify(equipmentSets));
+}
+
+function getEquipmentSetFromUI() {
+    let equipmentSet = {
+        levels: {},
+        equipment: {},
+        food: {},
+        drinks: {},
+        abilities: {},
+        triggerMap: {},
+    };
+
+    ["stamina", "intelligence", "attack", "power", "defense"].forEach((skill) => {
+        let levelInput = document.getElementById("inputLevel_" + skill);
+        equipmentSet.levels[skill] = Number(levelInput.value);
+    });
+
+    ["head", "body", "legs", "feet", "hands", "weapon", "off_hand", "pouch"].forEach((type) => {
+        let equipmentSelect = document.getElementById("selectEquipment_" + type);
+        let enhancementLevelInput = document.getElementById("inputEquipmentEnhancementLevel_" + type);
+
+        equipmentSet.equipment[type] = {
+            equipment: equipmentSelect.value,
+            enhancementLevel: Number(enhancementLevelInput.value),
+        };
+    });
+
+    for (let i = 0; i < 3; i++) {
+        let foodSelect = document.getElementById("selectFood_" + i);
+        equipmentSet.food[i] = foodSelect.value;
+    }
+
+    for (let i = 0; i < 3; i++) {
+        let drinkSelect = document.getElementById("selectDrink_" + i);
+        equipmentSet.drinks[i] = drinkSelect.value;
+    }
+
+    for (let i = 0; i < 4; i++) {
+        let abilitySelect = document.getElementById("selectAbility_" + i);
+        let abilityLevelInput = document.getElementById("inputAbilityLevel_" + i);
+        equipmentSet.abilities[i] = {
+            ability: abilitySelect.value,
+            level: Number(abilityLevelInput.value),
+        };
+    }
+
+    equipmentSet.triggerMap = triggerMap;
+
+    return equipmentSet;
+}
+
+function loadEquipmentSetIntoUI(equipmentSet) {
+    ["stamina", "intelligence", "attack", "power", "defense"].forEach((skill) => {
+        let levelInput = document.getElementById("inputLevel_" + skill);
+        levelInput.value = equipmentSet.levels[skill];
+    });
+
+    ["head", "body", "legs", "feet", "hands", "weapon", "off_hand", "pouch"].forEach((type) => {
+        let equipmentSelect = document.getElementById("selectEquipment_" + type);
+        let enhancementLevelInput = document.getElementById("inputEquipmentEnhancementLevel_" + type);
+
+        equipmentSelect.value = equipmentSet.equipment[type].equipment;
+        enhancementLevelInput.value = equipmentSet.equipment[type].enhancementLevel;
+    });
+
+    for (let i = 0; i < 3; i++) {
+        let foodSelect = document.getElementById("selectFood_" + i);
+        foodSelect.value = equipmentSet.food[i];
+    }
+
+    for (let i = 0; i < 3; i++) {
+        let drinkSelect = document.getElementById("selectDrink_" + i);
+        drinkSelect.value = equipmentSet.drinks[i];
+    }
+
+    for (let i = 0; i < 4; i++) {
+        let abilitySelect = document.getElementById("selectAbility_" + i);
+        let abilityLevelInput = document.getElementById("inputAbilityLevel_" + i);
+
+        abilitySelect.value = equipmentSet.abilities[i].ability;
+        abilityLevelInput.value = equipmentSet.abilities[i].level;
+    }
+
+    triggerMap = equipmentSet.triggerMap;
+
+    updateState();
+    updateUI();
+}
+
+// #endregion
+
 // #region Error Handling
 
 function initErrorHandling() {
@@ -2132,6 +2342,7 @@ initAbilitiesSection();
 initZones();
 initTriggerModal();
 initSimulationControls();
+initEquipmentSetsModal();
 initErrorHandling();
 
 updateState();

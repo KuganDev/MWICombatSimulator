@@ -605,7 +605,7 @@
                             <!-- #endregion-->
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row mb-3">
                         <!-- #region Simulation Controls -->
                         <label for="selectZone" class="col-md-auto col-form-label">Zone</label>
                         <div class="col-md-3">
@@ -642,6 +642,19 @@
                             </div>
                         </div>
                         <!-- #endregion -->
+                    </div>
+                    <div class="row">
+                        <div class="col-md-auto">
+                            <button
+                                id="buttonEquipmentSets"
+                                class="btn btn-primary"
+                                type="button"
+                                data-bs-toggle="modal"
+                                data-bs-target="#equipmentSetsModal"
+                            >
+                                Equipment Sets
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <div class="col-md-5">
@@ -1195,6 +1208,37 @@
             </div>
             <!-- #endregion -->
         </div>
+        <div class="modal" id="equipmentSetsModal" tabindex="-1">
+            <!-- #region Equipment Sets Modal -->
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Equipment Sets</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="container-fluid">
+                            <div id="equipmentSetList"></div>
+                            <div class="row">
+                                <label for="inputEquipmentSetName" class="col-md-auto col-form-label">Name</label>
+                                <div class="col">
+                                    <input type="text" id="inputEquipmentSetName" class="form-control" />
+                                </div>
+                                <div class="col-md-auto">
+                                    <button type="button" id="buttonCreateNewEquipmentSet" class="btn btn-primary">
+                                        Create
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+            <!-- #endregion -->
+        </div>
         <div class="modal" id="errorModal" tabindex="-1">
             <!-- #region Error Modal -->
             <div class="modal-dialog">
@@ -1205,7 +1249,7 @@
                     </div>
                     <div class="modal-body">
                         An error occured. Please include the following information if you report a bug:
-                        <input type="text" id="inputError" class="form-control" disabled/>
+                        <input type="text" id="inputError" class="form-control" disabled />
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary" id="buttonCopyError">Copy to clipboard</button>
