@@ -3,7 +3,6 @@
         "hrid": "/combat_monsters/alligator",
         "name": "Sherlock",
         "combatDetails": {
-            "combatStyleHrid": "/combat_styles/slash",
             "currentHitpoints": 300,
             "maxHitpoints": 300,
             "currentManapoints": 300,
@@ -23,6 +22,7 @@
             "powerLevel": 25,
             "defenseLevel": 16,
             "combatStats": {
+                "combatStyleHrids": ["/combat_styles/slash"],
                 "attackInterval": 3500000000,
                 "stabAccuracy": 0,
                 "slashAccuracy": 0,
@@ -82,9 +82,9 @@
             },
             {
                 "itemHrid": "/items/swamp_essence",
-                "dropRate": 0.6,
-                "minCount": 4,
-                "maxCount": 12
+                "dropRate": 0.4,
+                "minCount": 2,
+                "maxCount": 6
             },
             {
                 "itemHrid": "/items/scratch",
@@ -98,7 +98,6 @@
         "hrid": "/combat_monsters/black_bear",
         "name": "Black Bear",
         "combatDetails": {
-            "combatStyleHrid": "/combat_styles/stab",
             "currentHitpoints": 1300,
             "maxHitpoints": 1300,
             "currentManapoints": 1300,
@@ -118,6 +117,7 @@
             "powerLevel": 140,
             "defenseLevel": 120,
             "combatStats": {
+                "combatStyleHrids": ["/combat_styles/stab"],
                 "attackInterval": 3000000000,
                 "stabAccuracy": 0,
                 "slashAccuracy": 0,
@@ -189,9 +189,9 @@
             },
             {
                 "itemHrid": "/items/bear_essence",
-                "dropRate": 0.4,
-                "minCount": 2,
-                "maxCount": 6
+                "dropRate": 0.3,
+                "minCount": 1,
+                "maxCount": 3
             },
             {
                 "itemHrid": "/items/frenzy",
@@ -205,7 +205,6 @@
         "hrid": "/combat_monsters/crab",
         "name": "I Pinch",
         "combatDetails": {
-            "combatStyleHrid": "/combat_styles/smash",
             "currentHitpoints": 400,
             "maxHitpoints": 400,
             "currentManapoints": 400,
@@ -225,6 +224,7 @@
             "powerLevel": 30,
             "defenseLevel": 40,
             "combatStats": {
+                "combatStyleHrids": ["/combat_styles/smash"],
                 "attackInterval": 3500000000,
                 "stabAccuracy": 0,
                 "slashAccuracy": 0,
@@ -272,9 +272,9 @@
             },
             {
                 "itemHrid": "/items/aqua_essence",
-                "dropRate": 0.4,
-                "minCount": 2,
-                "maxCount": 6
+                "dropRate": 0.2,
+                "minCount": 1,
+                "maxCount": 4
             },
             {
                 "itemHrid": "/items/smack",
@@ -288,7 +288,6 @@
         "hrid": "/combat_monsters/eye",
         "name": "Eye",
         "combatDetails": {
-            "combatStyleHrid": "/combat_styles/slash",
             "currentHitpoints": 990,
             "maxHitpoints": 990,
             "currentManapoints": 990,
@@ -308,6 +307,7 @@
             "powerLevel": 89,
             "defenseLevel": 89,
             "combatStats": {
+                "combatStyleHrids": ["/combat_styles/slash"],
                 "attackInterval": 2800000000,
                 "stabAccuracy": 0,
                 "slashAccuracy": 0,
@@ -391,13 +391,13 @@
             },
             {
                 "itemHrid": "/items/burble_tea_leaf",
-                "dropRate": 0.45,
+                "dropRate": 0.6,
                 "minCount": 1,
                 "maxCount": 3
             },
             {
                 "itemHrid": "/items/moolong_tea_leaf",
-                "dropRate": 0.6,
+                "dropRate": 0.45,
                 "minCount": 1,
                 "maxCount": 3
             },
@@ -409,7 +409,7 @@
             },
             {
                 "itemHrid": "/items/eyessence",
-                "dropRate": 1,
+                "dropRate": 0.4,
                 "minCount": 1,
                 "maxCount": 1
             },
@@ -425,7 +425,6 @@
         "hrid": "/combat_monsters/eyes",
         "name": "Eyes",
         "combatDetails": {
-            "combatStyleHrid": "/combat_styles/slash",
             "currentHitpoints": 1110,
             "maxHitpoints": 1110,
             "currentManapoints": 1110,
@@ -445,6 +444,7 @@
             "powerLevel": 101,
             "defenseLevel": 101,
             "combatStats": {
+                "combatStyleHrids": ["/combat_styles/slash"],
                 "attackInterval": 2800000000,
                 "stabAccuracy": 0,
                 "slashAccuracy": 0,
@@ -474,13 +474,13 @@
             },
             {
                 "itemHrid": "/items/burble_tea_leaf",
-                "dropRate": 0.15,
+                "dropRate": 0.2,
                 "minCount": 1,
                 "maxCount": 1
             },
             {
                 "itemHrid": "/items/moolong_tea_leaf",
-                "dropRate": 0.2,
+                "dropRate": 0.15,
                 "minCount": 1,
                 "maxCount": 1
             },
@@ -498,7 +498,7 @@
             },
             {
                 "itemHrid": "/items/eyessence",
-                "dropRate": 1,
+                "dropRate": 0.4,
                 "minCount": 2,
                 "maxCount": 2
             },
@@ -514,7 +514,6 @@
         "hrid": "/combat_monsters/fly",
         "name": "Fly",
         "combatDetails": {
-            "combatStyleHrid": "/combat_styles/smash",
             "currentHitpoints": 30,
             "maxHitpoints": 30,
             "currentManapoints": 30,
@@ -534,6 +533,7 @@
             "powerLevel": 1,
             "defenseLevel": 1,
             "combatStats": {
+                "combatStyleHrids": ["/combat_styles/smash"],
                 "attackInterval": 4000000000,
                 "stabAccuracy": 0,
                 "slashAccuracy": 0,
@@ -567,7 +567,6 @@
         "hrid": "/combat_monsters/frog",
         "name": "Frogger",
         "combatDetails": {
-            "combatStyleHrid": "/combat_styles/smash",
             "currentHitpoints": 150,
             "maxHitpoints": 150,
             "currentManapoints": 150,
@@ -587,6 +586,7 @@
             "powerLevel": 10,
             "defenseLevel": 15,
             "combatStats": {
+                "combatStyleHrids": ["/combat_styles/smash"],
                 "attackInterval": 3200000000,
                 "stabAccuracy": 0,
                 "slashAccuracy": 0,
@@ -634,9 +634,9 @@
             },
             {
                 "itemHrid": "/items/swamp_essence",
-                "dropRate": 0.4,
+                "dropRate": 0.3,
                 "minCount": 1,
-                "maxCount": 3
+                "maxCount": 2
             },
             {
                 "itemHrid": "/items/smack",
@@ -650,7 +650,6 @@
         "hrid": "/combat_monsters/gobo_slashy",
         "name": "Slashy",
         "combatDetails": {
-            "combatStyleHrid": "/combat_styles/slash",
             "currentHitpoints": 800,
             "maxHitpoints": 800,
             "currentManapoints": 300,
@@ -670,6 +669,7 @@
             "powerLevel": 40,
             "defenseLevel": 60,
             "combatStats": {
+                "combatStyleHrids": ["/combat_styles/slash"],
                 "attackInterval": 3300000000,
                 "stabAccuracy": 0,
                 "slashAccuracy": 0.9,
@@ -694,8 +694,8 @@
             {
                 "itemHrid": "/items/coin",
                 "dropRate": 1,
-                "minCount": 160,
-                "maxCount": 800
+                "minCount": 130,
+                "maxCount": 650
             },
             {
                 "itemHrid": "/items/blackberry",
@@ -716,18 +716,6 @@
                 "maxCount": 5
             },
             {
-                "itemHrid": "/items/gobo_slasher",
-                "dropRate": 0.001,
-                "minCount": 1,
-                "maxCount": 1
-            },
-            {
-                "itemHrid": "/items/gobo_essence",
-                "dropRate": 0.5,
-                "minCount": 3,
-                "maxCount": 9
-            },
-            {
                 "itemHrid": "/items/black_tea_leaf",
                 "dropRate": 0.2,
                 "minCount": 1,
@@ -746,6 +734,18 @@
                 "maxCount": 2
             },
             {
+                "itemHrid": "/items/gobo_slasher",
+                "dropRate": 0.001,
+                "minCount": 1,
+                "maxCount": 1
+            },
+            {
+                "itemHrid": "/items/gobo_essence",
+                "dropRate": 0.3,
+                "minCount": 2,
+                "maxCount": 6
+            },
+            {
                 "itemHrid": "/items/cleave",
                 "dropRate": 0.001,
                 "minCount": 1,
@@ -757,7 +757,6 @@
         "hrid": "/combat_monsters/gobo_smashy",
         "name": "Smashy",
         "combatDetails": {
-            "combatStyleHrid": "/combat_styles/smash",
             "currentHitpoints": 800,
             "maxHitpoints": 800,
             "currentManapoints": 300,
@@ -777,6 +776,7 @@
             "powerLevel": 45,
             "defenseLevel": 60,
             "combatStats": {
+                "combatStyleHrids": ["/combat_styles/smash"],
                 "attackInterval": 3700000000,
                 "stabAccuracy": 0,
                 "slashAccuracy": 0,
@@ -801,8 +801,8 @@
             {
                 "itemHrid": "/items/coin",
                 "dropRate": 1,
-                "minCount": 160,
-                "maxCount": 800
+                "minCount": 130,
+                "maxCount": 650
             },
             {
                 "itemHrid": "/items/orange",
@@ -848,9 +848,9 @@
             },
             {
                 "itemHrid": "/items/gobo_essence",
-                "dropRate": 0.5,
-                "minCount": 3,
-                "maxCount": 9
+                "dropRate": 0.3,
+                "minCount": 2,
+                "maxCount": 6
             },
             {
                 "itemHrid": "/items/berserk",
@@ -864,7 +864,6 @@
         "hrid": "/combat_monsters/gobo_stabby",
         "name": "Stabby",
         "combatDetails": {
-            "combatStyleHrid": "/combat_styles/stab",
             "currentHitpoints": 800,
             "maxHitpoints": 800,
             "currentManapoints": 300,
@@ -884,6 +883,7 @@
             "powerLevel": 30,
             "defenseLevel": 60,
             "combatStats": {
+                "combatStyleHrids": ["/combat_styles/stab"],
                 "attackInterval": 2500000000,
                 "stabAccuracy": 2,
                 "slashAccuracy": 0,
@@ -908,8 +908,8 @@
             {
                 "itemHrid": "/items/coin",
                 "dropRate": 1,
-                "minCount": 160,
-                "maxCount": 800
+                "minCount": 130,
+                "maxCount": 650
             },
             {
                 "itemHrid": "/items/burble_milk",
@@ -949,9 +949,9 @@
             },
             {
                 "itemHrid": "/items/gobo_essence",
-                "dropRate": 0.5,
-                "minCount": 3,
-                "maxCount": 9
+                "dropRate": 0.3,
+                "minCount": 2,
+                "maxCount": 6
             },
             {
                 "itemHrid": "/items/pierce",
@@ -965,7 +965,6 @@
         "hrid": "/combat_monsters/grizzly_bear",
         "name": "Grizzly Bear",
         "combatDetails": {
-            "combatStyleHrid": "/combat_styles/slash",
             "currentHitpoints": 1400,
             "maxHitpoints": 1400,
             "currentManapoints": 1400,
@@ -985,6 +984,7 @@
             "powerLevel": 150,
             "defenseLevel": 130,
             "combatStats": {
+                "combatStyleHrids": ["/combat_styles/slash"],
                 "attackInterval": 3000000000,
                 "stabAccuracy": 0,
                 "slashAccuracy": 0,
@@ -1056,9 +1056,9 @@
             },
             {
                 "itemHrid": "/items/bear_essence",
-                "dropRate": 0.5,
-                "minCount": 3,
-                "maxCount": 9
+                "dropRate": 0.3,
+                "minCount": 1,
+                "maxCount": 4
             },
             {
                 "itemHrid": "/items/frenzy",
@@ -1072,7 +1072,6 @@
         "hrid": "/combat_monsters/gummy_bear",
         "name": "Gummy Bear",
         "combatDetails": {
-            "combatStyleHrid": "/combat_styles/smash",
             "currentHitpoints": 1200,
             "maxHitpoints": 1200,
             "currentManapoints": 1200,
@@ -1092,6 +1091,7 @@
             "powerLevel": 80,
             "defenseLevel": 100,
             "combatStats": {
+                "combatStyleHrids": ["/combat_styles/smash"],
                 "attackInterval": 2600000000,
                 "stabAccuracy": 0,
                 "slashAccuracy": 0,
@@ -1151,9 +1151,9 @@
             },
             {
                 "itemHrid": "/items/bear_essence",
-                "dropRate": 0.4,
+                "dropRate": 0.3,
                 "minCount": 1,
-                "maxCount": 3
+                "maxCount": 2
             },
             {
                 "itemHrid": "/items/frenzy",
@@ -1167,7 +1167,6 @@
         "hrid": "/combat_monsters/nom_nom",
         "name": "Nom Nom",
         "combatDetails": {
-            "combatStyleHrid": "/combat_styles/stab",
             "currentHitpoints": 480,
             "maxHitpoints": 480,
             "currentManapoints": 480,
@@ -1187,6 +1186,7 @@
             "powerLevel": 45,
             "defenseLevel": 45,
             "combatStats": {
+                "combatStyleHrids": ["/combat_styles/stab"],
                 "attackInterval": 3200000000,
                 "stabAccuracy": -0.2,
                 "slashAccuracy": -0.2,
@@ -1258,9 +1258,9 @@
             },
             {
                 "itemHrid": "/items/aqua_essence",
-                "dropRate": 0.6,
-                "minCount": 4,
-                "maxCount": 12
+                "dropRate": 0.4,
+                "minCount": 3,
+                "maxCount": 9
             },
             {
                 "itemHrid": "/items/pierce",
@@ -1274,7 +1274,6 @@
         "hrid": "/combat_monsters/panda",
         "name": "Panda",
         "combatDetails": {
-            "combatStyleHrid": "/combat_styles/smash",
             "currentHitpoints": 1600,
             "maxHitpoints": 1600,
             "currentManapoints": 1600,
@@ -1294,6 +1293,7 @@
             "powerLevel": 130,
             "defenseLevel": 150,
             "combatStats": {
+                "combatStyleHrids": ["/combat_styles/smash"],
                 "attackInterval": 3500000000,
                 "stabAccuracy": 0,
                 "slashAccuracy": 0,
@@ -1377,9 +1377,9 @@
             },
             {
                 "itemHrid": "/items/bear_essence",
-                "dropRate": 0.4,
-                "minCount": 2,
-                "maxCount": 6
+                "dropRate": 0.3,
+                "minCount": 1,
+                "maxCount": 4
             },
             {
                 "itemHrid": "/items/toughness",
@@ -1393,7 +1393,6 @@
         "hrid": "/combat_monsters/polar_bear",
         "name": "Polar Bear",
         "combatDetails": {
-            "combatStyleHrid": "/combat_styles/smash",
             "currentHitpoints": 1500,
             "maxHitpoints": 1500,
             "currentManapoints": 1500,
@@ -1413,6 +1412,7 @@
             "powerLevel": 160,
             "defenseLevel": 140,
             "combatStats": {
+                "combatStyleHrids": ["/combat_styles/smash"],
                 "attackInterval": 3000000000,
                 "stabAccuracy": 0,
                 "slashAccuracy": 0,
@@ -1484,9 +1484,9 @@
             },
             {
                 "itemHrid": "/items/bear_essence",
-                "dropRate": 0.6,
-                "minCount": 4,
-                "maxCount": 12
+                "dropRate": 0.3,
+                "minCount": 1,
+                "maxCount": 5
             },
             {
                 "itemHrid": "/items/frenzy",
@@ -1500,7 +1500,6 @@
         "hrid": "/combat_monsters/rat",
         "name": "Jerry",
         "combatDetails": {
-            "combatStyleHrid": "/combat_styles/stab",
             "currentHitpoints": 60,
             "maxHitpoints": 60,
             "currentManapoints": 100,
@@ -1520,6 +1519,7 @@
             "powerLevel": 4,
             "defenseLevel": 4,
             "combatStats": {
+                "combatStyleHrids": ["/combat_styles/stab"],
                 "attackInterval": 3500000000,
                 "stabAccuracy": 0,
                 "slashAccuracy": 0,
@@ -1589,7 +1589,6 @@
         "hrid": "/combat_monsters/sea_snail",
         "name": "Gary",
         "combatDetails": {
-            "combatStyleHrid": "/combat_styles/smash",
             "currentHitpoints": 350,
             "maxHitpoints": 350,
             "currentManapoints": 350,
@@ -1609,6 +1608,7 @@
             "powerLevel": 22,
             "defenseLevel": 28,
             "combatStats": {
+                "combatStyleHrids": ["/combat_styles/smash"],
                 "attackInterval": 4000000000,
                 "stabAccuracy": 0,
                 "slashAccuracy": 0,
@@ -1668,9 +1668,9 @@
             },
             {
                 "itemHrid": "/items/aqua_essence",
-                "dropRate": 0.4,
+                "dropRate": 0.3,
                 "minCount": 1,
-                "maxCount": 3
+                "maxCount": 2
             },
             {
                 "itemHrid": "/items/toughness",
@@ -1684,7 +1684,6 @@
         "hrid": "/combat_monsters/skunk",
         "name": "Skunk",
         "combatDetails": {
-            "combatStyleHrid": "/combat_styles/slash",
             "currentHitpoints": 80,
             "maxHitpoints": 80,
             "currentManapoints": 100,
@@ -1704,6 +1703,7 @@
             "powerLevel": 8,
             "defenseLevel": 8,
             "combatStats": {
+                "combatStyleHrids": ["/combat_styles/slash"],
                 "attackInterval": 3500000000,
                 "stabAccuracy": 0,
                 "slashAccuracy": 0,
@@ -1755,7 +1755,6 @@
         "hrid": "/combat_monsters/slimy",
         "name": "Slimy",
         "combatDetails": {
-            "combatStyleHrid": "/combat_styles/smash",
             "currentHitpoints": 120,
             "maxHitpoints": 120,
             "currentManapoints": 120,
@@ -1775,6 +1774,7 @@
             "powerLevel": 12,
             "defenseLevel": 10,
             "combatStats": {
+                "combatStyleHrids": ["/combat_styles/smash"],
                 "attackInterval": 3500000000,
                 "stabAccuracy": 0,
                 "slashAccuracy": 0,
@@ -1826,7 +1826,6 @@
         "hrid": "/combat_monsters/snake",
         "name": "Thnake",
         "combatDetails": {
-            "combatStyleHrid": "/combat_styles/stab",
             "currentHitpoints": 200,
             "maxHitpoints": 200,
             "currentManapoints": 200,
@@ -1846,6 +1845,7 @@
             "powerLevel": 16,
             "defenseLevel": 18,
             "combatStats": {
+                "combatStyleHrids": ["/combat_styles/stab"],
                 "attackInterval": 3200000000,
                 "stabAccuracy": 0,
                 "slashAccuracy": 0,
@@ -1887,9 +1887,9 @@
             },
             {
                 "itemHrid": "/items/swamp_essence",
-                "dropRate": 0.4,
-                "minCount": 2,
-                "maxCount": 6
+                "dropRate": 0.3,
+                "minCount": 1,
+                "maxCount": 4
             },
             {
                 "itemHrid": "/items/poke",
@@ -1903,7 +1903,6 @@
         "hrid": "/combat_monsters/swampy",
         "name": "Swampy",
         "combatDetails": {
-            "combatStyleHrid": "/combat_styles/smash",
             "currentHitpoints": 260,
             "maxHitpoints": 260,
             "currentManapoints": 260,
@@ -1923,6 +1922,7 @@
             "powerLevel": 16,
             "defenseLevel": 22,
             "combatStats": {
+                "combatStyleHrids": ["/combat_styles/smash"],
                 "attackInterval": 3000000000,
                 "stabAccuracy": 0,
                 "slashAccuracy": 0,
@@ -1988,7 +1988,7 @@
             },
             {
                 "itemHrid": "/items/swamp_essence",
-                "dropRate": 0.6,
+                "dropRate": 0.4,
                 "minCount": 3,
                 "maxCount": 9
             },
@@ -2004,7 +2004,6 @@
         "hrid": "/combat_monsters/turtle",
         "name": "Turuto",
         "combatDetails": {
-            "combatStyleHrid": "/combat_styles/smash",
             "currentHitpoints": 700,
             "maxHitpoints": 700,
             "currentManapoints": 600,
@@ -2024,6 +2023,7 @@
             "powerLevel": 55,
             "defenseLevel": 55,
             "combatStats": {
+                "combatStyleHrids": ["/combat_styles/smash"],
                 "attackInterval": 3500000000,
                 "stabAccuracy": 0,
                 "slashAccuracy": 0,
@@ -2083,9 +2083,9 @@
             },
             {
                 "itemHrid": "/items/aqua_essence",
-                "dropRate": 0.6,
-                "minCount": 3,
-                "maxCount": 15
+                "dropRate": 0.4,
+                "minCount": 2,
+                "maxCount": 6
             },
             {
                 "itemHrid": "/items/toughness",
@@ -2099,7 +2099,6 @@
         "hrid": "/combat_monsters/vampire",
         "name": "Vampire",
         "combatDetails": {
-            "combatStyleHrid": "/combat_styles/stab",
             "currentHitpoints": 2000,
             "maxHitpoints": 2000,
             "currentManapoints": 2000,
@@ -2119,6 +2118,7 @@
             "powerLevel": 190,
             "defenseLevel": 250,
             "combatStats": {
+                "combatStyleHrids": ["/combat_styles/stab"],
                 "attackInterval": 2800000000,
                 "stabAccuracy": 0,
                 "slashAccuracy": 0,
@@ -2159,16 +2159,16 @@
                 "maxCount": 2
             },
             {
-                "itemHrid": "/items/twilight_essence",
-                "dropRate": 0.5,
-                "minCount": 2,
-                "maxCount": 6
-            },
-            {
                 "itemHrid": "/items/vampire_fang",
                 "dropRate": 0.001,
                 "minCount": 1,
                 "maxCount": 1
+            },
+            {
+                "itemHrid": "/items/twilight_essence",
+                "dropRate": 0.3,
+                "minCount": 1,
+                "maxCount": 4
             },
             {
                 "itemHrid": "/items/vampirism",
@@ -2182,7 +2182,6 @@
         "hrid": "/combat_monsters/veyes",
         "name": "Veyes",
         "combatDetails": {
-            "combatStyleHrid": "/combat_styles/slash",
             "currentHitpoints": 1230,
             "maxHitpoints": 1230,
             "currentManapoints": 1230,
@@ -2202,6 +2201,7 @@
             "powerLevel": 113,
             "defenseLevel": 113,
             "combatStats": {
+                "combatStyleHrids": ["/combat_styles/slash"],
                 "attackInterval": 2800000000,
                 "stabAccuracy": 0,
                 "slashAccuracy": 0,
@@ -2231,13 +2231,13 @@
             },
             {
                 "itemHrid": "/items/burble_tea_leaf",
-                "dropRate": 0.15,
+                "dropRate": 0.2,
                 "minCount": 1,
                 "maxCount": 2
             },
             {
                 "itemHrid": "/items/moolong_tea_leaf",
-                "dropRate": 0.2,
+                "dropRate": 0.15,
                 "minCount": 1,
                 "maxCount": 2
             },
@@ -2255,7 +2255,7 @@
             },
             {
                 "itemHrid": "/items/eyessence",
-                "dropRate": 1,
+                "dropRate": 0.4,
                 "minCount": 5,
                 "maxCount": 5
             },
@@ -2271,7 +2271,6 @@
         "hrid": "/combat_monsters/werewolf",
         "name": "Werewolf",
         "combatDetails": {
-            "combatStyleHrid": "/combat_styles/slash",
             "currentHitpoints": 2400,
             "maxHitpoints": 2400,
             "currentManapoints": 2400,
@@ -2291,6 +2290,7 @@
             "powerLevel": 220,
             "defenseLevel": 200,
             "combatStats": {
+                "combatStyleHrids": ["/combat_styles/slash"],
                 "attackInterval": 2800000000,
                 "stabAccuracy": 0,
                 "slashAccuracy": 0,
@@ -2334,16 +2334,16 @@
                 "maxCount": 2
             },
             {
-                "itemHrid": "/items/twilight_essence",
-                "dropRate": 0.6,
-                "minCount": 3,
-                "maxCount": 9
-            },
-            {
                 "itemHrid": "/items/werewolf_claw",
                 "dropRate": 0.001,
                 "minCount": 1,
                 "maxCount": 1
+            },
+            {
+                "itemHrid": "/items/twilight_essence",
+                "dropRate": 0.3,
+                "minCount": 2,
+                "maxCount": 5
             },
             {
                 "itemHrid": "/items/berserk",
@@ -2363,7 +2363,6 @@
         "hrid": "/combat_monsters/zombie",
         "name": "Zombie",
         "combatDetails": {
-            "combatStyleHrid": "/combat_styles/slash",
             "currentHitpoints": 1700,
             "maxHitpoints": 1700,
             "currentManapoints": 1700,
@@ -2383,6 +2382,7 @@
             "powerLevel": 190,
             "defenseLevel": 190,
             "combatStats": {
+                "combatStyleHrids": ["/combat_styles/slash"],
                 "attackInterval": 3200000000,
                 "stabAccuracy": 0,
                 "slashAccuracy": 0,
@@ -2451,9 +2451,9 @@
             },
             {
                 "itemHrid": "/items/twilight_essence",
-                "dropRate": 0.4,
+                "dropRate": 0.3,
                 "minCount": 1,
-                "maxCount": 3
+                "maxCount": 2
             },
             {
                 "itemHrid": "/items/toughness",

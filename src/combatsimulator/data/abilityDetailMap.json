@@ -150,7 +150,7 @@
                 "bonusAccuracyRatio": 0,
                 "bonusAccuracyRatioLevelBonus": 0,
                 "bleedRatio": 2,
-                "duration": 12000000000,
+                "duration": 15000000000,
                 "buff": {
                     "sourceHrid": "",
                     "typeHrid": "",

@@ -30,7 +30,7 @@ class Equipment {
         let gameItem = itemDetailMap[this.hrid];
         console.assert(gameItem, "No equipment found for hrid:" + this.hrid);
 
-        let gameCombatStyle = gameItem.equipmentDetail.combatStyleHrids[0];
+        let gameCombatStyle = gameItem.equipmentDetail.combatStats.combatStyleHrids[0];
         let combatStyle = gameCombatStyle.slice(gameCombatStyle.lastIndexOf("/") + 1);
 
         return combatStyle;
