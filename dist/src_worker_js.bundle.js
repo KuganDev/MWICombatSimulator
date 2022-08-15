@@ -702,7 +702,7 @@ class CombatUnit {
         smashEvasion: 0,
         armor: 0,
         lifeSteal: 0,
-        HPRegen: 0.005,
+        HPRegen: 0.01,
         MPRegen: 0.01,
         dropRate: 0,
         foodSlots: 1,
@@ -1643,7 +1643,7 @@ class Player extends _combatUnit__WEBPACK_IMPORTED_MODULE_1__["default"] {
             this.combatStats.drinkSlots = 1;
         }
 
-        this.combatStats.HPRegen = 0.005;
+        this.combatStats.HPRegen = 0.01;
         this.combatStats.MPRegen = 0.01;
         this.combatStats.dropRate = 0;
 

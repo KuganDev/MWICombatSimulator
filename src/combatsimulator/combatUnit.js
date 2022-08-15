@@ -27,7 +27,7 @@ class CombatUnit {
         smashEvasion: 0,
         armor: 0,
         lifeSteal: 0,
-        HPRegen: 0.005,
+        HPRegen: 0.01,
         MPRegen: 0.01,
         dropRate: 0,
         foodSlots: 1,
