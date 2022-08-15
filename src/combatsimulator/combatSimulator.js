@@ -169,6 +169,10 @@ class CombatSimulator extends EventTarget {
             target = CombatUtilities.getTarget(this.players);
         }
 
+        if (!target) {
+            return;
+        }
+
         let { damageDone, damagePrevented, maxDamage, didHit } = CombatUtilities.processAttack(event.source, target);
         // console.log("Hit for", damageDone);
 
