@@ -13,6 +13,12 @@ class EventQueue {
         return this.minHeap.pop();
     }
 
+    containsEventOfType(type) {
+        let heapEvents = this.minHeap.toArray();
+
+        return heapEvents.some((event) => event.type == type);
+    }
+
     clear() {
         this.minHeap = new Heap((a, b) => a.time - b.time);
     }

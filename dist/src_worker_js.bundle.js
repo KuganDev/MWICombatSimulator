@@ -256,28 +256,18 @@ class CombatSimulator extends EventTarget {
                 this.eventQueue.addEvent(cooldownReadyEvent);
             });
 
-        let regenTickEvent = new _events_regenTickEvent__WEBPACK_IMPORTED_MODULE_10__["default"](this.simulationTime + REGEN_TICK_INTERVAL, this.players[0]);
+        let regenTickEvent = new _events_regenTickEvent__WEBPACK_IMPORTED_MODULE_10__["default"](this.simulationTime + REGEN_TICK_INTERVAL);
         this.eventQueue.addEvent(regenTickEvent);
 
         this.startNewEncounter();
     }
 
     processPlayerRespawnEvent(event) {
-        this.players[0].combatStats.currentHitpoints = this.players[0].combatStats.maxHitpoints / 2;
+        this.players[0].combatStats.currentHitpoints = this.players[0].combatStats.maxHitpoints;
+        this.players[0].combatStats.currentManapoints = this.players[0].combatStats.maxManapoints;
         this.players[0].clearBuffs();
 
-        this.players[0].resetCooldowns(this.simulationTime);
-        this.players[0].abilities
-            .filter((ability) => ability != null)
-            .forEach((ability) => {
-                let cooldownReadyEvent = new _events_cooldownReadyEvent__WEBPACK_IMPORTED_MODULE_6__["default"](ability.lastUsed + ability.cooldownDuration);
-                this.eventQueue.addEvent(cooldownReadyEvent);
-            });
-
-        let regenTickEvent = new _events_regenTickEvent__WEBPACK_IMPORTED_MODULE_10__["default"](this.simulationTime + REGEN_TICK_INTERVAL, this.players[0]);
-        this.eventQueue.addEvent(regenTickEvent);
-
-        this.startNewEncounter();
+        this.startAutoAttacks();
     }
 
     processEnemyRespawnEvent(event) {
@@ -295,19 +285,29 @@ class CombatSimulator extends EventTarget {
                     let cooldownReadyEvent = new _events_cooldownReadyEvent__WEBPACK_IMPORTED_MODULE_6__["default"](ability.lastUsed + ability.cooldownDuration);
                     this.eventQueue.addEvent(cooldownReadyEvent);
                 });
-
-            let regenTickEvent = new _events_regenTickEvent__WEBPACK_IMPORTED_MODULE_10__["default"](this.simulationTime + REGEN_TICK_INTERVAL, enemy);
-            this.eventQueue.addEvent(regenTickEvent);
             // console.log(enemy.hrid, "spawned");
         });
 
-        this.addNextAutoAttackEvent(this.players[0]);
+        this.startAutoAttacks();
+    }
 
-        this.enemies.forEach((enemy) => this.addNextAutoAttackEvent(enemy));
+    startAutoAttacks() {
+        let units = [this.players[0]];
+        if (this.enemies) {
+            units.push(...this.enemies);
+        }
+
+        for (const unit of units) {
+            if (unit.combatStats.currentHitpoints <= 0) {
+                continue;
+            }
+
+            this.addNextAutoAttackEvent(unit);
+        }
     }
 
     processAutoAttackEvent(event) {
-        // console.log("source:", event.source.hrid, "target:", event.target.hrid);
+        // console.log("source:", event.source.hrid);
 
         let target;
         if (event.source.isPlayer) {
@@ -341,7 +341,7 @@ class CombatSimulator extends EventTarget {
         if (target.combatStats.currentHitpoints == 0) {
             this.eventQueue.clearEventsForUnit(target);
             this.simResult.addDeath(target);
-            // console.log(event.target.hrid, "died");
+            // console.log(target.hrid, "died");
         }
 
         if (!this.checkEncounterEnd()) {
@@ -350,7 +350,7 @@ class CombatSimulator extends EventTarget {
     }
 
     checkEncounterEnd() {
-        if (this.enemies && !this.enemies.find((enemy) => enemy.combatStats.currentHitpoints > 0)) {
+        if (this.enemies && !this.enemies.some((enemy) => enemy.combatStats.currentHitpoints > 0)) {
             this.eventQueue.clearEventsOfType(_events_autoAttackEvent__WEBPACK_IMPORTED_MODULE_1__["default"].type);
             let enemyRespawnEvent = new _events_enemyRespawnEvent__WEBPACK_IMPORTED_MODULE_7__["default"](this.simulationTime + ENEMY_RESPAWN_INTERVAL);
             this.eventQueue.addEvent(enemyRespawnEvent);
@@ -360,14 +360,14 @@ class CombatSimulator extends EventTarget {
             // console.log("All enemies died");
 
             return true;
-        } else if (!this.players.find((player) => player.combatStats.currentHitpoints > 0)) {
-            this.eventQueue.clear();
+        } else if (
+            !this.players.some((player) => player.combatStats.currentHitpoints > 0) &&
+            !this.eventQueue.containsEventOfType(_events_playerRespawnEvent__WEBPACK_IMPORTED_MODULE_9__["default"].type)
+        ) {
+            this.eventQueue.clearEventsOfType(_events_autoAttackEvent__WEBPACK_IMPORTED_MODULE_1__["default"].type);
             // 120 seconds respawn and 30 seconds traveling to battle
             let playerRespawnEvent = new _events_playerRespawnEvent__WEBPACK_IMPORTED_MODULE_9__["default"](this.simulationTime + PLAYER_RESPAWN_INTERVAL);
             this.eventQueue.addEvent(playerRespawnEvent);
-            this.enemies = null;
-
-            this.simResult.addEncounterEnd();
             // console.log("Player died");
 
             return true;
@@ -449,17 +449,28 @@ class CombatSimulator extends EventTarget {
     }
 
     processRegenTickEvent(event) {
-        let hitpointRegen = Math.floor(event.source.combatStats.maxHitpoints * event.source.combatStats.HPRegen);
-        let hitpointsAdded = event.source.addHitpoints(hitpointRegen);
-        this.simResult.addHitpointsGained(event.source, "regen", hitpointsAdded);
-        // console.log("Added hitpoints:", hitpointsAdded);
+        let units = [...this.players];
+        if (this.enemies) {
+            units.push(...this.enemies);
+        }
 
-        let manapointRegen = Math.floor(event.source.combatStats.maxManapoints * event.source.combatStats.MPRegen);
-        let manapointsAdded = event.source.addManapoints(manapointRegen);
-        this.simResult.addManapointsGained(event.source, "regen", manapointsAdded);
-        // console.log("Added manapoints:", manapointsAdded);
+        for (const unit of units) {
+            if (unit.combatStats.currentHitpoints <= 0) {
+                continue;
+            }
 
-        let regenTickEvent = new _events_regenTickEvent__WEBPACK_IMPORTED_MODULE_10__["default"](this.simulationTime + REGEN_TICK_INTERVAL, event.source);
+            let hitpointRegen = Math.floor(unit.combatStats.maxHitpoints * unit.combatStats.HPRegen);
+            let hitpointsAdded = unit.addHitpoints(hitpointRegen);
+            this.simResult.addHitpointsGained(unit, "regen", hitpointsAdded);
+            // console.log("Added hitpoints:", hitpointsAdded);
+
+            let manapointRegen = Math.floor(unit.combatStats.maxManapoints * unit.combatStats.MPRegen);
+            let manapointsAdded = unit.addManapoints(manapointRegen);
+            this.simResult.addManapointsGained(unit, "regen", manapointsAdded);
+            // console.log("Added manapoints:", manapointsAdded);
+        }
+
+        let regenTickEvent = new _events_regenTickEvent__WEBPACK_IMPORTED_MODULE_10__["default"](this.simulationTime + REGEN_TICK_INTERVAL);
         this.eventQueue.addEvent(regenTickEvent);
     }
 
@@ -820,6 +831,7 @@ class CombatUnit {
 
     clearBuffs() {
         this.combatBuffs = {};
+        this.updateCombatStats();
     }
 
     getBuffBoosts(type) {
@@ -1411,6 +1423,12 @@ class EventQueue {
         return this.minHeap.pop();
     }
 
+    containsEventOfType(type) {
+        let heapEvents = this.minHeap.toArray();
+
+        return heapEvents.some((event) => event.type == type);
+    }
+
     clear() {
         this.minHeap = new heap_js__WEBPACK_IMPORTED_MODULE_0__["default"]((a, b) => a.time - b.time);
     }
@@ -1481,10 +1499,8 @@ __webpack_require__.r(__webpack_exports__);
 class RegenTickEvent extends _combatEvent__WEBPACK_IMPORTED_MODULE_0__["default"] {
     static type = "regenTick";
 
-    constructor(time, source) {
+    constructor(time) {
         super(RegenTickEvent.type, time);
-
-        this.source = source;
     }
 }
 

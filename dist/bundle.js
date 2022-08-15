@@ -277,6 +277,7 @@ class CombatUnit {
 
     clearBuffs() {
         this.combatBuffs = {};
+        this.updateCombatStats();
     }
 
     getBuffBoosts(type) {
@@ -1636,7 +1637,7 @@ function showKills(simResult) {
 
     let hoursSimulated = simResult.simulatedTime / ONE_HOUR;
     let playerDeaths = simResult.deaths["player"] ?? 0;
-    let encountersPerHour = ((simResult.encounters - playerDeaths) / hoursSimulated).toFixed(1);
+    let encountersPerHour = ((simResult.encounters) / hoursSimulated).toFixed(1);
 
     let encountersRow = createRow(["col-md-6", "col-md-6 text-end"], ["Encounters", encountersPerHour]);
     newChildren.push(encountersRow);

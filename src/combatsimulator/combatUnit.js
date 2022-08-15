@@ -142,6 +142,7 @@ class CombatUnit {
 
     clearBuffs() {
         this.combatBuffs = {};
+        this.updateCombatStats();
     }
 
     getBuffBoosts(type) {
