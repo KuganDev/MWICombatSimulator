@@ -11,6 +11,13 @@ import PlayerRespawnEvent from "./events/playerRespawnEvent";
 import RegenTickEvent from "./events/regenTickEvent";
 import SimResult from "./simResult";
 
+const ONE_SECOND = 1e9;
+const HOT_TICK_INTERVAL = 5 * ONE_SECOND;
+const DOT_TICK_INTERVAL = 5 * ONE_SECOND;
+const REGEN_TICK_INTERVAL = 10 * ONE_SECOND;
+const ENEMY_RESPAWN_INTERVAL = 3 * ONE_SECOND;
+const PLAYER_RESPAWN_INTERVAL = 150 * ONE_SECOND;
+
 class CombatSimulator extends EventTarget {
     constructor(player, zone) {
         super();
@@ -102,7 +109,7 @@ class CombatSimulator extends EventTarget {
                 this.eventQueue.addEvent(cooldownReadyEvent);
             });
 
-        let regenTickEvent = new RegenTickEvent(this.simulationTime + 10 * 1e9, this.players[0]);
+        let regenTickEvent = new RegenTickEvent(this.simulationTime + REGEN_TICK_INTERVAL, this.players[0]);
         this.eventQueue.addEvent(regenTickEvent);
 
         this.startNewEncounter();
@@ -120,7 +127,7 @@ class CombatSimulator extends EventTarget {
                 this.eventQueue.addEvent(cooldownReadyEvent);
             });
 
-        let regenTickEvent = new RegenTickEvent(this.simulationTime + 10 * 1e9, this.players[0]);
+        let regenTickEvent = new RegenTickEvent(this.simulationTime + REGEN_TICK_INTERVAL, this.players[0]);
         this.eventQueue.addEvent(regenTickEvent);
 
         this.startNewEncounter();
@@ -195,7 +202,7 @@ class CombatSimulator extends EventTarget {
     checkEncounterEnd() {
         if (this.enemies && !this.enemies.find((enemy) => enemy.combatStats.currentHitpoints > 0)) {
             this.eventQueue.clearEventsOfType(AutoAttackEvent.type);
-            let enemyRespawnEvent = new EnemyRespawnEvent(this.simulationTime + 3 * 1e9);
+            let enemyRespawnEvent = new EnemyRespawnEvent(this.simulationTime + ENEMY_RESPAWN_INTERVAL);
             this.eventQueue.addEvent(enemyRespawnEvent);
             this.enemies = null;
 
@@ -206,7 +213,7 @@ class CombatSimulator extends EventTarget {
         } else if (!this.players.find((player) => player.combatStats.currentHitpoints > 0)) {
             this.eventQueue.clear();
             // 120 seconds respawn and 30 seconds traveling to battle
-            let playerRespawnEvent = new PlayerRespawnEvent(this.simulationTime + 150 * 1e9);
+            let playerRespawnEvent = new PlayerRespawnEvent(this.simulationTime + PLAYER_RESPAWN_INTERVAL);
             this.eventQueue.addEvent(playerRespawnEvent);
             this.enemies = null;
 
@@ -249,7 +256,7 @@ class CombatSimulator extends EventTarget {
 
         if (event.currentTick < event.totalTicks) {
             let consumableTickEvent = new ConsumableTickEvent(
-                this.simulationTime + 2 * 1e9,
+                this.simulationTime + HOT_TICK_INTERVAL,
                 event.source,
                 event.consumable,
                 event.totalTicks,
@@ -273,7 +280,7 @@ class CombatSimulator extends EventTarget {
 
         if (event.currentTick < event.totalTicks) {
             let bleedTickEvent = new BleedTickEvent(
-                this.simulationTime + 2 * 1e9,
+                this.simulationTime + DOT_TICK_INTERVAL,
                 event.sourceRef,
                 event.target,
                 event.damage,
@@ -302,7 +309,7 @@ class CombatSimulator extends EventTarget {
         this.simResult.addManapointsGained(event.source, "regen", manapointsAdded);
         // console.log("Added manapoints:", manapointsAdded);
 
-        let regenTickEvent = new RegenTickEvent(this.simulationTime + 10 * 1e9, event.source);
+        let regenTickEvent = new RegenTickEvent(this.simulationTime + REGEN_TICK_INTERVAL, event.source);
         this.eventQueue.addEvent(regenTickEvent);
     }
 
@@ -390,10 +397,10 @@ class CombatSimulator extends EventTarget {
             }
         } else {
             let consumableTickEvent = new ConsumableTickEvent(
-                this.simulationTime + 2 * 1e9,
+                this.simulationTime + HOT_TICK_INTERVAL,
                 source,
                 consumable,
-                consumable.recoveryDuration / (2 * 1e9),
+                consumable.recoveryDuration / HOT_TICK_INTERVAL,
                 1
             );
             this.eventQueue.addEvent(consumableTickEvent);
@@ -461,11 +468,11 @@ class CombatSimulator extends EventTarget {
 
                         if (abilityEffect.bleedRatio > 0 && damageDone > 0) {
                             let bleedTickEvent = new BleedTickEvent(
-                                this.simulationTime + 2 * 1e9,
+                                this.simulationTime + DOT_TICK_INTERVAL,
                                 source,
                                 target,
                                 damageDone * abilityEffect.bleedRatio,
-                                abilityEffect.duration / (2 * 1e9),
+                                abilityEffect.duration / DOT_TICK_INTERVAL,
                                 1
                             );
                             this.eventQueue.addEvent(bleedTickEvent);
