@@ -148,6 +148,9 @@ class CombatSimulator extends EventTarget {
                     let cooldownReadyEvent = new CooldownReadyEvent(ability.lastUsed + ability.cooldownDuration);
                     this.eventQueue.addEvent(cooldownReadyEvent);
                 });
+
+            let regenTickEvent = new RegenTickEvent(this.simulationTime + REGEN_TICK_INTERVAL, enemy);
+            this.eventQueue.addEvent(regenTickEvent);
             // console.log(enemy.hrid, "spawned");
         });
 

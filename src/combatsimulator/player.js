@@ -36,9 +36,9 @@ class Player extends CombatUnit {
             player.equipment[key] = value ? Equipment.createFromDTO(value) : null;
         }
 
-        player.food = dto.food.map(food => food ? Consumable.createFromDTO(food) : null);
-        player.drinks = dto.drinks.map(drink => drink ? Consumable.createFromDTO(drink) : null);
-        player.abilities = dto.abilities.map(ability => ability ? Ability.createFromDTO(ability) : null);
+        player.food = dto.food.map((food) => (food ? Consumable.createFromDTO(food) : null));
+        player.drinks = dto.drinks.map((drink) => (drink ? Consumable.createFromDTO(drink) : null));
+        player.abilities = dto.abilities.map((ability) => (ability ? Ability.createFromDTO(ability) : null));
 
         return player;
     }
@@ -84,8 +84,6 @@ class Player extends CombatUnit {
             this.combatStats.drinkSlots = 1;
         }
 
-        this.combatStats.HPRegen = 0.01;
-        this.combatStats.MPRegen = 0.01;
         this.combatStats.dropRate = 0;
 
         super.updateCombatStats();

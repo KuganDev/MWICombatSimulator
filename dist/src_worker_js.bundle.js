@@ -295,6 +295,9 @@ class CombatSimulator extends EventTarget {
                     let cooldownReadyEvent = new _events_cooldownReadyEvent__WEBPACK_IMPORTED_MODULE_6__["default"](ability.lastUsed + ability.cooldownDuration);
                     this.eventQueue.addEvent(cooldownReadyEvent);
                 });
+
+            let regenTickEvent = new _events_regenTickEvent__WEBPACK_IMPORTED_MODULE_10__["default"](this.simulationTime + REGEN_TICK_INTERVAL, enemy);
+            this.eventQueue.addEvent(regenTickEvent);
             // console.log(enemy.hrid, "spawned");
         });
 
@@ -731,6 +734,9 @@ class CombatUnit {
     constructor() {}
 
     updateCombatStats() {
+        this.combatStats.HPRegen = 0.01;
+        this.combatStats.MPRegen = 0.01;
+
         ["stamina", "intelligence", "attack", "power", "defense"].forEach((stat) => {
             this.combatStats[stat + "Level"] = this[stat + "Level"];
             let boosts = this.getBuffBoosts("/buff_types/" + stat + "_level");
@@ -762,7 +768,6 @@ class CombatUnit {
                 (10 + this.combatStats.defenseLevel) * (1 + this.combatStats[style + "Evasion"]);
         });
 
-        // TODO: Test how frenzy and swiftness coffee stack
         let attackIntervalBoosts = this.getBuffBoosts("/buff_types/attack_speed");
         let attackIntervalRatioBoost = attackIntervalBoosts
             .map((boost) => boost.ratioBoost)
@@ -838,16 +843,18 @@ class CombatUnit {
     }
 
     resetCooldowns(currentTime = 0) {
-        this.food.filter((food) => food != null).forEach((food) => food.lastUsed = Number.MIN_SAFE_INTEGER);
-        this.drinks.filter((drink) => drink != null).forEach((drink) => drink.lastUsed = Number.MIN_SAFE_INTEGER);
+        this.food.filter((food) => food != null).forEach((food) => (food.lastUsed = Number.MIN_SAFE_INTEGER));
+        this.drinks.filter((drink) => drink != null).forEach((drink) => (drink.lastUsed = Number.MIN_SAFE_INTEGER));
 
-        this.abilities.filter((ability) => ability != null).forEach((ability) => {
-            if (this.isPlayer) {
-                ability.lastUsed = currentTime;
-            } else {
-                ability.lastUsed = currentTime - Math.floor(Math.random() * ability.cooldownDuration);
-            }
-        })
+        this.abilities
+            .filter((ability) => ability != null)
+            .forEach((ability) => {
+                if (this.isPlayer) {
+                    ability.lastUsed = currentTime;
+                } else {
+                    ability.lastUsed = currentTime - Math.floor(Math.random() * ability.cooldownDuration);
+                }
+            });
     }
 
     addHitpoints(hitpoints) {
@@ -1595,9 +1602,9 @@ class Player extends _combatUnit__WEBPACK_IMPORTED_MODULE_1__["default"] {
             player.equipment[key] = value ? _equipment__WEBPACK_IMPORTED_MODULE_3__["default"].createFromDTO(value) : null;
         }
 
-        player.food = dto.food.map(food => food ? _consumable__WEBPACK_IMPORTED_MODULE_2__["default"].createFromDTO(food) : null);
-        player.drinks = dto.drinks.map(drink => drink ? _consumable__WEBPACK_IMPORTED_MODULE_2__["default"].createFromDTO(drink) : null);
-        player.abilities = dto.abilities.map(ability => ability ? _ability__WEBPACK_IMPORTED_MODULE_0__["default"].createFromDTO(ability) : null);
+        player.food = dto.food.map((food) => (food ? _consumable__WEBPACK_IMPORTED_MODULE_2__["default"].createFromDTO(food) : null));
+        player.drinks = dto.drinks.map((drink) => (drink ? _consumable__WEBPACK_IMPORTED_MODULE_2__["default"].createFromDTO(drink) : null));
+        player.abilities = dto.abilities.map((ability) => (ability ? _ability__WEBPACK_IMPORTED_MODULE_0__["default"].createFromDTO(ability) : null));
 
         return player;
     }
@@ -1643,8 +1650,6 @@ class Player extends _combatUnit__WEBPACK_IMPORTED_MODULE_1__["default"] {
             this.combatStats.drinkSlots = 1;
         }
 
-        this.combatStats.HPRegen = 0.01;
-        this.combatStats.MPRegen = 0.01;
         this.combatStats.dropRate = 0;
 
         super.updateCombatStats();

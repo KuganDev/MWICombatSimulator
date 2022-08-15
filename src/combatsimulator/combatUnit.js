@@ -56,6 +56,9 @@ class CombatUnit {
     constructor() {}
 
     updateCombatStats() {
+        this.combatStats.HPRegen = 0.01;
+        this.combatStats.MPRegen = 0.01;
+
         ["stamina", "intelligence", "attack", "power", "defense"].forEach((stat) => {
             this.combatStats[stat + "Level"] = this[stat + "Level"];
             let boosts = this.getBuffBoosts("/buff_types/" + stat + "_level");
@@ -87,7 +90,6 @@ class CombatUnit {
                 (10 + this.combatStats.defenseLevel) * (1 + this.combatStats[style + "Evasion"]);
         });
 
-        // TODO: Test how frenzy and swiftness coffee stack
         let attackIntervalBoosts = this.getBuffBoosts("/buff_types/attack_speed");
         let attackIntervalRatioBoost = attackIntervalBoosts
             .map((boost) => boost.ratioBoost)
@@ -163,16 +165,18 @@ class CombatUnit {
     }
 
     resetCooldowns(currentTime = 0) {
-        this.food.filter((food) => food != null).forEach((food) => food.lastUsed = Number.MIN_SAFE_INTEGER);
-        this.drinks.filter((drink) => drink != null).forEach((drink) => drink.lastUsed = Number.MIN_SAFE_INTEGER);
+        this.food.filter((food) => food != null).forEach((food) => (food.lastUsed = Number.MIN_SAFE_INTEGER));
+        this.drinks.filter((drink) => drink != null).forEach((drink) => (drink.lastUsed = Number.MIN_SAFE_INTEGER));
 
-        this.abilities.filter((ability) => ability != null).forEach((ability) => {
-            if (this.isPlayer) {
-                ability.lastUsed = currentTime;
-            } else {
-                ability.lastUsed = currentTime - Math.floor(Math.random() * ability.cooldownDuration);
-            }
-        })
+        this.abilities
+            .filter((ability) => ability != null)
+            .forEach((ability) => {
+                if (this.isPlayer) {
+                    ability.lastUsed = currentTime;
+                } else {
+                    ability.lastUsed = currentTime - Math.floor(Math.random() * ability.cooldownDuration);
+                }
+            });
     }
 
     addHitpoints(hitpoints) {
