@@ -67,7 +67,7 @@ class CombatUtilities {
         }
 
         let damageRoll = CombatUtilities.randomInt(minDamage, maxDamage);
-        let premitigatedDamage = Math.min(damageRoll, target.combatStats.currentHitpoints);
+        let maxPremitigatedDamage = Math.min(damageRoll, target.combatStats.currentHitpoints);
 
         let damageDone = 0;
         let hitChance = CombatUtilities.calculateHitChance(source, target, combatStyle);
@@ -76,12 +76,15 @@ class CombatUtilities {
         if (Math.random() < hitChance) {
             didHit = true;
             let damageTakenRatio = 100 / (100 + target.combatStats.armor);
-            let mitigatedDamage = damageTakenRatio * premitigatedDamage;
-            damageDone = CombatUtilities.randomInt(mitigatedDamage, mitigatedDamage);
+            let mitigatedDamage = damageTakenRatio * damageRoll;
+            damageDone = Math.min(
+                CombatUtilities.randomInt(mitigatedDamage, mitigatedDamage),
+                target.combatStats.currentHitpoints
+            );
             target.combatStats.currentHitpoints -= damageDone;
         }
 
-        let damagePrevented = premitigatedDamage - damageDone;
+        let damagePrevented = maxPremitigatedDamage - damageDone;
 
         return { damageDone, damagePrevented, maxDamage, didHit };
     }
