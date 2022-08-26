@@ -308,7 +308,7 @@ class CombatUnit {
             .filter((ability) => ability != null)
             .forEach((ability) => {
                 if (this.isPlayer) {
-                    ability.lastUsed = currentTime;
+                    ability.lastUsed = Number.MIN_SAFE_INTEGER;
                 } else {
                     ability.lastUsed = currentTime - Math.floor(Math.random() * ability.cooldownDuration);
                 }
