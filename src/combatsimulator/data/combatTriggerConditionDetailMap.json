@@ -142,6 +142,14 @@
         "allowedComparatorHrids": ["/combat_trigger_comparators/is_active", "/combat_trigger_comparators/is_inactive"],
         "sortIndex": 13
     },
+    "/combat_trigger_conditions/spike_shell": {
+        "hrid": "/combat_trigger_conditions/spike_shell",
+        "name": "Spike Shell",
+        "isSingleTarget": true,
+        "isMultiTarget": false,
+        "allowedComparatorHrids": ["/combat_trigger_comparators/is_active", "/combat_trigger_comparators/is_inactive"],
+        "sortIndex": 21
+    },
     "/combat_trigger_conditions/stamina_coffee_hp_regen": {
         "hrid": "/combat_trigger_conditions/stamina_coffee_hp_regen",
         "name": "Stamina Coffee (HP Regen)",
@@ -157,6 +165,14 @@
         "isMultiTarget": false,
         "allowedComparatorHrids": ["/combat_trigger_comparators/is_active", "/combat_trigger_comparators/is_inactive"],
         "sortIndex": 6
+    },
+    "/combat_trigger_conditions/stun_status": {
+        "hrid": "/combat_trigger_conditions/stun_status",
+        "name": "Stun Status",
+        "isSingleTarget": true,
+        "isMultiTarget": false,
+        "allowedComparatorHrids": ["/combat_trigger_comparators/is_active", "/combat_trigger_comparators/is_inactive"],
+        "sortIndex": 23
     },
     "/combat_trigger_conditions/swiftness_coffee": {
         "hrid": "/combat_trigger_conditions/swiftness_coffee",
@@ -180,6 +196,6 @@
         "isSingleTarget": true,
         "isMultiTarget": false,
         "allowedComparatorHrids": ["/combat_trigger_comparators/is_active", "/combat_trigger_comparators/is_inactive"],
-        "sortIndex": 21
+        "sortIndex": 22
     }
 }

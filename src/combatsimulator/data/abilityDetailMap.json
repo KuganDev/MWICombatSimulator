@@ -18,7 +18,9 @@
                 "bonusAccuracyRatio": 0,
                 "bonusAccuracyRatioLevelBonus": 0,
                 "bleedRatio": 0,
-                "duration": 0,
+                "bleedDuration": 0,
+                "stunChance": 0,
+                "stunDuration": 0,
                 "buff": {
                     "sourceHrid": "/buff_sources/berserk",
                     "typeHrid": "/buff_types/damage",
@@ -39,7 +41,7 @@
                 "value": 0
             }
         ],
-        "sortIndex": 10
+        "sortIndex": 11
     },
     "/abilities/cleave": {
         "hrid": "/abilities/cleave",
@@ -60,7 +62,9 @@
                 "bonusAccuracyRatio": 0,
                 "bonusAccuracyRatioLevelBonus": 0,
                 "bleedRatio": 0,
-                "duration": 0,
+                "bleedDuration": 0,
+                "stunChance": 0,
+                "stunDuration": 0,
                 "buff": {
                     "sourceHrid": "",
                     "typeHrid": "",
@@ -81,7 +85,7 @@
                 "value": 1
             },
             {
-                "dependencyHrid": "/combat_trigger_dependencies/targeted_enemy",
+                "dependencyHrid": "/combat_trigger_dependencies/all_enemies",
                 "conditionHrid": "/combat_trigger_conditions/current_hp",
                 "comparatorHrid": "/combat_trigger_comparators/greater_than_equal",
                 "value": 1
@@ -108,7 +112,9 @@
                 "bonusAccuracyRatio": 0,
                 "bonusAccuracyRatioLevelBonus": 0,
                 "bleedRatio": 0,
-                "duration": 0,
+                "bleedDuration": 0,
+                "stunChance": 0,
+                "stunDuration": 0,
                 "buff": {
                     "sourceHrid": "/buff_sources/frenzy",
                     "typeHrid": "/buff_types/attack_speed",
@@ -129,13 +135,13 @@
                 "value": 0
             }
         ],
-        "sortIndex": 11
+        "sortIndex": 12
     },
     "/abilities/maim": {
         "hrid": "/abilities/maim",
         "name": "Maim",
         "description": "Maims the targeted enemy and causes bleeding",
-        "manaCost": 60,
+        "manaCost": 45,
         "cooldownDuration": 20000000000,
         "hasSpecialEffects": false,
         "abilityEffects": [
@@ -145,12 +151,14 @@
                 "combatStyleHrid": "/combat_styles/slash",
                 "baseDamageFlat": 20,
                 "baseDamageFlatLevelBonus": 0.2,
-                "baseDamageRatio": 0.35,
-                "baseDamageRatioLevelBonus": 0.0035,
+                "baseDamageRatio": 0.5,
+                "baseDamageRatioLevelBonus": 0.005,
                 "bonusAccuracyRatio": 0,
                 "bonusAccuracyRatioLevelBonus": 0,
-                "bleedRatio": 2,
-                "duration": 15000000000,
+                "bleedRatio": 1,
+                "bleedDuration": 15000000000,
+                "stunChance": 0,
+                "stunDuration": 0,
                 "buff": {
                     "sourceHrid": "",
                     "typeHrid": "",
@@ -192,7 +200,9 @@
                 "bonusAccuracyRatio": 0,
                 "bonusAccuracyRatioLevelBonus": 0,
                 "bleedRatio": 0,
-                "duration": 0,
+                "bleedDuration": 0,
+                "stunChance": 0,
+                "stunDuration": 0,
                 "buff": {
                     "sourceHrid": "",
                     "typeHrid": "",
@@ -234,7 +244,9 @@
                 "bonusAccuracyRatio": 0,
                 "bonusAccuracyRatioLevelBonus": 0,
                 "bleedRatio": 0,
-                "duration": 0,
+                "bleedDuration": 0,
+                "stunChance": 0,
+                "stunDuration": 0,
                 "buff": {
                     "sourceHrid": "",
                     "typeHrid": "",
@@ -276,7 +288,9 @@
                 "bonusAccuracyRatio": 0,
                 "bonusAccuracyRatioLevelBonus": 0,
                 "bleedRatio": 0,
-                "duration": 0,
+                "bleedDuration": 0,
+                "stunChance": 0,
+                "stunDuration": 0,
                 "buff": {
                     "sourceHrid": "/buff_sources/precision",
                     "typeHrid": "/buff_types/accuracy",
@@ -297,7 +311,7 @@
                 "value": 0
             }
         ],
-        "sortIndex": 9
+        "sortIndex": 10
     },
     "/abilities/scratch": {
         "hrid": "/abilities/scratch",
@@ -318,7 +332,9 @@
                 "bonusAccuracyRatio": 0,
                 "bonusAccuracyRatioLevelBonus": 0,
                 "bleedRatio": 0,
-                "duration": 0,
+                "bleedDuration": 0,
+                "stunChance": 0,
+                "stunDuration": 0,
                 "buff": {
                     "sourceHrid": "",
                     "typeHrid": "",
@@ -360,7 +376,9 @@
                 "bonusAccuracyRatio": 0,
                 "bonusAccuracyRatioLevelBonus": 0,
                 "bleedRatio": 0,
-                "duration": 0,
+                "bleedDuration": 0,
+                "stunChance": 0,
+                "stunDuration": 0,
                 "buff": {
                     "sourceHrid": "",
                     "typeHrid": "",
@@ -383,6 +401,94 @@
         ],
         "sortIndex": 3
     },
+    "/abilities/spike_shell": {
+        "hrid": "/abilities/spike_shell",
+        "name": "Spike Shell",
+        "description": "Gains physical reflect power for a short time",
+        "manaCost": 60,
+        "cooldownDuration": 30000000000,
+        "hasSpecialEffects": false,
+        "abilityEffects": [
+            {
+                "targetType": "self",
+                "effectType": "/ability_effect_types/buff",
+                "combatStyleHrid": "",
+                "baseDamageFlat": 0,
+                "baseDamageFlatLevelBonus": 0,
+                "baseDamageRatio": 0,
+                "baseDamageRatioLevelBonus": 0,
+                "bonusAccuracyRatio": 0,
+                "bonusAccuracyRatioLevelBonus": 0,
+                "bleedRatio": 0,
+                "bleedDuration": 0,
+                "stunChance": 0,
+                "stunDuration": 0,
+                "buff": {
+                    "sourceHrid": "/buff_sources/spike_shell",
+                    "typeHrid": "/buff_types/physical_reflect_power",
+                    "ratioBoost": 0,
+                    "ratioBoostLevelBonus": 0,
+                    "flatBoost": 0.8,
+                    "flatBoostLevelBonus": 0.008,
+                    "startTime": "0001-01-01T00:00:00Z",
+                    "duration": 15000000000
+                }
+            }
+        ],
+        "defaultCombatTriggers": [
+            {
+                "dependencyHrid": "/combat_trigger_dependencies/self",
+                "conditionHrid": "/combat_trigger_conditions/spike_shell",
+                "comparatorHrid": "/combat_trigger_comparators/is_inactive",
+                "value": 0
+            }
+        ],
+        "sortIndex": 13
+    },
+    "/abilities/stunning_blow": {
+        "hrid": "/abilities/stunning_blow",
+        "name": "Stunning Blow",
+        "description": "Smashes the targeted enemy and has a chance to stun",
+        "manaCost": 45,
+        "cooldownDuration": 20000000000,
+        "hasSpecialEffects": false,
+        "abilityEffects": [
+            {
+                "targetType": "enemy",
+                "effectType": "/ability_effect_types/damage",
+                "combatStyleHrid": "/combat_styles/smash",
+                "baseDamageFlat": 30,
+                "baseDamageFlatLevelBonus": 0.2,
+                "baseDamageRatio": 0.7,
+                "baseDamageRatioLevelBonus": 0.007,
+                "bonusAccuracyRatio": 0,
+                "bonusAccuracyRatioLevelBonus": 0,
+                "bleedRatio": 0,
+                "bleedDuration": 0,
+                "stunChance": 0.7,
+                "stunDuration": 3000000000,
+                "buff": {
+                    "sourceHrid": "",
+                    "typeHrid": "",
+                    "ratioBoost": 0,
+                    "ratioBoostLevelBonus": 0,
+                    "flatBoost": 0,
+                    "flatBoostLevelBonus": 0,
+                    "startTime": "0001-01-01T00:00:00Z",
+                    "duration": 0
+                }
+            }
+        ],
+        "defaultCombatTriggers": [
+            {
+                "dependencyHrid": "/combat_trigger_dependencies/targeted_enemy",
+                "conditionHrid": "/combat_trigger_conditions/current_hp",
+                "comparatorHrid": "/combat_trigger_comparators/greater_than_equal",
+                "value": 1
+            }
+        ],
+        "sortIndex": 8
+    },
     "/abilities/sweep": {
         "hrid": "/abilities/sweep",
         "name": "Sweep",
@@ -402,7 +508,9 @@
                 "bonusAccuracyRatio": 0,
                 "bonusAccuracyRatioLevelBonus": 0,
                 "bleedRatio": 0,
-                "duration": 0,
+                "bleedDuration": 0,
+                "stunChance": 0,
+                "stunDuration": 0,
                 "buff": {
                     "sourceHrid": "",
                     "typeHrid": "",
@@ -423,7 +531,7 @@
                 "value": 1
             },
             {
-                "dependencyHrid": "/combat_trigger_dependencies/targeted_enemy",
+                "dependencyHrid": "/combat_trigger_dependencies/all_enemies",
                 "conditionHrid": "/combat_trigger_conditions/current_hp",
                 "comparatorHrid": "/combat_trigger_comparators/greater_than_equal",
                 "value": 1
@@ -450,7 +558,9 @@
                 "bonusAccuracyRatio": 0,
                 "bonusAccuracyRatioLevelBonus": 0,
                 "bleedRatio": 0,
-                "duration": 0,
+                "bleedDuration": 0,
+                "stunChance": 0,
+                "stunDuration": 0,
                 "buff": {
                     "sourceHrid": "/buff_sources/toughness",
                     "typeHrid": "/buff_types/armor",
@@ -471,7 +581,7 @@
                 "value": 0
             }
         ],
-        "sortIndex": 8
+        "sortIndex": 9
     },
     "/abilities/vampirism": {
         "hrid": "/abilities/vampirism",
@@ -492,7 +602,9 @@
                 "bonusAccuracyRatio": 0,
                 "bonusAccuracyRatioLevelBonus": 0,
                 "bleedRatio": 0,
-                "duration": 0,
+                "bleedDuration": 0,
+                "stunChance": 0,
+                "stunDuration": 0,
                 "buff": {
                     "sourceHrid": "/buff_sources/vampirism",
                     "typeHrid": "/buff_types/life_steal",
@@ -513,6 +625,6 @@
                 "value": 0
             }
         ],
-        "sortIndex": 12
+        "sortIndex": 14
     }
 }
