@@ -1026,11 +1026,8 @@ class CombatUtilities {
         if (Math.random() < hitChance) {
             didHit = true;
             let damageTakenRatio = 100 / (100 + target.combatStats.armor);
-            let mitigatedDamage = damageTakenRatio * damageRoll;
-            damageDone = Math.min(
-                CombatUtilities.randomInt(mitigatedDamage, mitigatedDamage),
-                target.combatStats.currentHitpoints
-            );
+            let mitigatedDamage = Math.ceil(damageTakenRatio * damageRoll);
+            damageDone = Math.min(mitigatedDamage, target.combatStats.currentHitpoints);
             target.combatStats.currentHitpoints -= damageDone;
         }
 
