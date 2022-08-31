@@ -69,6 +69,7 @@ class Player extends CombatUnit {
             "smashEvasion",
             "armor",
             "lifeSteal",
+            "physicalReflectPower",
         ].forEach((stat) => {
             this.combatStats[stat] = Object.values(this.equipment)
                 .filter((equipment) => equipment != null)

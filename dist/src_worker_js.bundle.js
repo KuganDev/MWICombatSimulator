@@ -331,7 +331,8 @@ class CombatSimulator extends EventTarget {
             return;
         }
 
-        let { damageDone, damagePrevented, maxDamage, didHit } = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].processAttack(event.source, target);
+        let { damageDone, damagePrevented, maxDamage, didHit, physicalReflectDamageDone } =
+            _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].processAttack(event.source, target);
         // console.log("Hit for", damageDone);
 
         if (event.source.combatStats.lifeSteal > 0) {
@@ -353,10 +354,22 @@ class CombatSimulator extends EventTarget {
         this.simResult.addExperienceGain(event.source, "attack", sourceAttackExperience);
         this.simResult.addExperienceGain(event.source, "power", sourcePowerExperience);
 
+        if (physicalReflectDamageDone > 0) {
+            let physicalReflectDamageExperience = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].calculateAttackExperience(physicalReflectDamageDone);
+            this.simResult.addExperienceGain(target, "defense", physicalReflectDamageExperience);
+            this.simResult.addAttack(target, event.source, "physicalReflect", physicalReflectDamageDone);
+        }
+
         if (target.combatStats.currentHitpoints == 0) {
             this.eventQueue.clearEventsForUnit(target);
             this.simResult.addDeath(target);
             // console.log(target.hrid, "died");
+        }
+
+        // Could die from reflect damage
+        if (event.source.combatStats.currentHitpoints == 0) {
+            this.eventQueue.clearEventsForUnit(event.source);
+            this.simResult.addDeath(event.source);
         }
 
         if (!this.checkEncounterEnd()) {
@@ -365,6 +378,8 @@ class CombatSimulator extends EventTarget {
     }
 
     checkEncounterEnd() {
+        let encounterEnded = false;
+
         if (this.enemies && !this.enemies.some((enemy) => enemy.combatStats.currentHitpoints > 0)) {
             this.eventQueue.clearEventsOfType(_events_autoAttackEvent__WEBPACK_IMPORTED_MODULE_1__["default"].type);
             let enemyRespawnEvent = new _events_enemyRespawnEvent__WEBPACK_IMPORTED_MODULE_7__["default"](this.simulationTime + ENEMY_RESPAWN_INTERVAL);
@@ -374,8 +389,10 @@ class CombatSimulator extends EventTarget {
             this.simResult.addEncounterEnd();
             // console.log("All enemies died");
 
-            return true;
-        } else if (
+            encounterEnded = true;
+        }
+
+        if (
             !this.players.some((player) => player.combatStats.currentHitpoints > 0) &&
             !this.eventQueue.containsEventOfType(_events_playerRespawnEvent__WEBPACK_IMPORTED_MODULE_9__["default"].type)
         ) {
@@ -385,10 +402,10 @@ class CombatSimulator extends EventTarget {
             this.eventQueue.addEvent(playerRespawnEvent);
             // console.log("Player died");
 
-            return true;
+            encounterEnded = true;
         }
 
-        return false;
+        return encounterEnded;
     }
 
     addNextAutoAttackEvent(source) {
@@ -641,11 +658,8 @@ class CombatSimulator extends EventTarget {
                     }
 
                     for (const target of targets.filter((unit) => unit && unit.combatStats.currentHitpoints > 0)) {
-                        let { damageDone, damagePrevented, maxDamage, didHit } = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].processAttack(
-                            source,
-                            target,
-                            abilityEffect
-                        );
+                        let { damageDone, damagePrevented, maxDamage, didHit, physicalReflectDamageDone } =
+                            _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].processAttack(source, target, abilityEffect);
 
                         if (abilityEffect.bleedRatio > 0 && damageDone > 0) {
                             let bleedTickEvent = new _events_bleedTickEvent__WEBPACK_IMPORTED_MODULE_2__["default"](
@@ -686,6 +700,13 @@ class CombatSimulator extends EventTarget {
                         this.simResult.addExperienceGain(source, "attack", sourceAttackExperience);
                         this.simResult.addExperienceGain(source, "power", sourcePowerExperience);
 
+                        if (physicalReflectDamageDone > 0) {
+                            let physicalReflectDamageExperience =
+                                _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].calculateAttackExperience(physicalReflectDamageDone);
+                            this.simResult.addExperienceGain(target, "defense", physicalReflectDamageExperience);
+                            this.simResult.addAttack(target, source, "physicalReflect", physicalReflectDamageDone);
+                        }
+
                         if (target.combatStats.currentHitpoints == 0) {
                             this.eventQueue.clearEventsForUnit(target);
                             this.simResult.addDeath(target);
@@ -694,6 +715,12 @@ class CombatSimulator extends EventTarget {
                     }
                     break;
             }
+        }
+
+        // Could die from reflect damage
+        if (source.combatStats.currentHitpoints == 0) {
+            this.eventQueue.clearEventsForUnit(source);
+            this.simResult.addDeath(source);
         }
 
         this.checkEncounterEnd();
@@ -748,6 +775,7 @@ class CombatUnit {
         smashEvasion: 0,
         armor: 0,
         lifeSteal: 0,
+        physicalReflectPower: 0,
         HPRegen: 0.01,
         MPRegen: 0.01,
         dropRate: 0,
@@ -826,6 +854,11 @@ class CombatUnit {
         let lifeStealFlatBoost = lifeStealBoosts[0]?.flatBoost ?? 0;
         this.combatStats.lifeSteal += lifeStealFlatBoost;
         console.assert(lifeStealBoosts.length <= 1, "Multiple life steal buffs active");
+
+        let physicalReflectPowerBoosts = this.getBuffBoosts("/buff_types/physical_reflect_power");
+        let physicalReflectPowerFlatBoost = physicalReflectPowerBoosts[0]?.flatBoost ?? 0;
+        this.combatStats.physicalReflectPower += physicalReflectPowerFlatBoost;
+        console.assert(physicalReflectPowerBoosts.length <= 1, "Multiple physical reflect power buffs active");
 
         let HPRegenBoosts = this.getBuffBoosts("/buff_types/hp_regen");
         let HPRegenFlatBoost = HPRegenBoosts[0]?.flatBoost ?? 0;
@@ -1020,20 +1053,34 @@ class CombatUtilities {
         let maxPremitigatedDamage = Math.min(damageRoll, target.combatStats.currentHitpoints);
 
         let damageDone = 0;
+        let physicalReflectDamageDone = 0;
         let hitChance = CombatUtilities.calculateHitChance(source, target, combatStyle);
 
         let didHit = false;
         if (Math.random() < hitChance) {
             didHit = true;
-            let damageTakenRatio = 100 / (100 + target.combatStats.armor);
-            let mitigatedDamage = Math.ceil(damageTakenRatio * damageRoll);
+            let targetDamageTakenRatio = 100 / (100 + target.combatStats.armor);
+            let mitigatedDamage = Math.ceil(targetDamageTakenRatio * damageRoll);
             damageDone = Math.min(mitigatedDamage, target.combatStats.currentHitpoints);
             target.combatStats.currentHitpoints -= damageDone;
+
+            if (target.combatStats.physicalReflectPower > 0) {
+                let physicalReflectDamage = Math.ceil(
+                    target.combatStats.armor * target.combatStats.physicalReflectPower
+                );
+                let sourceDamageTakenRatio = 100 / (100 + source.combatStats.armor);
+                let mitigatedPhysicalReflectDamage = Math.ceil(sourceDamageTakenRatio * physicalReflectDamage);
+                physicalReflectDamageDone = Math.min(
+                    mitigatedPhysicalReflectDamage,
+                    source.combatStats.currentHitpoints
+                );
+                source.combatStats.currentHitpoints -= physicalReflectDamageDone;
+            }
         }
 
         let damagePrevented = maxPremitigatedDamage - damageDone;
 
-        return { damageDone, damagePrevented, maxDamage, didHit };
+        return { damageDone, damagePrevented, maxDamage, didHit, physicalReflectDamageDone };
     }
 
     static calculateTickValue(totalValue, totalTicks, currentTick) {
@@ -1717,6 +1764,7 @@ class Player extends _combatUnit__WEBPACK_IMPORTED_MODULE_1__["default"] {
             "smashEvasion",
             "armor",
             "lifeSteal",
+            "physicalReflectPower",
         ].forEach((stat) => {
             this.combatStats[stat] = Object.values(this.equipment)
                 .filter((equipment) => equipment != null)

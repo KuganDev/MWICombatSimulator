@@ -29,6 +29,7 @@ class CombatUnit {
         smashEvasion: 0,
         armor: 0,
         lifeSteal: 0,
+        physicalReflectPower: 0,
         HPRegen: 0.01,
         MPRegen: 0.01,
         dropRate: 0,
@@ -107,6 +108,11 @@ class CombatUnit {
         let lifeStealFlatBoost = lifeStealBoosts[0]?.flatBoost ?? 0;
         this.combatStats.lifeSteal += lifeStealFlatBoost;
         console.assert(lifeStealBoosts.length <= 1, "Multiple life steal buffs active");
+
+        let physicalReflectPowerBoosts = this.getBuffBoosts("/buff_types/physical_reflect_power");
+        let physicalReflectPowerFlatBoost = physicalReflectPowerBoosts[0]?.flatBoost ?? 0;
+        this.combatStats.physicalReflectPower += physicalReflectPowerFlatBoost;
+        console.assert(physicalReflectPowerBoosts.length <= 1, "Multiple physical reflect power buffs active");
 
         let HPRegenBoosts = this.getBuffBoosts("/buff_types/hp_regen");
         let HPRegenFlatBoost = HPRegenBoosts[0]?.flatBoost ?? 0;

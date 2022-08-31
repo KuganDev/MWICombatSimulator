@@ -177,7 +177,8 @@ class CombatSimulator extends EventTarget {
             return;
         }
 
-        let { damageDone, damagePrevented, maxDamage, didHit } = CombatUtilities.processAttack(event.source, target);
+        let { damageDone, damagePrevented, maxDamage, didHit, physicalReflectDamageDone } =
+            CombatUtilities.processAttack(event.source, target);
         // console.log("Hit for", damageDone);
 
         if (event.source.combatStats.lifeSteal > 0) {
@@ -199,10 +200,22 @@ class CombatSimulator extends EventTarget {
         this.simResult.addExperienceGain(event.source, "attack", sourceAttackExperience);
         this.simResult.addExperienceGain(event.source, "power", sourcePowerExperience);
 
+        if (physicalReflectDamageDone > 0) {
+            let physicalReflectDamageExperience = CombatUtilities.calculateAttackExperience(physicalReflectDamageDone);
+            this.simResult.addExperienceGain(target, "defense", physicalReflectDamageExperience);
+            this.simResult.addAttack(target, event.source, "physicalReflect", physicalReflectDamageDone);
+        }
+
         if (target.combatStats.currentHitpoints == 0) {
             this.eventQueue.clearEventsForUnit(target);
             this.simResult.addDeath(target);
             // console.log(target.hrid, "died");
+        }
+
+        // Could die from reflect damage
+        if (event.source.combatStats.currentHitpoints == 0) {
+            this.eventQueue.clearEventsForUnit(event.source);
+            this.simResult.addDeath(event.source);
         }
 
         if (!this.checkEncounterEnd()) {
@@ -211,6 +224,8 @@ class CombatSimulator extends EventTarget {
     }
 
     checkEncounterEnd() {
+        let encounterEnded = false;
+
         if (this.enemies && !this.enemies.some((enemy) => enemy.combatStats.currentHitpoints > 0)) {
             this.eventQueue.clearEventsOfType(AutoAttackEvent.type);
             let enemyRespawnEvent = new EnemyRespawnEvent(this.simulationTime + ENEMY_RESPAWN_INTERVAL);
@@ -220,8 +235,10 @@ class CombatSimulator extends EventTarget {
             this.simResult.addEncounterEnd();
             // console.log("All enemies died");
 
-            return true;
-        } else if (
+            encounterEnded = true;
+        }
+
+        if (
             !this.players.some((player) => player.combatStats.currentHitpoints > 0) &&
             !this.eventQueue.containsEventOfType(PlayerRespawnEvent.type)
         ) {
@@ -231,10 +248,10 @@ class CombatSimulator extends EventTarget {
             this.eventQueue.addEvent(playerRespawnEvent);
             // console.log("Player died");
 
-            return true;
+            encounterEnded = true;
         }
 
-        return false;
+        return encounterEnded;
     }
 
     addNextAutoAttackEvent(source) {
@@ -487,11 +504,8 @@ class CombatSimulator extends EventTarget {
                     }
 
                     for (const target of targets.filter((unit) => unit && unit.combatStats.currentHitpoints > 0)) {
-                        let { damageDone, damagePrevented, maxDamage, didHit } = CombatUtilities.processAttack(
-                            source,
-                            target,
-                            abilityEffect
-                        );
+                        let { damageDone, damagePrevented, maxDamage, didHit, physicalReflectDamageDone } =
+                            CombatUtilities.processAttack(source, target, abilityEffect);
 
                         if (abilityEffect.bleedRatio > 0 && damageDone > 0) {
                             let bleedTickEvent = new BleedTickEvent(
@@ -532,6 +546,13 @@ class CombatSimulator extends EventTarget {
                         this.simResult.addExperienceGain(source, "attack", sourceAttackExperience);
                         this.simResult.addExperienceGain(source, "power", sourcePowerExperience);
 
+                        if (physicalReflectDamageDone > 0) {
+                            let physicalReflectDamageExperience =
+                                CombatUtilities.calculateAttackExperience(physicalReflectDamageDone);
+                            this.simResult.addExperienceGain(target, "defense", physicalReflectDamageExperience);
+                            this.simResult.addAttack(target, source, "physicalReflect", physicalReflectDamageDone);
+                        }
+
                         if (target.combatStats.currentHitpoints == 0) {
                             this.eventQueue.clearEventsForUnit(target);
                             this.simResult.addDeath(target);
@@ -540,6 +561,12 @@ class CombatSimulator extends EventTarget {
                     }
                     break;
             }
+        }
+
+        // Could die from reflect damage
+        if (source.combatStats.currentHitpoints == 0) {
+            this.eventQueue.clearEventsForUnit(source);
+            this.simResult.addDeath(source);
         }
 
         this.checkEncounterEnd();

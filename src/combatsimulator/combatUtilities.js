@@ -70,20 +70,34 @@ class CombatUtilities {
         let maxPremitigatedDamage = Math.min(damageRoll, target.combatStats.currentHitpoints);
 
         let damageDone = 0;
+        let physicalReflectDamageDone = 0;
         let hitChance = CombatUtilities.calculateHitChance(source, target, combatStyle);
 
         let didHit = false;
         if (Math.random() < hitChance) {
             didHit = true;
-            let damageTakenRatio = 100 / (100 + target.combatStats.armor);
-            let mitigatedDamage = Math.ceil(damageTakenRatio * damageRoll);
+            let targetDamageTakenRatio = 100 / (100 + target.combatStats.armor);
+            let mitigatedDamage = Math.ceil(targetDamageTakenRatio * damageRoll);
             damageDone = Math.min(mitigatedDamage, target.combatStats.currentHitpoints);
             target.combatStats.currentHitpoints -= damageDone;
+
+            if (target.combatStats.physicalReflectPower > 0) {
+                let physicalReflectDamage = Math.ceil(
+                    target.combatStats.armor * target.combatStats.physicalReflectPower
+                );
+                let sourceDamageTakenRatio = 100 / (100 + source.combatStats.armor);
+                let mitigatedPhysicalReflectDamage = Math.ceil(sourceDamageTakenRatio * physicalReflectDamage);
+                physicalReflectDamageDone = Math.min(
+                    mitigatedPhysicalReflectDamage,
+                    source.combatStats.currentHitpoints
+                );
+                source.combatStats.currentHitpoints -= physicalReflectDamageDone;
+            }
         }
 
         let damagePrevented = maxPremitigatedDamage - damageDone;
 
-        return { damageDone, damagePrevented, maxDamage, didHit };
+        return { damageDone, damagePrevented, maxDamage, didHit, physicalReflectDamageDone };
     }
 
     static calculateTickValue(totalValue, totalTicks, currentTick) {

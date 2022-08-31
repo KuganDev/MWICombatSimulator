@@ -982,6 +982,9 @@ function createDamageTable(resultDiv, damageDone, secondsSimulated) {
             case "bleed":
                 abilityText = "Bleed";
                 break;
+            case "physicalReflect":
+                abilityText = "Physical Reflect";
+                break;
             default:
                 abilityText = abilityDetailMap[ability].name;
                 break;
