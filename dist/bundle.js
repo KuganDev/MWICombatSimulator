@@ -88,7 +88,7 @@ class Ability {
 
         let shouldTrigger = true;
         for (const trigger of this.triggers) {
-            if (!trigger.isActive(source, target, friendlies, enemies)) {
+            if (!trigger.isActive(source, target, friendlies, enemies, currentTime)) {
                 shouldTrigger = false;
             }
         }
@@ -141,7 +141,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 class CombatUnit {
     isPlayer;
-    isStunned;
+    isStunned = false;
+    stunExpireTime = null;
 
     // Base levels which don't change after initialization
     staminaLevel = 1;
@@ -300,6 +301,7 @@ class CombatUnit {
 
     reset(currentTime = 0) {
         this.isStunned = false;
+        this.stunExpireTime = null;
 
         this.clearBuffs();
         this.updateCombatStats();
@@ -435,7 +437,7 @@ class Consumable {
 
         let shouldTrigger = true;
         for (const trigger of this.triggers) {
-            if (!trigger.isActive(source, target, friendlies, enemies)) {
+            if (!trigger.isActive(source, target, friendlies, enemies, currentTime)) {
                 shouldTrigger = false;
             }
         }
@@ -643,25 +645,25 @@ class Trigger {
         return trigger;
     }
 
-    isActive(source, target, friendlies, enemies) {
+    isActive(source, target, friendlies, enemies, currentTime) {
         if (_data_combatTriggerDependencyDetailMap_json__WEBPACK_IMPORTED_MODULE_0__[this.dependencyHrid].isSingleTarget) {
-            return this.isActiveSingleTarget(source, target);
+            return this.isActiveSingleTarget(source, target, currentTime);
         } else {
-            return this.isActiveMultiTarget(friendlies, enemies);
+            return this.isActiveMultiTarget(friendlies, enemies, currentTime);
         }
     }
 
-    isActiveSingleTarget(source, target) {
+    isActiveSingleTarget(source, target, currentTime) {
         let dependencyValue;
         switch (this.dependencyHrid) {
             case "/combat_trigger_dependencies/self":
-                dependencyValue = this.getDependencyValue(source);
+                dependencyValue = this.getDependencyValue(source, currentTime);
                 break;
             case "/combat_trigger_dependencies/targeted_enemy":
                 if (!target) {
                     return false;
                 }
-                dependencyValue = this.getDependencyValue(target);
+                dependencyValue = this.getDependencyValue(target, currentTime);
                 break;
             default:
                 console.error("Unknown dependencyHrid:", this.dependencyHrid);
@@ -671,7 +673,7 @@ class Trigger {
         return this.compareValue(dependencyValue);
     }
 
-    isActiveMultiTarget(friendlies, enemies) {
+    isActiveMultiTarget(friendlies, enemies, currentTime) {
         let dependency;
         switch (this.dependencyHrid) {
             case "/combat_trigger_dependencies/all_allies":
@@ -695,7 +697,7 @@ class Trigger {
                 break;
             default:
                 dependencyValue = dependency
-                    .map((unit) => this.getDependencyValue(unit))
+                    .map((unit) => this.getDependencyValue(unit, currentTime))
                     .reduce((prev, cur) => prev + cur, 0);
                 break;
         }
@@ -703,7 +705,7 @@ class Trigger {
         return this.compareValue(dependencyValue);
     }
 
-    getDependencyValue(source) {
+    getDependencyValue(source, currentTime) {
         switch (this.conditionHrid) {
             case "/combat_trigger_conditions/attack_coffee":
             case "/combat_trigger_conditions/berserk":
@@ -730,6 +732,10 @@ class Trigger {
                 return source.combatStats.maxHitpoints - source.combatStats.currentHitpoints;
             case "/combat_trigger_conditions/missing_mp":
                 return source.combatStats.maxManapoints - source.combatStats.currentManapoints;
+            case "/combat_trigger_conditions/stun_status":
+                // Replicate the game's behaviour of "stun status active" triggers activating
+                // immediately after the stun has worn off
+                return source.isStunned || source.stunExpireTime == currentTime;
             default:
                 console.error("Unknown conditionHrid:", this.conditionHrid);
                 break;

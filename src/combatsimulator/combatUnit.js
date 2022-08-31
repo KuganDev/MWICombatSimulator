@@ -1,6 +1,7 @@
 class CombatUnit {
     isPlayer;
-    isStunned;
+    isStunned = false;
+    stunExpireTime = null;
 
     // Base levels which don't change after initialization
     staminaLevel = 1;
@@ -159,6 +160,7 @@ class CombatUnit {
 
     reset(currentTime = 0) {
         this.isStunned = false;
+        this.stunExpireTime = null;
 
         this.clearBuffs();
         this.updateCombatStats();

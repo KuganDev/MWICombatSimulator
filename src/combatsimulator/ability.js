@@ -71,7 +71,7 @@ class Ability {
 
         let shouldTrigger = true;
         for (const trigger of this.triggers) {
-            if (!trigger.isActive(source, target, friendlies, enemies)) {
+            if (!trigger.isActive(source, target, friendlies, enemies, currentTime)) {
                 shouldTrigger = false;
             }
         }

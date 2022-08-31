@@ -507,13 +507,11 @@ class CombatSimulator extends EventTarget {
 
                         if (didHit && abilityEffect.stunChance > 0 && Math.random() < abilityEffect.stunChance) {
                             target.isStunned = true;
+                            target.stunExpireTime = this.simulationTime + abilityEffect.stunDuration;
                             this.eventQueue.clearMatching(
                                 (event) => event.type == AutoAttackEvent.type && event.source == target
                             );
-                            let stunExpirationEvent = new StunExpirationEvent(
-                                this.simulationTime + abilityEffect.stunDuration,
-                                target
-                            );
+                            let stunExpirationEvent = new StunExpirationEvent(target.stunExpireTime, target);
                             this.eventQueue.addEvent(stunExpirationEvent);
                         }
 
