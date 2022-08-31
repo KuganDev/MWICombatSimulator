@@ -85,6 +85,7 @@ class Trigger {
             case "/combat_trigger_conditions/lucky_coffee":
             case "/combat_trigger_conditions/power_coffee":
             case "/combat_trigger_conditions/precision":
+            case "/combat_trigger_conditions/spike_shell":
             case "/combat_trigger_conditions/stamina_coffee_hp_regen":
             case "/combat_trigger_conditions/stamina_coffee_max_hp":
             case "/combat_trigger_conditions/swiftness_coffee":
