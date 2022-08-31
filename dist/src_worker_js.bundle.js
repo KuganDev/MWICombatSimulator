@@ -41,6 +41,8 @@ class Ability {
                 damageRatio: effect.baseDamageRatio + (this.level - 1) * effect.baseDamageRatioLevelBonus,
                 bleedRatio: effect.bleedRatio,
                 bleedDuration: effect.bleedDuration,
+                stunChance: effect.stunChance,
+                stunDuration: effect.stunDuration,
                 buff: effect.buff.duration > 0 ? new _buff__WEBPACK_IMPORTED_MODULE_0__["default"](effect.buff, this.level) : null,
             };
             this.abilityEffects.push(abilityEffect);
@@ -72,6 +74,10 @@ class Ability {
     }
 
     shouldTrigger(currentTime, source, target, friendlies, enemies) {
+        if (source.isStunned) {
+            return false;
+        }
+
         if (this.lastUsed + this.cooldownDuration > currentTime) {
             return false;
         }
@@ -144,7 +150,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _events_eventQueue__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./events/eventQueue */ "./src/combatsimulator/events/eventQueue.js");
 /* harmony import */ var _events_playerRespawnEvent__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./events/playerRespawnEvent */ "./src/combatsimulator/events/playerRespawnEvent.js");
 /* harmony import */ var _events_regenTickEvent__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./events/regenTickEvent */ "./src/combatsimulator/events/regenTickEvent.js");
-/* harmony import */ var _simResult__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./simResult */ "./src/combatsimulator/simResult.js");
+/* harmony import */ var _events_stunExpirationEvent__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./events/stunExpirationEvent */ "./src/combatsimulator/events/stunExpirationEvent.js");
+/* harmony import */ var _simResult__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./simResult */ "./src/combatsimulator/simResult.js");
+
 
 
 
@@ -172,7 +180,7 @@ class CombatSimulator extends EventTarget {
         this.zone = zone;
 
         this.eventQueue = new _events_eventQueue__WEBPACK_IMPORTED_MODULE_8__["default"]();
-        this.simResult = new _simResult__WEBPACK_IMPORTED_MODULE_11__["default"]();
+        this.simResult = new _simResult__WEBPACK_IMPORTED_MODULE_12__["default"]();
     }
 
     async simulate(simulationTimeLimit) {
@@ -205,7 +213,7 @@ class CombatSimulator extends EventTarget {
     reset() {
         this.simulationTime = 0;
         this.eventQueue.clear();
-        this.simResult = new _simResult__WEBPACK_IMPORTED_MODULE_11__["default"]();
+        this.simResult = new _simResult__WEBPACK_IMPORTED_MODULE_12__["default"]();
     }
 
     async processEvent(event) {
@@ -237,6 +245,9 @@ class CombatSimulator extends EventTarget {
                 break;
             case _events_regenTickEvent__WEBPACK_IMPORTED_MODULE_10__["default"].type:
                 this.processRegenTickEvent(event);
+                break;
+            case _events_stunExpirationEvent__WEBPACK_IMPORTED_MODULE_11__["default"].type:
+                this.processStunExpirationEvent(event);
                 break;
             case _events_cooldownReadyEvent__WEBPACK_IMPORTED_MODULE_6__["default"].type:
                 // Only used to check triggers
@@ -482,6 +493,11 @@ class CombatSimulator extends EventTarget {
         event.source.removeExpiredBuffs(this.simulationTime);
     }
 
+    processStunExpirationEvent(event) {
+        event.source.isStunned = false;
+        this.addNextAutoAttackEvent(event.source);
+    }
+
     checkTriggers() {
         let triggeredSomething;
 
@@ -643,6 +659,18 @@ class CombatSimulator extends EventTarget {
                             this.eventQueue.addEvent(bleedTickEvent);
                         }
 
+                        if (didHit && abilityEffect.stunChance > 0 && Math.random() < abilityEffect.stunChance) {
+                            target.isStunned = true;
+                            this.eventQueue.clearMatching(
+                                (event) => event.type == _events_autoAttackEvent__WEBPACK_IMPORTED_MODULE_1__["default"].type && event.source == target
+                            );
+                            let stunExpirationEvent = new _events_stunExpirationEvent__WEBPACK_IMPORTED_MODULE_11__["default"](
+                                this.simulationTime + abilityEffect.stunDuration,
+                                target
+                            );
+                            this.eventQueue.addEvent(stunExpirationEvent);
+                        }
+
                         // console.log("Ability hit", target.hrid, "for", damageDone);
 
                         this.simResult.addAttack(source, target, ability.hrid, didHit ? damageDone : "miss");
@@ -693,6 +721,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 class CombatUnit {
     isPlayer;
+    isStunned;
 
     // Base levels which don't change after initialization
     staminaLevel = 1;
@@ -850,6 +879,8 @@ class CombatUnit {
     }
 
     reset(currentTime = 0) {
+        this.isStunned = false;
+
         this.clearBuffs();
         this.updateCombatStats();
         this.resetCooldowns(currentTime);
@@ -1097,13 +1128,17 @@ class Consumable {
     }
 
     static createFromDTO(dto) {
-        let triggers = dto.triggers.map(trigger => _trigger__WEBPACK_IMPORTED_MODULE_2__["default"].createFromDTO(trigger));
+        let triggers = dto.triggers.map((trigger) => _trigger__WEBPACK_IMPORTED_MODULE_2__["default"].createFromDTO(trigger));
         let consumable = new Consumable(dto.hrid, triggers);
 
         return consumable;
     }
 
     shouldTrigger(currentTime, source, target, friendlies, enemies) {
+        if (source.isStunned) {
+            return false;
+        }
+
         if (this.lastUsed + this.cooldownDuration > currentTime) {
             return false;
         }
@@ -1513,6 +1548,33 @@ class RegenTickEvent extends _combatEvent__WEBPACK_IMPORTED_MODULE_0__["default"
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (RegenTickEvent);
 
+
+/***/ }),
+
+/***/ "./src/combatsimulator/events/stunExpirationEvent.js":
+/*!***********************************************************!*\
+  !*** ./src/combatsimulator/events/stunExpirationEvent.js ***!
+  \***********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _combatEvent__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./combatEvent */ "./src/combatsimulator/events/combatEvent.js");
+
+
+class StunExpirationEvent extends _combatEvent__WEBPACK_IMPORTED_MODULE_0__["default"] {
+    static type = "stunExpiration";
+
+    constructor(time, source) {
+        super(StunExpirationEvent.type, time);
+
+        this.source = source;
+    }
+}
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (StunExpirationEvent);
 
 /***/ }),
 

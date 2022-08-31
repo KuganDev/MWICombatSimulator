@@ -41,6 +41,8 @@ class Ability {
                 damageRatio: effect.baseDamageRatio + (this.level - 1) * effect.baseDamageRatioLevelBonus,
                 bleedRatio: effect.bleedRatio,
                 bleedDuration: effect.bleedDuration,
+                stunChance: effect.stunChance,
+                stunDuration: effect.stunDuration,
                 buff: effect.buff.duration > 0 ? new _buff__WEBPACK_IMPORTED_MODULE_0__["default"](effect.buff, this.level) : null,
             };
             this.abilityEffects.push(abilityEffect);
@@ -72,6 +74,10 @@ class Ability {
     }
 
     shouldTrigger(currentTime, source, target, friendlies, enemies) {
+        if (source.isStunned) {
+            return false;
+        }
+
         if (this.lastUsed + this.cooldownDuration > currentTime) {
             return false;
         }
@@ -135,6 +141,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 class CombatUnit {
     isPlayer;
+    isStunned;
 
     // Base levels which don't change after initialization
     staminaLevel = 1;
@@ -292,6 +299,8 @@ class CombatUnit {
     }
 
     reset(currentTime = 0) {
+        this.isStunned = false;
+
         this.clearBuffs();
         this.updateCombatStats();
         this.resetCooldowns(currentTime);
@@ -405,13 +414,17 @@ class Consumable {
     }
 
     static createFromDTO(dto) {
-        let triggers = dto.triggers.map(trigger => _trigger__WEBPACK_IMPORTED_MODULE_2__["default"].createFromDTO(trigger));
+        let triggers = dto.triggers.map((trigger) => _trigger__WEBPACK_IMPORTED_MODULE_2__["default"].createFromDTO(trigger));
         let consumable = new Consumable(dto.hrid, triggers);
 
         return consumable;
     }
 
     shouldTrigger(currentTime, source, target, friendlies, enemies) {
+        if (source.isStunned) {
+            return false;
+        }
+
         if (this.lastUsed + this.cooldownDuration > currentTime) {
             return false;
         }

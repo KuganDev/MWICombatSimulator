@@ -9,6 +9,7 @@ import EnemyRespawnEvent from "./events/enemyRespawnEvent";
 import EventQueue from "./events/eventQueue";
 import PlayerRespawnEvent from "./events/playerRespawnEvent";
 import RegenTickEvent from "./events/regenTickEvent";
+import StunExpirationEvent from "./events/stunExpirationEvent";
 import SimResult from "./simResult";
 
 const ONE_SECOND = 1e9;
@@ -90,6 +91,9 @@ class CombatSimulator extends EventTarget {
                 break;
             case RegenTickEvent.type:
                 this.processRegenTickEvent(event);
+                break;
+            case StunExpirationEvent.type:
+                this.processStunExpirationEvent(event);
                 break;
             case CooldownReadyEvent.type:
                 // Only used to check triggers
@@ -335,6 +339,11 @@ class CombatSimulator extends EventTarget {
         event.source.removeExpiredBuffs(this.simulationTime);
     }
 
+    processStunExpirationEvent(event) {
+        event.source.isStunned = false;
+        this.addNextAutoAttackEvent(event.source);
+    }
+
     checkTriggers() {
         let triggeredSomething;
 
@@ -494,6 +503,18 @@ class CombatSimulator extends EventTarget {
                                 1
                             );
                             this.eventQueue.addEvent(bleedTickEvent);
+                        }
+
+                        if (didHit && abilityEffect.stunChance > 0 && Math.random() < abilityEffect.stunChance) {
+                            target.isStunned = true;
+                            this.eventQueue.clearMatching(
+                                (event) => event.type == AutoAttackEvent.type && event.source == target
+                            );
+                            let stunExpirationEvent = new StunExpirationEvent(
+                                this.simulationTime + abilityEffect.stunDuration,
+                                target
+                            );
+                            this.eventQueue.addEvent(stunExpirationEvent);
                         }
 
                         // console.log("Ability hit", target.hrid, "for", damageDone);

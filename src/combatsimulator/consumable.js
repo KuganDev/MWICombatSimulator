@@ -41,13 +41,17 @@ class Consumable {
     }
 
     static createFromDTO(dto) {
-        let triggers = dto.triggers.map(trigger => Trigger.createFromDTO(trigger));
+        let triggers = dto.triggers.map((trigger) => Trigger.createFromDTO(trigger));
         let consumable = new Consumable(dto.hrid, triggers);
 
         return consumable;
     }
 
     shouldTrigger(currentTime, source, target, friendlies, enemies) {
+        if (source.isStunned) {
+            return false;
+        }
+
         if (this.lastUsed + this.cooldownDuration > currentTime) {
             return false;
         }
