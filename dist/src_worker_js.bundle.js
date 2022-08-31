@@ -1047,23 +1047,23 @@ class CombatUtilities {
     }
 
     static calculateStaminaExperience(damagePrevented, damageTaken) {
-        return 0.05 * damagePrevented + 0.5 * damageTaken;
+        return 0.04 * damagePrevented + 0.4 * damageTaken;
     }
 
     static calculateIntelligenceExperience(manaUsed) {
-        return 0.5 * manaUsed;
+        return 0.4 * manaUsed;
     }
 
     static calculateAttackExperience(damageDone) {
-        return 0.45 + 0.125 * damageDone;
+        return 0.4 + 0.1 * damageDone;
     }
 
     static calculatePowerExperience(maxDamage) {
-        return 0.3 + 0.04 * maxDamage;
+        return 0.2 + 0.03 * maxDamage;
     }
 
     static calculateDefenseExperience(damagePrevented) {
-        return 0.4 + 0.15 * damagePrevented;
+        return 0.4 + 0.12 * damagePrevented;
     }
 }
 
