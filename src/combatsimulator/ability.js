@@ -23,7 +23,7 @@ class Ability {
                 damageFlat: effect.baseDamageFlat + (this.level - 1) * effect.baseDamageFlatLevelBonus,
                 damageRatio: effect.baseDamageRatio + (this.level - 1) * effect.baseDamageRatioLevelBonus,
                 bleedRatio: effect.bleedRatio,
-                duration: effect.duration,
+                bleedDuration: effect.bleedDuration,
                 buff: effect.buff.duration > 0 ? new Buff(effect.buff, this.level) : null,
             };
             this.abilityEffects.push(abilityEffect);

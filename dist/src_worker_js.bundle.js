@@ -40,7 +40,7 @@ class Ability {
                 damageFlat: effect.baseDamageFlat + (this.level - 1) * effect.baseDamageFlatLevelBonus,
                 damageRatio: effect.baseDamageRatio + (this.level - 1) * effect.baseDamageRatioLevelBonus,
                 bleedRatio: effect.bleedRatio,
-                duration: effect.duration,
+                bleedDuration: effect.bleedDuration,
                 buff: effect.buff.duration > 0 ? new _buff__WEBPACK_IMPORTED_MODULE_0__["default"](effect.buff, this.level) : null,
             };
             this.abilityEffects.push(abilityEffect);
@@ -637,7 +637,7 @@ class CombatSimulator extends EventTarget {
                                 source,
                                 target,
                                 damageDone * abilityEffect.bleedRatio,
-                                abilityEffect.duration / DOT_TICK_INTERVAL,
+                                abilityEffect.bleedDuration / DOT_TICK_INTERVAL,
                                 1
                             );
                             this.eventQueue.addEvent(bleedTickEvent);

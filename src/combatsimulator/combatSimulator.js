@@ -490,7 +490,7 @@ class CombatSimulator extends EventTarget {
                                 source,
                                 target,
                                 damageDone * abilityEffect.bleedRatio,
-                                abilityEffect.duration / DOT_TICK_INTERVAL,
+                                abilityEffect.bleedDuration / DOT_TICK_INTERVAL,
                                 1
                             );
                             this.eventQueue.addEvent(bleedTickEvent);
