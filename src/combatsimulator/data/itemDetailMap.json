@@ -2558,7 +2558,7 @@
         ],
         "equipmentDetail": {
             "type": "/equipment_types/feet",
-            "levelRequirements": [{ "skillHrid": "/skills/defense", "level": 70 }],
+            "levelRequirements": [{ "skillHrid": "/skills/defense", "level": 75 }],
             "combatStats": {
                 "combatStyleHrids": null,
                 "attackInterval": 0,
@@ -10378,7 +10378,7 @@
         ],
         "equipmentDetail": {
             "type": "/equipment_types/body",
-            "levelRequirements": [{ "skillHrid": "/skills/defense", "level": 20 }],
+            "levelRequirements": [{ "skillHrid": "/skills/defense", "level": 25 }],
             "combatStats": {
                 "combatStyleHrids": null,
                 "attackInterval": 0,
@@ -10643,8 +10643,8 @@
         "equipmentDetail": {
             "type": "/equipment_types/two_hand",
             "levelRequirements": [
-                { "skillHrid": "/skills/attack", "level": 40 },
-                { "skillHrid": "/skills/power", "level": 40 }
+                { "skillHrid": "/skills/attack", "level": 50 },
+                { "skillHrid": "/skills/power", "level": 50 }
             ],
             "combatStats": {
                 "combatStyleHrids": ["/combat_styles/slash"],
@@ -10735,7 +10735,7 @@
         ],
         "equipmentDetail": {
             "type": "/equipment_types/two_hand",
-            "levelRequirements": [{ "skillHrid": "/skills/power", "level": 40 }],
+            "levelRequirements": [{ "skillHrid": "/skills/power", "level": 50 }],
             "combatStats": {
                 "combatStyleHrids": ["/combat_styles/smash"],
                 "attackInterval": 3700000000,
@@ -10825,7 +10825,7 @@
         ],
         "equipmentDetail": {
             "type": "/equipment_types/two_hand",
-            "levelRequirements": [{ "skillHrid": "/skills/attack", "level": 40 }],
+            "levelRequirements": [{ "skillHrid": "/skills/attack", "level": 50 }],
             "combatStats": {
                 "combatStyleHrids": ["/combat_styles/stab"],
                 "attackInterval": 2500000000,
@@ -11456,7 +11456,7 @@
         ],
         "equipmentDetail": {
             "type": "/equipment_types/feet",
-            "levelRequirements": [{ "skillHrid": "/skills/defense", "level": 70 }],
+            "levelRequirements": [{ "skillHrid": "/skills/defense", "level": 75 }],
             "combatStats": {
                 "combatStyleHrids": null,
                 "attackInterval": 0,
@@ -15362,7 +15362,7 @@
         ],
         "equipmentDetail": {
             "type": "/equipment_types/hands",
-            "levelRequirements": [{ "skillHrid": "/skills/defense", "level": 70 }],
+            "levelRequirements": [{ "skillHrid": "/skills/defense", "level": 75 }],
             "combatStats": {
                 "combatStyleHrids": null,
                 "attackInterval": 0,
@@ -15815,7 +15815,7 @@
         ],
         "equipmentDetail": {
             "type": "/equipment_types/hands",
-            "levelRequirements": [{ "skillHrid": "/skills/defense", "level": 25 }],
+            "levelRequirements": [{ "skillHrid": "/skills/defense", "level": 35 }],
             "combatStats": {
                 "combatStyleHrids": null,
                 "attackInterval": 0,
@@ -16355,7 +16355,7 @@
         ],
         "equipmentDetail": {
             "type": "/equipment_types/feet",
-            "levelRequirements": [{ "skillHrid": "/skills/defense", "level": 70 }],
+            "levelRequirements": [{ "skillHrid": "/skills/defense", "level": 75 }],
             "combatStats": {
                 "combatStyleHrids": null,
                 "attackInterval": 0,
@@ -18777,7 +18777,7 @@
         ],
         "equipmentDetail": {
             "type": "/equipment_types/head",
-            "levelRequirements": [{ "skillHrid": "/skills/defense", "level": 25 }],
+            "levelRequirements": [{ "skillHrid": "/skills/defense", "level": 35 }],
             "combatStats": {
                 "combatStyleHrids": null,
                 "attackInterval": 0,
@@ -18956,8 +18956,8 @@
         "equipmentDetail": {
             "type": "/equipment_types/off_hand",
             "levelRequirements": [
-                { "skillHrid": "/skills/attack", "level": 15 },
-                { "skillHrid": "/skills/defense", "level": 15 }
+                { "skillHrid": "/skills/attack", "level": 20 },
+                { "skillHrid": "/skills/defense", "level": 20 }
             ],
             "combatStats": {
                 "combatStyleHrids": null,
@@ -22101,7 +22101,7 @@
         ],
         "equipmentDetail": {
             "type": "/equipment_types/body",
-            "levelRequirements": [{ "skillHrid": "/skills/defense", "level": 30 }],
+            "levelRequirements": [{ "skillHrid": "/skills/defense", "level": 40 }],
             "combatStats": {
                 "combatStyleHrids": null,
                 "attackInterval": 0,
@@ -22192,7 +22192,7 @@
         ],
         "equipmentDetail": {
             "type": "/equipment_types/legs",
-            "levelRequirements": [{ "skillHrid": "/skills/defense", "level": 30 }],
+            "levelRequirements": [{ "skillHrid": "/skills/defense", "level": 40 }],
             "combatStats": {
                 "combatStyleHrids": null,
                 "attackInterval": 0,
@@ -24255,7 +24255,7 @@
         ],
         "equipmentDetail": {
             "type": "/equipment_types/head",
-            "levelRequirements": [{ "skillHrid": "/skills/defense", "level": 55 }],
+            "levelRequirements": [{ "skillHrid": "/skills/defense", "level": 65 }],
             "combatStats": {
                 "combatStyleHrids": null,
                 "attackInterval": 0,
@@ -24346,7 +24346,7 @@
         ],
         "equipmentDetail": {
             "type": "/equipment_types/off_hand",
-            "levelRequirements": [{ "skillHrid": "/skills/defense", "level": 55 }],
+            "levelRequirements": [{ "skillHrid": "/skills/defense", "level": 65 }],
             "combatStats": {
                 "combatStyleHrids": null,
                 "attackInterval": 0,
