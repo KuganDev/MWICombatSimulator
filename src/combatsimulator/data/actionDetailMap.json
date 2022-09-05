@@ -4789,7 +4789,7 @@
         "category": "/action_categories/foraging/misty_forest",
         "name": "Blackberry",
         "levelRequirement": { "skillHrid": "/skills/foraging", "level": 30 },
-        "baseTimeCost": 10000000000,
+        "baseTimeCost": 12000000000,
         "experienceGain": { "skillHrid": "/skills/foraging", "value": 15 },
         "dropTable": [
             {
@@ -5043,7 +5043,7 @@
         "category": "/action_categories/foraging/misty_forest",
         "name": "Misty Forest",
         "levelRequirement": { "skillHrid": "/skills/foraging", "level": 30 },
-        "baseTimeCost": 10000000000,
+        "baseTimeCost": 12000000000,
         "experienceGain": { "skillHrid": "/skills/foraging", "value": 15 },
         "dropTable": [
             {
@@ -5136,7 +5136,7 @@
         "category": "/action_categories/foraging/misty_forest",
         "name": "Orange",
         "levelRequirement": { "skillHrid": "/skills/foraging", "level": 30 },
-        "baseTimeCost": 10000000000,
+        "baseTimeCost": 12000000000,
         "experienceGain": { "skillHrid": "/skills/foraging", "value": 15 },
         "dropTable": [
             {
@@ -5205,7 +5205,7 @@
         "category": "/action_categories/foraging/misty_forest",
         "name": "Robusta Coffee Bean",
         "levelRequirement": { "skillHrid": "/skills/foraging", "level": 30 },
-        "baseTimeCost": 10000000000,
+        "baseTimeCost": 12000000000,
         "experienceGain": { "skillHrid": "/skills/foraging", "value": 15 },
         "dropTable": [
             {

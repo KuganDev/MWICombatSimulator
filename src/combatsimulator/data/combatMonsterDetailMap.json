@@ -1023,8 +1023,8 @@
             {
                 "itemHrid": "/items/coin",
                 "dropRate": 1,
-                "minCount": 600,
-                "maxCount": 3000
+                "minCount": 750,
+                "maxCount": 3750
             },
             {
                 "itemHrid": "/items/red_tea_leaf",
@@ -1047,8 +1047,8 @@
             {
                 "itemHrid": "/items/golem_essence",
                 "dropRate": 0.3,
-                "minCount": 2,
-                "maxCount": 6
+                "minCount": 3,
+                "maxCount": 9
             },
             {
                 "itemHrid": "/items/sweep",
@@ -1342,7 +1342,7 @@
                 "itemHrid": "/items/golem_essence",
                 "dropRate": 0.3,
                 "minCount": 1,
-                "maxCount": 3
+                "maxCount": 4
             },
             {
                 "itemHrid": "/items/stunning_blow",
@@ -2104,9 +2104,9 @@
             "maxHitpoints": 1600,
             "currentManapoints": 1600,
             "maxManapoints": 1600,
-            "stabAccuracyRating": 240,
-            "slashAccuracyRating": 240,
-            "smashAccuracyRating": 240,
+            "stabAccuracyRating": 220,
+            "slashAccuracyRating": 220,
+            "smashAccuracyRating": 220,
             "stabMaxDamage": 160,
             "slashMaxDamage": 160,
             "smashMaxDamage": 160,
@@ -2115,7 +2115,7 @@
             "smashEvasionRating": 288,
             "staminaLevel": 150,
             "intelligenceLevel": 150,
-            "attackLevel": 230,
+            "attackLevel": 210,
             "powerLevel": 150,
             "defenseLevel": 350,
             "combatStats": {
@@ -2172,8 +2172,8 @@
             {
                 "itemHrid": "/items/golem_essence",
                 "dropRate": 0.3,
-                "minCount": 1,
-                "maxCount": 5
+                "minCount": 2,
+                "maxCount": 6
             },
             {
                 "itemHrid": "/items/toughness",
@@ -2460,8 +2460,8 @@
             {
                 "itemHrid": "/items/twilight_essence",
                 "dropRate": 0.3,
-                "minCount": 1,
-                "maxCount": 5
+                "minCount": 2,
+                "maxCount": 6
             },
             {
                 "itemHrid": "/items/vampirism",
@@ -2637,8 +2637,8 @@
             {
                 "itemHrid": "/items/twilight_essence",
                 "dropRate": 0.3,
-                "minCount": 2,
-                "maxCount": 8
+                "minCount": 3,
+                "maxCount": 9
             },
             {
                 "itemHrid": "/items/berserk",
@@ -2749,7 +2749,7 @@
                 "itemHrid": "/items/twilight_essence",
                 "dropRate": 0.3,
                 "minCount": 1,
-                "maxCount": 3
+                "maxCount": 4
             },
             {
                 "itemHrid": "/items/toughness",

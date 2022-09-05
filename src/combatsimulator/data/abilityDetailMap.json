@@ -294,8 +294,8 @@
                 "buff": {
                     "sourceHrid": "/buff_sources/precision",
                     "typeHrid": "/buff_types/accuracy",
-                    "ratioBoost": 0.25,
-                    "ratioBoostLevelBonus": 0.0025,
+                    "ratioBoost": 0.3,
+                    "ratioBoostLevelBonus": 0.003,
                     "flatBoost": 0,
                     "flatBoostLevelBonus": 0,
                     "startTime": "0001-01-01T00:00:00Z",

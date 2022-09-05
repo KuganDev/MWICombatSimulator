@@ -11200,7 +11200,7 @@
                 "smashAccuracy": 0.5,
                 "stabDamage": 0,
                 "slashDamage": 0,
-                "smashDamage": 1.7,
+                "smashDamage": 1.75,
                 "stabEvasion": 0,
                 "slashEvasion": 0,
                 "smashEvasion": 0,
@@ -11229,7 +11229,7 @@
                 "smashAccuracy": 0.01,
                 "stabDamage": 0,
                 "slashDamage": 0,
-                "smashDamage": 0.034,
+                "smashDamage": 0.035,
                 "stabEvasion": 0,
                 "slashEvasion": 0,
                 "smashEvasion": 0,
@@ -13617,7 +13617,7 @@
             "levelRequirements": null,
             "experienceGain": 0
         },
-        "sortIndex": 263
+        "sortIndex": 264
     },
     "/items/lucky_coffee": {
         "hrid": "/items/lucky_coffee",
@@ -19568,7 +19568,7 @@
             "levelRequirements": null,
             "experienceGain": 0
         },
-        "sortIndex": 264
+        "sortIndex": 263
     },
     "/items/stalactite_spear": {
         "hrid": "/items/stalactite_spear",
