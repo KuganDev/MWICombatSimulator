@@ -388,7 +388,9 @@ class CombatSimulator extends EventTarget {
     }
 
     checkTriggersForUnit(unit, friendlies, enemies) {
-        console.assert(unit.combatStats.currentHitpoints > 0, "Checking triggers for a dead unit");
+        if (unit.combatStats.currentHitpoints <= 0) {
+            throw new Error("Checking triggers for a dead unit");
+        }
 
         let triggeredSomething = false;
         let target = CombatUtilities.getTarget(enemies);
@@ -419,7 +421,9 @@ class CombatSimulator extends EventTarget {
     useConsumable(source, consumable) {
         // console.log("Consuming:", consumable);
 
-        console.assert(source.combatStats.currentHitpoints > 0, "Dead unit is trying to use a consumable");
+        if (source.combatStats.currentHitpoints <= 0) {
+            throw new Error("Dead unit is trying to use a consumable");
+        }
 
         consumable.lastUsed = this.simulationTime;
         let cooldownReadyEvent = new CooldownReadyEvent(this.simulationTime + consumable.cooldownDuration);
@@ -459,7 +463,9 @@ class CombatSimulator extends EventTarget {
     }
 
     tryUseAbility(source, ability) {
-        console.assert(source.combatStats.currentHitpoints > 0, "Dead unit is trying to cast an ability");
+        if (source.combatStats.currentHitpoints <= 0) {
+            throw new Error("Dead unit is trying to cast an ability");
+        }
 
         if (source.combatStats.currentManapoints < ability.manaCost) {
             if (source.isPlayer) {

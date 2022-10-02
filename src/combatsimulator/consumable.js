@@ -7,7 +7,9 @@ class Consumable {
         this.hrid = hrid;
 
         let gameConsumable = itemDetailMap[this.hrid];
-        console.assert(gameConsumable, "No consumable found for hrid:" + this.hrid);
+        if (!gameConsumable) {
+            throw new Error("No consumable found for hrid: " + this.hrid);
+        }
 
         this.cooldownDuration = gameConsumable.consumableDetail.cooldownDuration;
         this.hitpointRestore = gameConsumable.consumableDetail.hitpointRestore;

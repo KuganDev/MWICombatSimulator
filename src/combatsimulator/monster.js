@@ -10,7 +10,9 @@ class Monster extends CombatUnit {
         this.hrid = hrid;
 
         let gameMonster = combatMonsterDetailMap[this.hrid];
-        console.assert(gameMonster, "No monster found for hrid:" + this.hrid);
+        if (!gameMonster) {
+            throw new Error("No monster found for hrid: " + this.hrid);
+        }
 
         for (let i = 0; i < gameMonster.abilities.length; i++) {
             this.abilities[i] = new Ability(gameMonster.abilities[i].abilityHrid, gameMonster.abilities[i].level);

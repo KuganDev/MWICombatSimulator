@@ -8,7 +8,9 @@ class Ability {
         this.level = level;
 
         let gameAbility = abilityDetailMap[hrid];
-        console.assert(gameAbility, "No ability found for hrid:" + this.hrid);
+        if (!gameAbility) {
+            throw new Error("No ability found for hrid: " + this.hrid);
+        }
 
         this.manaCost = gameAbility.manaCost;
         this.cooldownDuration = gameAbility.cooldownDuration;

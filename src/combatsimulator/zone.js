@@ -11,10 +11,9 @@ class Zone {
         let totalProbability = this.monsterSpawnRates
             .map((encounter) => encounter.rate * 100) // Avoid floating point inaccuracies
             .reduce((prev, cur) => prev + cur, 0);
-        console.assert(
-            totalProbability / 100 == 1,
-            "Encounter probabilities do not add up to 1. Zone: " + this.hrid + " Probability:" + totalProbability
-        );
+        if (totalProbability != 100) {
+            throw new Error("Encounter probabilities do not add up to 1. Zone: " + this.hrid);
+        }
     }
 
     getRandomEncounter() {

@@ -25,7 +25,9 @@ class Ability {
         this.level = level;
 
         let gameAbility = _data_abilityDetailMap_json__WEBPACK_IMPORTED_MODULE_1__[hrid];
-        console.assert(gameAbility, "No ability found for hrid:" + this.hrid);
+        if (!gameAbility) {
+            throw new Error("No ability found for hrid: " + this.hrid);
+        }
 
         this.manaCost = gameAbility.manaCost;
         this.cooldownDuration = gameAbility.cooldownDuration;
@@ -542,7 +544,9 @@ class CombatSimulator extends EventTarget {
     }
 
     checkTriggersForUnit(unit, friendlies, enemies) {
-        console.assert(unit.combatStats.currentHitpoints > 0, "Checking triggers for a dead unit");
+        if (unit.combatStats.currentHitpoints <= 0) {
+            throw new Error("Checking triggers for a dead unit");
+        }
 
         let triggeredSomething = false;
         let target = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].getTarget(enemies);
@@ -573,7 +577,9 @@ class CombatSimulator extends EventTarget {
     useConsumable(source, consumable) {
         // console.log("Consuming:", consumable);
 
-        console.assert(source.combatStats.currentHitpoints > 0, "Dead unit is trying to use a consumable");
+        if (source.combatStats.currentHitpoints <= 0) {
+            throw new Error("Dead unit is trying to use a consumable");
+        }
 
         consumable.lastUsed = this.simulationTime;
         let cooldownReadyEvent = new _events_cooldownReadyEvent__WEBPACK_IMPORTED_MODULE_6__["default"](this.simulationTime + consumable.cooldownDuration);
@@ -613,7 +619,9 @@ class CombatSimulator extends EventTarget {
     }
 
     tryUseAbility(source, ability) {
-        console.assert(source.combatStats.currentHitpoints > 0, "Dead unit is trying to cast an ability");
+        if (source.combatStats.currentHitpoints <= 0) {
+            throw new Error("Dead unit is trying to cast an ability");
+        }
 
         if (source.combatStats.currentManapoints < ability.manaCost) {
             if (source.isPlayer) {
@@ -823,11 +831,9 @@ class CombatUnit {
 
         let accuracyBoosts = this.getBuffBoosts("/buff_types/accuracy");
         let accuracyRatioBoost = accuracyBoosts[0]?.ratioBoost ?? 0;
-        console.assert(accuracyBoosts.length <= 1, "Multiple accuracy buffs active");
 
         let damageBoosts = this.getBuffBoosts("/buff_types/damage");
         let damageRatioBoost = damageBoosts[0]?.ratioBoost ?? 0;
-        console.assert(damageBoosts.length <= 1, "Multiple damage buffs active");
 
         ["stab", "slash", "smash"].forEach((style) => {
             this.combatStats[style + "AccuracyRating"] =
@@ -849,32 +855,26 @@ class CombatUnit {
         let armorBoosts = this.getBuffBoosts("/buff_types/armor");
         let armorFlatBoost = armorBoosts[0]?.flatBoost ?? 0;
         this.combatStats.armor += armorFlatBoost;
-        console.assert(armorBoosts.length <= 1, "Multiple armor buffs active");
 
         let lifeStealBoosts = this.getBuffBoosts("/buff_types/life_steal");
         let lifeStealFlatBoost = lifeStealBoosts[0]?.flatBoost ?? 0;
         this.combatStats.lifeSteal += lifeStealFlatBoost;
-        console.assert(lifeStealBoosts.length <= 1, "Multiple life steal buffs active");
 
         let physicalReflectPowerBoosts = this.getBuffBoosts("/buff_types/physical_reflect_power");
         let physicalReflectPowerFlatBoost = physicalReflectPowerBoosts[0]?.flatBoost ?? 0;
         this.combatStats.physicalReflectPower += physicalReflectPowerFlatBoost;
-        console.assert(physicalReflectPowerBoosts.length <= 1, "Multiple physical reflect power buffs active");
 
         let HPRegenBoosts = this.getBuffBoosts("/buff_types/hp_regen");
         let HPRegenFlatBoost = HPRegenBoosts[0]?.flatBoost ?? 0;
         this.combatStats.HPRegen += HPRegenFlatBoost;
-        console.assert(HPRegenBoosts.length <= 1, "Multiple hp regen buffs active");
 
         let MPRegenBoosts = this.getBuffBoosts("/buff_types/mp_regen");
         let MPRegenFlatBoost = MPRegenBoosts[0]?.flatBoost ?? 0;
         this.combatStats.MPRegen += MPRegenFlatBoost;
-        console.assert(MPRegenBoosts.length <= 1, "Multiple mp regen buffs active");
 
         let dropRateBoosts = this.getBuffBoosts("/buff_types/combat_drop_rate");
         let dropRateRatioBoost = dropRateBoosts[0]?.ratioBoost ?? 0;
         this.combatStats.dropRate += dropRateRatioBoost;
-        console.assert(dropRateBoosts.length <= 1, "Multiple drop rate buffs active");
 
         let experienceRateBoosts = this.getBuffBoosts("/buff_types/wisdom");
         let experienceRateFlatBoost = experienceRateBoosts[0]?.flatBoost ?? 0;
@@ -1143,7 +1143,9 @@ class Consumable {
         this.hrid = hrid;
 
         let gameConsumable = _data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_1__[this.hrid];
-        console.assert(gameConsumable, "No consumable found for hrid:" + this.hrid);
+        if (!gameConsumable) {
+            throw new Error("No consumable found for hrid: " + this.hrid);
+        }
 
         this.cooldownDuration = gameConsumable.consumableDetail.cooldownDuration;
         this.hitpointRestore = gameConsumable.consumableDetail.hitpointRestore;
@@ -1230,6 +1232,11 @@ __webpack_require__.r(__webpack_exports__);
 class Equipment {
     constructor(hrid, enhancementLevel) {
         this.hrid = hrid;
+        let gameItem = _data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_0__[this.hrid];
+        if (!gameItem) {
+            throw new Error("No equipment found for hrid: " + this.hrid);
+        }
+        this.gameItem = gameItem;
         this.enhancementLevel = enhancementLevel;
     }
 
@@ -1240,23 +1247,17 @@ class Equipment {
     }
 
     getCombatStat(combatStat) {
-        let gameItem = _data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_0__[this.hrid];
-        console.assert(gameItem, "No equipment found for hrid:" + this.hrid);
-
         let multiplier = _data_enhancementLevelTotalMultiplierTable_json__WEBPACK_IMPORTED_MODULE_1__[this.enhancementLevel];
 
         let stat =
-            gameItem.equipmentDetail.combatStats[combatStat] +
-            multiplier * gameItem.equipmentDetail.combatEnhancementBonuses[combatStat];
+            this.gameItem.equipmentDetail.combatStats[combatStat] +
+            multiplier * this.gameItem.equipmentDetail.combatEnhancementBonuses[combatStat];
 
         return stat;
     }
 
     getCombatStyle() {
-        let gameItem = _data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_0__[this.hrid];
-        console.assert(gameItem, "No equipment found for hrid:" + this.hrid);
-
-        let gameCombatStyle = gameItem.equipmentDetail.combatStats.combatStyleHrids[0];
+        let gameCombatStyle = this.gameItem.equipmentDetail.combatStats.combatStyleHrids[0];
         let combatStyle = gameCombatStyle.slice(gameCombatStyle.lastIndexOf("/") + 1);
 
         return combatStyle;
@@ -1652,7 +1653,9 @@ class Monster extends _combatUnit__WEBPACK_IMPORTED_MODULE_1__["default"] {
         this.hrid = hrid;
 
         let gameMonster = _data_combatMonsterDetailMap_json__WEBPACK_IMPORTED_MODULE_2__[this.hrid];
-        console.assert(gameMonster, "No monster found for hrid:" + this.hrid);
+        if (!gameMonster) {
+            throw new Error("No monster found for hrid: " + this.hrid);
+        }
 
         for (let i = 0; i < gameMonster.abilities.length; i++) {
             this.abilities[i] = new _ability__WEBPACK_IMPORTED_MODULE_0__["default"](gameMonster.abilities[i].abilityHrid, gameMonster.abilities[i].level);
@@ -2079,10 +2082,9 @@ class Zone {
         let totalProbability = this.monsterSpawnRates
             .map((encounter) => encounter.rate * 100) // Avoid floating point inaccuracies
             .reduce((prev, cur) => prev + cur, 0);
-        console.assert(
-            totalProbability / 100 == 1,
-            "Encounter probabilities do not add up to 1. Zone: " + this.hrid + " Probability:" + totalProbability
-        );
+        if (totalProbability != 100) {
+            throw new Error("Encounter probabilities do not add up to 1. Zone: " + this.hrid);
+        }
     }
 
     getRandomEncounter() {
