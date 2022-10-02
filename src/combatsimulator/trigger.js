@@ -91,6 +91,7 @@ class Trigger {
             case "/combat_trigger_conditions/swiftness_coffee":
             case "/combat_trigger_conditions/toughness":
             case "/combat_trigger_conditions/vampirism":
+            case "/combat_trigger_conditions/wisdom_coffee":
                 let buffHrid = "/buff_sources";
                 buffHrid += this.conditionHrid.slice(this.conditionHrid.lastIndexOf("/"));
                 return source.combatBuffs[buffHrid];

@@ -174,6 +174,7 @@ class CombatUnit {
         HPRegen: 0.01,
         MPRegen: 0.01,
         dropRate: 0,
+        experienceRate: 0,
         foodSlots: 1,
         drinkSlots: 1,
         staminaLevel: 1,
@@ -269,6 +270,10 @@ class CombatUnit {
         let dropRateRatioBoost = dropRateBoosts[0]?.ratioBoost ?? 0;
         this.combatStats.dropRate += dropRateRatioBoost;
         console.assert(dropRateBoosts.length <= 1, "Multiple drop rate buffs active");
+
+        let experienceRateBoosts = this.getBuffBoosts("/buff_types/wisdom");
+        let experienceRateFlatBoost = experienceRateBoosts[0]?.flatBoost ?? 0;
+        this.combatStats.experienceRate += experienceRateFlatBoost;
     }
 
     addBuff(buff, currentTime) {
@@ -615,6 +620,7 @@ class Player extends _combatUnit__WEBPACK_IMPORTED_MODULE_1__["default"] {
         }
 
         this.combatStats.dropRate = 0;
+        this.combatStats.experienceRate = 0;
 
         super.updateCombatStats();
     }
@@ -729,6 +735,7 @@ class Trigger {
             case "/combat_trigger_conditions/swiftness_coffee":
             case "/combat_trigger_conditions/toughness":
             case "/combat_trigger_conditions/vampirism":
+            case "/combat_trigger_conditions/wisdom_coffee":
                 let buffHrid = "/buff_sources";
                 buffHrid += this.conditionHrid.slice(this.conditionHrid.lastIndexOf("/"));
                 return source.combatBuffs[buffHrid];

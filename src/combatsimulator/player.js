@@ -86,6 +86,7 @@ class Player extends CombatUnit {
         }
 
         this.combatStats.dropRate = 0;
+        this.combatStats.experienceRate = 0;
 
         super.updateCombatStats();
     }
