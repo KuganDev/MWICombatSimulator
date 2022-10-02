@@ -39,6 +39,8 @@
                 "MPRegen": 0,
                 "physicalReflectPower": 0,
                 "dropRate": 0,
+                "dropQuantity": 0,
+                "experienceRate": 0,
                 "foodSlots": 0,
                 "drinkSlots": 0
             }
@@ -135,6 +137,8 @@
                 "MPRegen": 0,
                 "physicalReflectPower": 0,
                 "dropRate": 0,
+                "dropQuantity": 0,
+                "experienceRate": 0,
                 "foodSlots": 0,
                 "drinkSlots": 0
             }
@@ -243,6 +247,8 @@
                 "MPRegen": 0,
                 "physicalReflectPower": 0,
                 "dropRate": 0,
+                "dropQuantity": 0,
+                "experienceRate": 0,
                 "foodSlots": 0,
                 "drinkSlots": 0
             }
@@ -327,6 +333,8 @@
                 "MPRegen": 0,
                 "physicalReflectPower": 0,
                 "dropRate": 0,
+                "dropQuantity": 0,
+                "experienceRate": 0,
                 "foodSlots": 0,
                 "drinkSlots": 0
             }
@@ -465,6 +473,8 @@
                 "MPRegen": 0,
                 "physicalReflectPower": 0,
                 "dropRate": 0,
+                "dropQuantity": 0,
+                "experienceRate": 0,
                 "foodSlots": 0,
                 "drinkSlots": 0
             }
@@ -555,6 +565,8 @@
                 "MPRegen": 0,
                 "physicalReflectPower": 0,
                 "dropRate": 0,
+                "dropQuantity": 0,
+                "experienceRate": 0,
                 "foodSlots": 0,
                 "drinkSlots": 0
             }
@@ -609,6 +621,8 @@
                 "MPRegen": 0,
                 "physicalReflectPower": 0,
                 "dropRate": 0,
+                "dropQuantity": 0,
+                "experienceRate": 0,
                 "foodSlots": 0,
                 "drinkSlots": 0
             }
@@ -693,6 +707,8 @@
                 "MPRegen": 0,
                 "physicalReflectPower": 0,
                 "dropRate": 0,
+                "dropQuantity": 0,
+                "experienceRate": 0,
                 "foodSlots": 0,
                 "drinkSlots": 0
             }
@@ -801,6 +817,8 @@
                 "MPRegen": 0,
                 "physicalReflectPower": 0,
                 "dropRate": 0,
+                "dropQuantity": 0,
+                "experienceRate": 0,
                 "foodSlots": 0,
                 "drinkSlots": 0
             }
@@ -909,6 +927,8 @@
                 "MPRegen": 0,
                 "physicalReflectPower": 0,
                 "dropRate": 0,
+                "dropQuantity": 0,
+                "experienceRate": 0,
                 "foodSlots": 0,
                 "drinkSlots": 0
             }
@@ -1011,6 +1031,8 @@
                 "MPRegen": 0,
                 "physicalReflectPower": 0,
                 "dropRate": 0,
+                "dropQuantity": 0,
+                "experienceRate": 0,
                 "foodSlots": 0,
                 "drinkSlots": 0
             }
@@ -1104,6 +1126,8 @@
                 "MPRegen": 0,
                 "physicalReflectPower": 0,
                 "dropRate": 0,
+                "dropQuantity": 0,
+                "experienceRate": 0,
                 "foodSlots": 0,
                 "drinkSlots": 0
             }
@@ -1212,6 +1236,8 @@
                 "MPRegen": 0,
                 "physicalReflectPower": 0,
                 "dropRate": 0,
+                "dropQuantity": 0,
+                "experienceRate": 0,
                 "foodSlots": 0,
                 "drinkSlots": 0
             }
@@ -1308,6 +1334,8 @@
                 "MPRegen": 0,
                 "physicalReflectPower": 0,
                 "dropRate": 0,
+                "dropQuantity": 0,
+                "experienceRate": 0,
                 "foodSlots": 0,
                 "drinkSlots": 0
             }
@@ -1392,6 +1420,8 @@
                 "MPRegen": 0,
                 "physicalReflectPower": 0,
                 "dropRate": 0,
+                "dropQuantity": 0,
+                "experienceRate": 0,
                 "foodSlots": 0,
                 "drinkSlots": 0
             }
@@ -1500,6 +1530,8 @@
                 "MPRegen": 0,
                 "physicalReflectPower": 0,
                 "dropRate": 0,
+                "dropQuantity": 0,
+                "experienceRate": 0,
                 "foodSlots": 0,
                 "drinkSlots": 0
             }
@@ -1620,6 +1652,8 @@
                 "MPRegen": 0,
                 "physicalReflectPower": 0,
                 "dropRate": 0,
+                "dropQuantity": 0,
+                "experienceRate": 0,
                 "foodSlots": 0,
                 "drinkSlots": 0
             }
@@ -1728,6 +1762,8 @@
                 "MPRegen": 0,
                 "physicalReflectPower": 0,
                 "dropRate": 0,
+                "dropQuantity": 0,
+                "experienceRate": 0,
                 "foodSlots": 0,
                 "drinkSlots": 0
             }
@@ -1818,6 +1854,8 @@
                 "MPRegen": 0,
                 "physicalReflectPower": 0,
                 "dropRate": 0,
+                "dropQuantity": 0,
+                "experienceRate": 0,
                 "foodSlots": 0,
                 "drinkSlots": 0
             }
@@ -1914,6 +1952,8 @@
                 "MPRegen": 0,
                 "physicalReflectPower": 0,
                 "dropRate": 0,
+                "dropQuantity": 0,
+                "experienceRate": 0,
                 "foodSlots": 0,
                 "drinkSlots": 0
             }
@@ -1986,6 +2026,8 @@
                 "MPRegen": 0,
                 "physicalReflectPower": 0,
                 "dropRate": 0,
+                "dropQuantity": 0,
+                "experienceRate": 0,
                 "foodSlots": 0,
                 "drinkSlots": 0
             }
@@ -2058,6 +2100,8 @@
                 "MPRegen": 0,
                 "physicalReflectPower": 0,
                 "dropRate": 0,
+                "dropQuantity": 0,
+                "experienceRate": 0,
                 "foodSlots": 0,
                 "drinkSlots": 0
             }
@@ -2136,6 +2180,8 @@
                 "MPRegen": 0,
                 "physicalReflectPower": 0.2,
                 "dropRate": 0,
+                "dropQuantity": 0,
+                "experienceRate": 0,
                 "foodSlots": 0,
                 "drinkSlots": 0
             }
@@ -2229,6 +2275,8 @@
                 "MPRegen": 0,
                 "physicalReflectPower": 0,
                 "dropRate": 0,
+                "dropQuantity": 0,
+                "experienceRate": 0,
                 "foodSlots": 0,
                 "drinkSlots": 0
             }
@@ -2331,6 +2379,8 @@
                 "MPRegen": 0,
                 "physicalReflectPower": 0,
                 "dropRate": 0,
+                "dropQuantity": 0,
+                "experienceRate": 0,
                 "foodSlots": 0,
                 "drinkSlots": 0
             }
@@ -2427,6 +2477,8 @@
                 "MPRegen": 0,
                 "physicalReflectPower": 0,
                 "dropRate": 0,
+                "dropQuantity": 0,
+                "experienceRate": 0,
                 "foodSlots": 0,
                 "drinkSlots": 0
             }
@@ -2511,6 +2563,8 @@
                 "MPRegen": 0,
                 "physicalReflectPower": 0,
                 "dropRate": 0,
+                "dropQuantity": 0,
+                "experienceRate": 0,
                 "foodSlots": 0,
                 "drinkSlots": 0
             }
@@ -2601,6 +2655,8 @@
                 "MPRegen": 0,
                 "physicalReflectPower": 0,
                 "dropRate": 0,
+                "dropQuantity": 0,
+                "experienceRate": 0,
                 "foodSlots": 0,
                 "drinkSlots": 0
             }
@@ -2694,6 +2750,8 @@
                 "MPRegen": 0,
                 "physicalReflectPower": 0,
                 "dropRate": 0,
+                "dropQuantity": 0,
+                "experienceRate": 0,
                 "foodSlots": 0,
                 "drinkSlots": 0
             }

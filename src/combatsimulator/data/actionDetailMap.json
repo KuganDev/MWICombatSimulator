@@ -17,7 +17,7 @@
         ],
         "outputItems": [{ "itemHrid": "/items/artisan_tea", "count": 1 }],
         "monsterSpawnRates": null,
-        "sortIndex": 30
+        "sortIndex": 31
     },
     "/actions/brewing/attack_coffee": {
         "hrid": "/actions/brewing/attack_coffee",
@@ -56,7 +56,7 @@
         ],
         "outputItems": [{ "itemHrid": "/items/blessed_tea", "count": 1 }],
         "monsterSpawnRates": null,
-        "sortIndex": 31
+        "sortIndex": 32
     },
     "/actions/brewing/brewing_tea": {
         "hrid": "/actions/brewing/brewing_tea",
@@ -152,7 +152,7 @@
         ],
         "outputItems": [{ "itemHrid": "/items/efficiency_tea", "count": 1 }],
         "monsterSpawnRates": null,
-        "sortIndex": 26
+        "sortIndex": 27
     },
     "/actions/brewing/enhancing_tea": {
         "hrid": "/actions/brewing/enhancing_tea",
@@ -191,7 +191,7 @@
         ],
         "outputItems": [{ "itemHrid": "/items/fermenting_tea", "count": 1 }],
         "monsterSpawnRates": null,
-        "sortIndex": 20
+        "sortIndex": 21
     },
     "/actions/brewing/foraging_tea": {
         "hrid": "/actions/brewing/foraging_tea",
@@ -289,7 +289,7 @@
         ],
         "outputItems": [{ "itemHrid": "/items/lucky_coffee", "count": 1 }],
         "monsterSpawnRates": null,
-        "sortIndex": 19
+        "sortIndex": 20
     },
     "/actions/brewing/milking_tea": {
         "hrid": "/actions/brewing/milking_tea",
@@ -365,7 +365,7 @@
         ],
         "outputItems": [{ "itemHrid": "/items/super_attack_coffee", "count": 1 }],
         "monsterSpawnRates": null,
-        "sortIndex": 23
+        "sortIndex": 24
     },
     "/actions/brewing/super_brewing_tea": {
         "hrid": "/actions/brewing/super_brewing_tea",
@@ -384,7 +384,7 @@
         ],
         "outputItems": [{ "itemHrid": "/items/super_brewing_tea", "count": 1 }],
         "monsterSpawnRates": null,
-        "sortIndex": 24
+        "sortIndex": 25
     },
     "/actions/brewing/super_cheesesmithing_tea": {
         "hrid": "/actions/brewing/super_cheesesmithing_tea",
@@ -403,7 +403,7 @@
         ],
         "outputItems": [{ "itemHrid": "/items/super_cheesesmithing_tea", "count": 1 }],
         "monsterSpawnRates": null,
-        "sortIndex": 29
+        "sortIndex": 30
     },
     "/actions/brewing/super_cooking_tea": {
         "hrid": "/actions/brewing/super_cooking_tea",
@@ -422,7 +422,7 @@
         ],
         "outputItems": [{ "itemHrid": "/items/super_cooking_tea", "count": 1 }],
         "monsterSpawnRates": null,
-        "sortIndex": 22
+        "sortIndex": 23
     },
     "/actions/brewing/super_defense_coffee": {
         "hrid": "/actions/brewing/super_defense_coffee",
@@ -441,7 +441,7 @@
         ],
         "outputItems": [{ "itemHrid": "/items/super_defense_coffee", "count": 1 }],
         "monsterSpawnRates": null,
-        "sortIndex": 21
+        "sortIndex": 22
     },
     "/actions/brewing/super_enhancing_tea": {
         "hrid": "/actions/brewing/super_enhancing_tea",
@@ -460,7 +460,7 @@
         ],
         "outputItems": [{ "itemHrid": "/items/super_enhancing_tea", "count": 1 }],
         "monsterSpawnRates": null,
-        "sortIndex": 27
+        "sortIndex": 28
     },
     "/actions/brewing/super_foraging_tea": {
         "hrid": "/actions/brewing/super_foraging_tea",
@@ -479,7 +479,7 @@
         ],
         "outputItems": [{ "itemHrid": "/items/super_foraging_tea", "count": 1 }],
         "monsterSpawnRates": null,
-        "sortIndex": 18
+        "sortIndex": 19
     },
     "/actions/brewing/super_intelligence_coffee": {
         "hrid": "/actions/brewing/super_intelligence_coffee",
@@ -498,7 +498,7 @@
         ],
         "outputItems": [{ "itemHrid": "/items/super_intelligence_coffee", "count": 1 }],
         "monsterSpawnRates": null,
-        "sortIndex": 17
+        "sortIndex": 18
     },
     "/actions/brewing/super_milking_tea": {
         "hrid": "/actions/brewing/super_milking_tea",
@@ -517,7 +517,7 @@
         ],
         "outputItems": [{ "itemHrid": "/items/super_milking_tea", "count": 1 }],
         "monsterSpawnRates": null,
-        "sortIndex": 16
+        "sortIndex": 17
     },
     "/actions/brewing/super_power_coffee": {
         "hrid": "/actions/brewing/super_power_coffee",
@@ -536,7 +536,7 @@
         ],
         "outputItems": [{ "itemHrid": "/items/super_power_coffee", "count": 1 }],
         "monsterSpawnRates": null,
-        "sortIndex": 28
+        "sortIndex": 29
     },
     "/actions/brewing/super_stamina_coffee": {
         "hrid": "/actions/brewing/super_stamina_coffee",
@@ -555,7 +555,7 @@
         ],
         "outputItems": [{ "itemHrid": "/items/super_stamina_coffee", "count": 1 }],
         "monsterSpawnRates": null,
-        "sortIndex": 15
+        "sortIndex": 16
     },
     "/actions/brewing/swiftness_coffee": {
         "hrid": "/actions/brewing/swiftness_coffee",
@@ -575,7 +575,27 @@
         ],
         "outputItems": [{ "itemHrid": "/items/swiftness_coffee", "count": 1 }],
         "monsterSpawnRates": null,
-        "sortIndex": 25
+        "sortIndex": 26
+    },
+    "/actions/brewing/wisdom_coffee": {
+        "hrid": "/actions/brewing/wisdom_coffee",
+        "function": "/action_functions/production",
+        "type": "/action_types/brewing",
+        "category": "/action_categories/brewing/coffee",
+        "name": "Wisdom Coffee",
+        "levelRequirement": { "skillHrid": "/skills/brewing", "level": 36 },
+        "baseTimeCost": 10000000000,
+        "experienceGain": { "skillHrid": "/skills/brewing", "value": 29 },
+        "dropTable": null,
+        "upgradeItemHrid": "",
+        "inputItems": [
+            { "itemHrid": "/items/liberica_coffee_bean", "count": 2 },
+            { "itemHrid": "/items/plum", "count": 1 },
+            { "itemHrid": "/items/burble_milk", "count": 1 }
+        ],
+        "outputItems": [{ "itemHrid": "/items/wisdom_coffee", "count": 1 }],
+        "monsterSpawnRates": null,
+        "sortIndex": 14
     },
     "/actions/brewing/wisdom_tea": {
         "hrid": "/actions/brewing/wisdom_tea",
@@ -595,7 +615,7 @@
         ],
         "outputItems": [{ "itemHrid": "/items/wisdom_tea", "count": 1 }],
         "monsterSpawnRates": null,
-        "sortIndex": 14
+        "sortIndex": 15
     },
     "/actions/cheesesmithing/azure_boots": {
         "hrid": "/actions/cheesesmithing/azure_boots",
