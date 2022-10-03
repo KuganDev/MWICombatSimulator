@@ -553,32 +553,39 @@ class CombatSimulator extends EventTarget {
 
         for (const food of unit.food) {
             if (food && food.shouldTrigger(this.simulationTime, unit, target, friendlies, enemies)) {
-                this.useConsumable(unit, food);
-                triggeredSomething = true;
+                let result = this.tryUseConsumable(unit, food);
+                if (result) {
+                    triggeredSomething = true;
+                }
             }
         }
 
         for (const drink of unit.drinks) {
             if (drink && drink.shouldTrigger(this.simulationTime, unit, target, friendlies, enemies)) {
-                this.useConsumable(unit, drink);
-                triggeredSomething = true;
+                let result = this.tryUseConsumable(unit, drink);
+                if (result) {
+                    triggeredSomething = true;
+                }
             }
         }
 
         for (const ability of unit.abilities) {
             if (ability && ability.shouldTrigger(this.simulationTime, unit, target, friendlies, enemies)) {
-                triggeredSomething = this.tryUseAbility(unit, ability);
+                let result = this.tryUseAbility(unit, ability);
+                if (result) {
+                    triggeredSomething = true;
+                }
             }
         }
 
         return triggeredSomething;
     }
 
-    useConsumable(source, consumable) {
+    tryUseConsumable(source, consumable) {
         // console.log("Consuming:", consumable);
 
         if (source.combatStats.currentHitpoints <= 0) {
-            throw new Error("Dead unit is trying to use a consumable");
+            return false;
         }
 
         consumable.lastUsed = this.simulationTime;
@@ -616,11 +623,13 @@ class CombatSimulator extends EventTarget {
             let checkBuffExpirationEvent = new _events_checkBuffExpirationEvent__WEBPACK_IMPORTED_MODULE_3__["default"](this.simulationTime + buff.duration, source);
             this.eventQueue.addEvent(checkBuffExpirationEvent);
         }
+
+        return true;
     }
 
     tryUseAbility(source, ability) {
         if (source.combatStats.currentHitpoints <= 0) {
-            throw new Error("Dead unit is trying to cast an ability");
+            return false;
         }
 
         if (source.combatStats.currentManapoints < ability.manaCost) {
