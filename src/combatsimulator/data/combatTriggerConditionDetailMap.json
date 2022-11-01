@@ -45,6 +45,30 @@
         "allowedComparatorHrids": ["/combat_trigger_comparators/is_active", "/combat_trigger_comparators/is_inactive"],
         "sortIndex": 10
     },
+    "/combat_trigger_conditions/elemental_affinity_fire_amplify": {
+        "hrid": "/combat_trigger_conditions/elemental_affinity_fire_amplify",
+        "name": "Elemental Affinity (Fire Amplify)",
+        "isSingleTarget": true,
+        "isMultiTarget": false,
+        "allowedComparatorHrids": ["/combat_trigger_comparators/is_active", "/combat_trigger_comparators/is_inactive"],
+        "sortIndex": 26
+    },
+    "/combat_trigger_conditions/elemental_affinity_nature_amplify": {
+        "hrid": "/combat_trigger_conditions/elemental_affinity_nature_amplify",
+        "name": "Elemental Affinity (Nature Amplify)",
+        "isSingleTarget": true,
+        "isMultiTarget": false,
+        "allowedComparatorHrids": ["/combat_trigger_comparators/is_active", "/combat_trigger_comparators/is_inactive"],
+        "sortIndex": 25
+    },
+    "/combat_trigger_conditions/elemental_affinity_water_amplify": {
+        "hrid": "/combat_trigger_conditions/elemental_affinity_water_amplify",
+        "name": "Elemental Affinity (Water Amplify)",
+        "isSingleTarget": true,
+        "isMultiTarget": false,
+        "allowedComparatorHrids": ["/combat_trigger_comparators/is_active", "/combat_trigger_comparators/is_inactive"],
+        "sortIndex": 24
+    },
     "/combat_trigger_conditions/frenzy": {
         "hrid": "/combat_trigger_conditions/frenzy",
         "name": "Frenzy",
@@ -172,7 +196,7 @@
         "isSingleTarget": true,
         "isMultiTarget": false,
         "allowedComparatorHrids": ["/combat_trigger_comparators/is_active", "/combat_trigger_comparators/is_inactive"],
-        "sortIndex": 24
+        "sortIndex": 27
     },
     "/combat_trigger_conditions/swiftness_coffee": {
         "hrid": "/combat_trigger_conditions/swiftness_coffee",
