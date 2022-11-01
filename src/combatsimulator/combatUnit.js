@@ -15,7 +15,7 @@ class CombatUnit {
     drinks = [null, null, null];
 
     // Calculated combat stats including temporary buffs
-    combatStats = {
+    combatDetails = {
         combatStyleHrid: "smash",
         attackInterval: 3000000000,
         stabAccuracy: 0,
@@ -59,21 +59,21 @@ class CombatUnit {
 
     constructor() {}
 
-    updateCombatStats() {
-        this.combatStats.HPRegen = 0.01;
-        this.combatStats.MPRegen = 0.01;
+    updateCombatDetails() {
+        this.combatDetails.HPRegen = 0.01;
+        this.combatDetails.MPRegen = 0.01;
 
         ["stamina", "intelligence", "attack", "power", "defense"].forEach((stat) => {
-            this.combatStats[stat + "Level"] = this[stat + "Level"];
+            this.combatDetails[stat + "Level"] = this[stat + "Level"];
             let boosts = this.getBuffBoosts("/buff_types/" + stat + "_level");
             boosts.forEach((buff) => {
-                this.combatStats[stat + "Level"] += Math.floor(this[stat + "Level"] * buff.ratioBoost);
-                this.combatStats[stat + "Level"] += buff.flatBoost;
+                this.combatDetails[stat + "Level"] += Math.floor(this[stat + "Level"] * buff.ratioBoost);
+                this.combatDetails[stat + "Level"] += buff.flatBoost;
             });
         });
 
-        this.combatStats.maxHitpoints = 10 * (10 + this.combatStats.staminaLevel);
-        this.combatStats.maxManapoints = 10 * (10 + this.combatStats.intelligenceLevel);
+        this.combatDetails.maxHitpoints = 10 * (10 + this.combatDetails.staminaLevel);
+        this.combatDetails.maxManapoints = 10 * (10 + this.combatDetails.intelligenceLevel);
 
         let accuracyBoosts = this.getBuffBoosts("/buff_types/accuracy");
         let accuracyRatioBoost = accuracyBoosts[0]?.ratioBoost ?? 0;
@@ -82,56 +82,56 @@ class CombatUnit {
         let damageRatioBoost = damageBoosts[0]?.ratioBoost ?? 0;
 
         ["stab", "slash", "smash"].forEach((style) => {
-            this.combatStats[style + "AccuracyRating"] =
-                (10 + this.combatStats.attackLevel) *
-                (1 + this.combatStats[style + "Accuracy"]) *
+            this.combatDetails[style + "AccuracyRating"] =
+                (10 + this.combatDetails.attackLevel) *
+                (1 + this.combatDetails[style + "Accuracy"]) *
                 (1 + accuracyRatioBoost);
-            this.combatStats[style + "MaxDamage"] =
-                (10 + this.combatStats.powerLevel) * (1 + this.combatStats[style + "Damage"]) * (1 + damageRatioBoost);
-            this.combatStats[style + "EvasionRating"] =
-                (10 + this.combatStats.defenseLevel) * (1 + this.combatStats[style + "Evasion"]);
+            this.combatDetails[style + "MaxDamage"] =
+                (10 + this.combatDetails.powerLevel) * (1 + this.combatDetails[style + "Damage"]) * (1 + damageRatioBoost);
+            this.combatDetails[style + "EvasionRating"] =
+                (10 + this.combatDetails.defenseLevel) * (1 + this.combatDetails[style + "Evasion"]);
         });
 
         let attackIntervalBoosts = this.getBuffBoosts("/buff_types/attack_speed");
         let attackIntervalRatioBoost = attackIntervalBoosts
             .map((boost) => boost.ratioBoost)
             .reduce((prev, cur) => prev + cur, 0);
-        this.combatStats.attackInterval = this.combatStats.attackInterval * (1 / (1 + attackIntervalRatioBoost));
+        this.combatDetails.attackInterval = this.combatDetails.attackInterval * (1 / (1 + attackIntervalRatioBoost));
 
         let armorBoosts = this.getBuffBoosts("/buff_types/armor");
         let armorFlatBoost = armorBoosts[0]?.flatBoost ?? 0;
-        this.combatStats.armor += armorFlatBoost;
+        this.combatDetails.armor += armorFlatBoost;
 
         let lifeStealBoosts = this.getBuffBoosts("/buff_types/life_steal");
         let lifeStealFlatBoost = lifeStealBoosts[0]?.flatBoost ?? 0;
-        this.combatStats.lifeSteal += lifeStealFlatBoost;
+        this.combatDetails.lifeSteal += lifeStealFlatBoost;
 
         let physicalReflectPowerBoosts = this.getBuffBoosts("/buff_types/physical_reflect_power");
         let physicalReflectPowerFlatBoost = physicalReflectPowerBoosts[0]?.flatBoost ?? 0;
-        this.combatStats.physicalReflectPower += physicalReflectPowerFlatBoost;
+        this.combatDetails.physicalReflectPower += physicalReflectPowerFlatBoost;
 
         let HPRegenBoosts = this.getBuffBoosts("/buff_types/hp_regen");
         let HPRegenFlatBoost = HPRegenBoosts[0]?.flatBoost ?? 0;
-        this.combatStats.HPRegen += HPRegenFlatBoost;
+        this.combatDetails.HPRegen += HPRegenFlatBoost;
 
         let MPRegenBoosts = this.getBuffBoosts("/buff_types/mp_regen");
         let MPRegenFlatBoost = MPRegenBoosts[0]?.flatBoost ?? 0;
-        this.combatStats.MPRegen += MPRegenFlatBoost;
+        this.combatDetails.MPRegen += MPRegenFlatBoost;
 
         let dropRateBoosts = this.getBuffBoosts("/buff_types/combat_drop_rate");
         let dropRateRatioBoost = dropRateBoosts[0]?.ratioBoost ?? 0;
-        this.combatStats.dropRate += dropRateRatioBoost;
+        this.combatDetails.dropRate += dropRateRatioBoost;
 
         let experienceRateBoosts = this.getBuffBoosts("/buff_types/wisdom");
         let experienceRateFlatBoost = experienceRateBoosts[0]?.flatBoost ?? 0;
-        this.combatStats.experienceRate += experienceRateFlatBoost;
+        this.combatDetails.experienceRate += experienceRateFlatBoost;
     }
 
     addBuff(buff, currentTime) {
         buff.startTime = currentTime;
         this.combatBuffs[buff.sourceHrid] = buff;
 
-        this.updateCombatStats();
+        this.updateCombatDetails();
     }
 
     removeExpiredBuffs(currentTime) {
@@ -142,12 +142,12 @@ class CombatUnit {
             delete this.combatBuffs[buff.sourceHrid];
         });
 
-        this.updateCombatStats();
+        this.updateCombatDetails();
     }
 
     clearBuffs() {
         this.combatBuffs = {};
-        this.updateCombatStats();
+        this.updateCombatDetails();
     }
 
     getBuffBoosts(type) {
@@ -166,11 +166,11 @@ class CombatUnit {
         this.stunExpireTime = null;
 
         this.clearBuffs();
-        this.updateCombatStats();
+        this.updateCombatDetails();
         this.resetCooldowns(currentTime);
 
-        this.combatStats.currentHitpoints = this.combatStats.maxHitpoints;
-        this.combatStats.currentManapoints = this.combatStats.maxManapoints;
+        this.combatDetails.currentHitpoints = this.combatDetails.maxHitpoints;
+        this.combatDetails.currentManapoints = this.combatDetails.maxManapoints;
     }
 
     resetCooldowns(currentTime = 0) {
@@ -191,13 +191,13 @@ class CombatUnit {
     addHitpoints(hitpoints) {
         let hitpointsAdded = 0;
 
-        if (this.combatStats.currentHitpoints >= this.combatStats.maxHitpoints) {
+        if (this.combatDetails.currentHitpoints >= this.combatDetails.maxHitpoints) {
             return hitpointsAdded;
         }
 
-        let newHitpoints = Math.min(this.combatStats.currentHitpoints + hitpoints, this.combatStats.maxHitpoints);
-        hitpointsAdded = newHitpoints - this.combatStats.currentHitpoints;
-        this.combatStats.currentHitpoints = newHitpoints;
+        let newHitpoints = Math.min(this.combatDetails.currentHitpoints + hitpoints, this.combatDetails.maxHitpoints);
+        hitpointsAdded = newHitpoints - this.combatDetails.currentHitpoints;
+        this.combatDetails.currentHitpoints = newHitpoints;
 
         return hitpointsAdded;
     }
@@ -205,13 +205,13 @@ class CombatUnit {
     addManapoints(manapoints) {
         let manapointsAdded = 0;
 
-        if (this.combatStats.currentManapoints >= this.combatStats.maxManapoints) {
+        if (this.combatDetails.currentManapoints >= this.combatDetails.maxManapoints) {
             return manapointsAdded;
         }
 
-        let newManapoints = Math.min(this.combatStats.currentManapoints + manapoints, this.combatStats.maxManapoints);
-        manapointsAdded = newManapoints - this.combatStats.currentManapoints;
-        this.combatStats.currentManapoints = newManapoints;
+        let newManapoints = Math.min(this.combatDetails.currentManapoints + manapoints, this.combatDetails.maxManapoints);
+        manapointsAdded = newManapoints - this.combatDetails.currentManapoints;
+        this.combatDetails.currentManapoints = newManapoints;
 
         return manapointsAdded;
     }

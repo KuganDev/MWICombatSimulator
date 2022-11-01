@@ -162,7 +162,7 @@ function updateEquipmentState() {
 // #region Combat Stats
 
 function updateCombatStatsUI() {
-    player.updateCombatStats();
+    player.updateCombatDetails();
 
     [
         "maxHitpoints",
@@ -179,19 +179,19 @@ function updateCombatStatsUI() {
         "armor",
     ].forEach((stat) => {
         let element = document.getElementById("combatStat_" + stat);
-        element.innerHTML = Math.floor(player.combatStats[stat]);
+        element.innerHTML = Math.floor(player.combatDetails[stat]);
     });
 
     let combatStyleElement = document.getElementById("combatStat_combatStyleHrid");
-    let combatStyle = player.combatStats.combatStyleHrid;
+    let combatStyle = player.combatDetails.combatStyleHrid;
     combatStyleElement.innerHTML = combatStyle.charAt(0).toUpperCase() + combatStyle.slice(1);
 
     let attackIntervalElement = document.getElementById("combatStat_attackInterval");
-    attackIntervalElement.innerHTML = (player.combatStats.attackInterval / 1e9).toLocaleString() + "s";
+    attackIntervalElement.innerHTML = (player.combatDetails.attackInterval / 1e9).toLocaleString() + "s";
 
     ["lifeSteal", "HPRegen", "MPRegen"].forEach((stat) => {
         let element = document.getElementById("combatStat_" + stat);
-        let value = (100 * player.combatStats[stat]).toLocaleString([], {
+        let value = (100 * player.combatDetails[stat]).toLocaleString([], {
             minimumFractionDigits: 0,
             maximumFractionDigits: 2,
         });
@@ -264,8 +264,8 @@ function updateFoodUI() {
         let selectElement = document.getElementById("selectFood_" + i);
         let triggerButton = document.getElementById("buttonFoodTrigger_" + i);
 
-        selectElement.disabled = i >= player.combatStats.foodSlots;
-        triggerButton.disabled = i >= player.combatStats.foodSlots || !food[i];
+        selectElement.disabled = i >= player.combatDetails.foodSlots;
+        triggerButton.disabled = i >= player.combatDetails.foodSlots || !food[i];
     }
 }
 
@@ -311,8 +311,8 @@ function updateDrinksUI() {
         let selectElement = document.getElementById("selectDrink_" + i);
         let triggerButton = document.getElementById("buttonDrinkTrigger_" + i);
 
-        selectElement.disabled = i >= player.combatStats.drinkSlots;
-        triggerButton.disabled = i >= player.combatStats.drinkSlots || !drinks[i];
+        selectElement.disabled = i >= player.combatDetails.drinkSlots;
+        triggerButton.disabled = i >= player.combatDetails.drinkSlots || !drinks[i];
     }
 }
 
@@ -1047,14 +1047,14 @@ function startSimulation() {
     updateUI();
 
     for (let i = 0; i < 3; i++) {
-        if (food[i] && i < player.combatStats.foodSlots) {
+        if (food[i] && i < player.combatDetails.foodSlots) {
             let consumable = new Consumable(food[i], triggerMap[food[i]]);
             player.food[i] = consumable;
         } else {
             player.food[i] = null;
         }
 
-        if (drinks[i] && i < player.combatStats.drinkSlots) {
+        if (drinks[i] && i < player.combatDetails.drinkSlots) {
             let consumable = new Consumable(drinks[i], triggerMap[drinks[i]]);
             player.drinks[i] = consumable;
         } else {

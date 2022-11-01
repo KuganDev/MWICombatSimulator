@@ -62,7 +62,7 @@ class Trigger {
         let dependencyValue;
         switch (this.conditionHrid) {
             case "/combat_trigger_conditions/number_of_active_units":
-                dependencyValue = dependency.filter((unit) => unit.combatStats.currentHitpoints > 0).length;
+                dependencyValue = dependency.filter((unit) => unit.combatDetails.currentHitpoints > 0).length;
                 break;
             default:
                 dependencyValue = dependency
@@ -96,13 +96,13 @@ class Trigger {
                 buffHrid += this.conditionHrid.slice(this.conditionHrid.lastIndexOf("/"));
                 return source.combatBuffs[buffHrid];
             case "/combat_trigger_conditions/current_hp":
-                return source.combatStats.currentHitpoints;
+                return source.combatDetails.currentHitpoints;
             case "/combat_trigger_conditions/current_mp":
-                return source.combatStats.currentManapoints;
+                return source.combatDetails.currentManapoints;
             case "/combat_trigger_conditions/missing_hp":
-                return source.combatStats.maxHitpoints - source.combatStats.currentHitpoints;
+                return source.combatDetails.maxHitpoints - source.combatDetails.currentHitpoints;
             case "/combat_trigger_conditions/missing_mp":
-                return source.combatStats.maxManapoints - source.combatStats.currentManapoints;
+                return source.combatDetails.maxManapoints - source.combatDetails.currentManapoints;
             case "/combat_trigger_conditions/stun_status":
                 // Replicate the game's behaviour of "stun status active" triggers activating
                 // immediately after the stun has worn off

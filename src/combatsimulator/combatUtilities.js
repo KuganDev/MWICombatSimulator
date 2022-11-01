@@ -3,7 +3,7 @@ class CombatUtilities {
         if (!enemies) {
             return null;
         }
-        let target = enemies.find((enemy) => enemy.combatStats.currentHitpoints > 0);
+        let target = enemies.find((enemy) => enemy.combatDetails.currentHitpoints > 0);
 
         return target ?? null;
     }
@@ -47,8 +47,8 @@ class CombatUtilities {
     }
 
     static calculateHitChance(source, target, combatStyle) {
-        let sourceAccuracy = source.combatStats[combatStyle + "AccuracyRating"];
-        let targetEvasion = target.combatStats[combatStyle + "EvasionRating"];
+        let sourceAccuracy = source.combatDetails[combatStyle + "AccuracyRating"];
+        let targetEvasion = target.combatDetails[combatStyle + "EvasionRating"];
 
         let hitChance = Math.pow(sourceAccuracy, 1.4) / (Math.pow(sourceAccuracy, 1.4) + Math.pow(targetEvasion, 1.4));
 
@@ -56,9 +56,9 @@ class CombatUtilities {
     }
 
     static processAttack(source, target, abilityEffect) {
-        let combatStyle = abilityEffect ? abilityEffect.combatStyleHrid : source.combatStats.combatStyleHrid;
+        let combatStyle = abilityEffect ? abilityEffect.combatStyleHrid : source.combatDetails.combatStyleHrid;
         let minDamage = 1;
-        let maxDamage = source.combatStats[combatStyle + "MaxDamage"];
+        let maxDamage = source.combatDetails[combatStyle + "MaxDamage"];
 
         if (abilityEffect) {
             minDamage += abilityEffect.damageFlat;
@@ -67,7 +67,7 @@ class CombatUtilities {
         }
 
         let damageRoll = CombatUtilities.randomInt(minDamage, maxDamage);
-        let maxPremitigatedDamage = Math.min(damageRoll, target.combatStats.currentHitpoints);
+        let maxPremitigatedDamage = Math.min(damageRoll, target.combatDetails.currentHitpoints);
 
         let damageDone = 0;
         let physicalReflectDamageDone = 0;
@@ -76,22 +76,22 @@ class CombatUtilities {
         let didHit = false;
         if (Math.random() < hitChance) {
             didHit = true;
-            let targetDamageTakenRatio = 100 / (100 + target.combatStats.armor);
+            let targetDamageTakenRatio = 100 / (100 + target.combatDetails.armor);
             let mitigatedDamage = Math.ceil(targetDamageTakenRatio * damageRoll);
-            damageDone = Math.min(mitigatedDamage, target.combatStats.currentHitpoints);
-            target.combatStats.currentHitpoints -= damageDone;
+            damageDone = Math.min(mitigatedDamage, target.combatDetails.currentHitpoints);
+            target.combatDetails.currentHitpoints -= damageDone;
 
-            if (target.combatStats.physicalReflectPower > 0) {
+            if (target.combatDetails.physicalReflectPower > 0) {
                 let physicalReflectDamage = Math.ceil(
-                    target.combatStats.armor * target.combatStats.physicalReflectPower
+                    target.combatDetails.armor * target.combatDetails.physicalReflectPower
                 );
-                let sourceDamageTakenRatio = 100 / (100 + source.combatStats.armor);
+                let sourceDamageTakenRatio = 100 / (100 + source.combatDetails.armor);
                 let mitigatedPhysicalReflectDamage = Math.ceil(sourceDamageTakenRatio * physicalReflectDamage);
                 physicalReflectDamageDone = Math.min(
                     mitigatedPhysicalReflectDamage,
-                    source.combatStats.currentHitpoints
+                    source.combatDetails.currentHitpoints
                 );
-                source.combatStats.currentHitpoints -= physicalReflectDamageDone;
+                source.combatDetails.currentHitpoints -= physicalReflectDamageDone;
             }
         }
 

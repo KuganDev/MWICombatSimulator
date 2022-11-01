@@ -120,8 +120,8 @@ class CombatSimulator extends EventTarget {
     }
 
     processPlayerRespawnEvent(event) {
-        this.players[0].combatStats.currentHitpoints = this.players[0].combatStats.maxHitpoints;
-        this.players[0].combatStats.currentManapoints = this.players[0].combatStats.maxManapoints;
+        this.players[0].combatDetails.currentHitpoints = this.players[0].combatDetails.maxHitpoints;
+        this.players[0].combatDetails.currentManapoints = this.players[0].combatDetails.maxManapoints;
         this.players[0].clearBuffs();
 
         this.startAutoAttacks();
@@ -155,7 +155,7 @@ class CombatSimulator extends EventTarget {
         }
 
         for (const unit of units) {
-            if (unit.combatStats.currentHitpoints <= 0) {
+            if (unit.combatDetails.currentHitpoints <= 0) {
                 continue;
             }
 
@@ -181,8 +181,8 @@ class CombatSimulator extends EventTarget {
             CombatUtilities.processAttack(event.source, target);
         // console.log("Hit for", damageDone);
 
-        if (event.source.combatStats.lifeSteal > 0) {
-            let lifeStealHeal = Math.floor(damageDone * event.source.combatStats.lifeSteal);
+        if (event.source.combatDetails.lifeSteal > 0) {
+            let lifeStealHeal = Math.floor(damageDone * event.source.combatDetails.lifeSteal);
             let hitpointsAdded = event.source.addHitpoints(lifeStealHeal);
             this.simResult.addHitpointsGained(event.source, "lifesteal", hitpointsAdded);
             // console.log("Added hitpoints from life steal:", hitpointsAdded);
@@ -206,14 +206,14 @@ class CombatSimulator extends EventTarget {
             this.simResult.addAttack(target, event.source, "physicalReflect", physicalReflectDamageDone);
         }
 
-        if (target.combatStats.currentHitpoints == 0) {
+        if (target.combatDetails.currentHitpoints == 0) {
             this.eventQueue.clearEventsForUnit(target);
             this.simResult.addDeath(target);
             // console.log(target.hrid, "died");
         }
 
         // Could die from reflect damage
-        if (event.source.combatStats.currentHitpoints == 0) {
+        if (event.source.combatDetails.currentHitpoints == 0) {
             this.eventQueue.clearEventsForUnit(event.source);
             this.simResult.addDeath(event.source);
         }
@@ -226,7 +226,7 @@ class CombatSimulator extends EventTarget {
     checkEncounterEnd() {
         let encounterEnded = false;
 
-        if (this.enemies && !this.enemies.some((enemy) => enemy.combatStats.currentHitpoints > 0)) {
+        if (this.enemies && !this.enemies.some((enemy) => enemy.combatDetails.currentHitpoints > 0)) {
             this.eventQueue.clearEventsOfType(AutoAttackEvent.type);
             let enemyRespawnEvent = new EnemyRespawnEvent(this.simulationTime + ENEMY_RESPAWN_INTERVAL);
             this.eventQueue.addEvent(enemyRespawnEvent);
@@ -239,7 +239,7 @@ class CombatSimulator extends EventTarget {
         }
 
         if (
-            !this.players.some((player) => player.combatStats.currentHitpoints > 0) &&
+            !this.players.some((player) => player.combatDetails.currentHitpoints > 0) &&
             !this.eventQueue.containsEventOfType(PlayerRespawnEvent.type)
         ) {
             this.eventQueue.clearEventsOfType(AutoAttackEvent.type);
@@ -255,7 +255,7 @@ class CombatSimulator extends EventTarget {
     }
 
     addNextAutoAttackEvent(source) {
-        let autoAttackEvent = new AutoAttackEvent(this.simulationTime + source.combatStats.attackInterval, source);
+        let autoAttackEvent = new AutoAttackEvent(this.simulationTime + source.combatDetails.attackInterval, source);
         this.eventQueue.addEvent(autoAttackEvent);
     }
 
@@ -296,9 +296,9 @@ class CombatSimulator extends EventTarget {
 
     processBleedTickEvent(event) {
         let tickDamage = CombatUtilities.calculateTickValue(event.damage, event.totalTicks, event.currentTick);
-        let damage = Math.min(tickDamage, event.target.combatStats.currentHitpoints);
+        let damage = Math.min(tickDamage, event.target.combatDetails.currentHitpoints);
 
-        event.target.combatStats.currentHitpoints -= damage;
+        event.target.combatDetails.currentHitpoints -= damage;
         this.simResult.addAttack(event.sourceRef, event.target, "bleed", damage);
 
         let targetStaminaExperience = CombatUtilities.calculateStaminaExperience(0, damage);
@@ -318,7 +318,7 @@ class CombatSimulator extends EventTarget {
             this.eventQueue.addEvent(bleedTickEvent);
         }
 
-        if (event.target.combatStats.currentHitpoints == 0) {
+        if (event.target.combatDetails.currentHitpoints == 0) {
             this.eventQueue.clearEventsForUnit(event.target);
             this.simResult.addDeath(event.target);
         }
@@ -333,16 +333,16 @@ class CombatSimulator extends EventTarget {
         }
 
         for (const unit of units) {
-            if (unit.combatStats.currentHitpoints <= 0) {
+            if (unit.combatDetails.currentHitpoints <= 0) {
                 continue;
             }
 
-            let hitpointRegen = Math.floor(unit.combatStats.maxHitpoints * unit.combatStats.HPRegen);
+            let hitpointRegen = Math.floor(unit.combatDetails.maxHitpoints * unit.combatDetails.HPRegen);
             let hitpointsAdded = unit.addHitpoints(hitpointRegen);
             this.simResult.addHitpointsGained(unit, "regen", hitpointsAdded);
             // console.log("Added hitpoints:", hitpointsAdded);
 
-            let manapointRegen = Math.floor(unit.combatStats.maxManapoints * unit.combatStats.MPRegen);
+            let manapointRegen = Math.floor(unit.combatDetails.maxManapoints * unit.combatDetails.MPRegen);
             let manapointsAdded = unit.addManapoints(manapointRegen);
             this.simResult.addManapointsGained(unit, "regen", manapointsAdded);
             // console.log("Added manapoints:", manapointsAdded);
@@ -368,7 +368,7 @@ class CombatSimulator extends EventTarget {
             triggeredSomething = false;
 
             this.players
-                .filter((player) => player.combatStats.currentHitpoints > 0)
+                .filter((player) => player.combatDetails.currentHitpoints > 0)
                 .forEach((player) => {
                     if (this.checkTriggersForUnit(player, this.players, this.enemies)) {
                         triggeredSomething = true;
@@ -377,7 +377,7 @@ class CombatSimulator extends EventTarget {
 
             if (this.enemies) {
                 this.enemies
-                    .filter((enemy) => enemy.combatStats.currentHitpoints > 0)
+                    .filter((enemy) => enemy.combatDetails.currentHitpoints > 0)
                     .forEach((enemy) => {
                         if (this.checkTriggersForUnit(enemy, this.enemies, this.players)) {
                             triggeredSomething = true;
@@ -388,7 +388,7 @@ class CombatSimulator extends EventTarget {
     }
 
     checkTriggersForUnit(unit, friendlies, enemies) {
-        if (unit.combatStats.currentHitpoints <= 0) {
+        if (unit.combatDetails.currentHitpoints <= 0) {
             throw new Error("Checking triggers for a dead unit");
         }
 
@@ -428,7 +428,7 @@ class CombatSimulator extends EventTarget {
     tryUseConsumable(source, consumable) {
         // console.log("Consuming:", consumable);
 
-        if (source.combatStats.currentHitpoints <= 0) {
+        if (source.combatDetails.currentHitpoints <= 0) {
             return false;
         }
 
@@ -472,11 +472,11 @@ class CombatSimulator extends EventTarget {
     }
 
     tryUseAbility(source, ability) {
-        if (source.combatStats.currentHitpoints <= 0) {
+        if (source.combatDetails.currentHitpoints <= 0) {
             return false;
         }
 
-        if (source.combatStats.currentManapoints < ability.manaCost) {
+        if (source.combatDetails.currentManapoints < ability.manaCost) {
             if (source.isPlayer) {
                 this.simResult.playerRanOutOfMana = true;
             }
@@ -485,7 +485,7 @@ class CombatSimulator extends EventTarget {
 
         // console.log("Casting:", ability);
 
-        source.combatStats.currentManapoints -= ability.manaCost;
+        source.combatDetails.currentManapoints -= ability.manaCost;
 
         let sourceIntelligenceExperience = CombatUtilities.calculateIntelligenceExperience(ability.manaCost);
         this.simResult.addExperienceGain(source, "intelligence", sourceIntelligenceExperience);
@@ -518,7 +518,7 @@ class CombatSimulator extends EventTarget {
                             break;
                     }
 
-                    for (const target of targets.filter((unit) => unit && unit.combatStats.currentHitpoints > 0)) {
+                    for (const target of targets.filter((unit) => unit && unit.combatDetails.currentHitpoints > 0)) {
                         let { damageDone, damagePrevented, maxDamage, didHit, physicalReflectDamageDone } =
                             CombatUtilities.processAttack(source, target, abilityEffect);
 
@@ -568,7 +568,7 @@ class CombatSimulator extends EventTarget {
                             this.simResult.addAttack(target, source, "physicalReflect", physicalReflectDamageDone);
                         }
 
-                        if (target.combatStats.currentHitpoints == 0) {
+                        if (target.combatDetails.currentHitpoints == 0) {
                             this.eventQueue.clearEventsForUnit(target);
                             this.simResult.addDeath(target);
                             // console.log(target.hrid, "died");
@@ -579,7 +579,7 @@ class CombatSimulator extends EventTarget {
         }
 
         // Could die from reflect damage
-        if (source.combatStats.currentHitpoints == 0) {
+        if (source.combatDetails.currentHitpoints == 0) {
             this.eventQueue.clearEventsForUnit(source);
             this.simResult.addDeath(source);
         }

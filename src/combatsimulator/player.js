@@ -43,18 +43,18 @@ class Player extends CombatUnit {
         return player;
     }
 
-    updateCombatStats() {
+    updateCombatDetails() {
         if (this.equipment["/equipment_types/main_hand"]) {
-            this.combatStats.combatStyleHrid = this.equipment["/equipment_types/main_hand"].getCombatStyle();
-            this.combatStats.attackInterval =
+            this.combatDetails.combatStyleHrid = this.equipment["/equipment_types/main_hand"].getCombatStyle();
+            this.combatDetails.attackInterval =
                 this.equipment["/equipment_types/main_hand"].getCombatStat("attackInterval");
         } else if (this.equipment["/equipment_types/two_hand"]) {
-            this.combatStats.combatStyleHrid = this.equipment["/equipment_types/two_hand"].getCombatStyle();
-            this.combatStats.attackInterval =
+            this.combatDetails.combatStyleHrid = this.equipment["/equipment_types/two_hand"].getCombatStyle();
+            this.combatDetails.attackInterval =
                 this.equipment["/equipment_types/two_hand"].getCombatStat("attackInterval");
         } else {
-            this.combatStats.combatStyleHrid = "smash";
-            this.combatStats.attackInterval = 3000000000;
+            this.combatDetails.combatStyleHrid = "smash";
+            this.combatDetails.attackInterval = 3000000000;
         }
 
         [
@@ -71,24 +71,24 @@ class Player extends CombatUnit {
             "lifeSteal",
             "physicalReflectPower",
         ].forEach((stat) => {
-            this.combatStats[stat] = Object.values(this.equipment)
+            this.combatDetails[stat] = Object.values(this.equipment)
                 .filter((equipment) => equipment != null)
                 .map((equipment) => equipment.getCombatStat(stat))
                 .reduce((prev, cur) => prev + cur, 0);
         });
 
         if (this.equipment["/equipment_types/pouch"]) {
-            this.combatStats.foodSlots = 1 + this.equipment["/equipment_types/pouch"].getCombatStat("foodSlots");
-            this.combatStats.drinkSlots = 1 + this.equipment["/equipment_types/pouch"].getCombatStat("drinkSlots");
+            this.combatDetails.foodSlots = 1 + this.equipment["/equipment_types/pouch"].getCombatStat("foodSlots");
+            this.combatDetails.drinkSlots = 1 + this.equipment["/equipment_types/pouch"].getCombatStat("drinkSlots");
         } else {
-            this.combatStats.foodSlots = 1;
-            this.combatStats.drinkSlots = 1;
+            this.combatDetails.foodSlots = 1;
+            this.combatDetails.drinkSlots = 1;
         }
 
-        this.combatStats.dropRate = 0;
-        this.combatStats.experienceRate = 0;
+        this.combatDetails.dropRate = 0;
+        this.combatDetails.experienceRate = 0;
 
-        super.updateCombatStats();
+        super.updateCombatDetails();
     }
 }
 

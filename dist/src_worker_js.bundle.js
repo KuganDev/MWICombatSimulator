@@ -276,8 +276,8 @@ class CombatSimulator extends EventTarget {
     }
 
     processPlayerRespawnEvent(event) {
-        this.players[0].combatStats.currentHitpoints = this.players[0].combatStats.maxHitpoints;
-        this.players[0].combatStats.currentManapoints = this.players[0].combatStats.maxManapoints;
+        this.players[0].combatDetails.currentHitpoints = this.players[0].combatDetails.maxHitpoints;
+        this.players[0].combatDetails.currentManapoints = this.players[0].combatDetails.maxManapoints;
         this.players[0].clearBuffs();
 
         this.startAutoAttacks();
@@ -311,7 +311,7 @@ class CombatSimulator extends EventTarget {
         }
 
         for (const unit of units) {
-            if (unit.combatStats.currentHitpoints <= 0) {
+            if (unit.combatDetails.currentHitpoints <= 0) {
                 continue;
             }
 
@@ -337,8 +337,8 @@ class CombatSimulator extends EventTarget {
             _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].processAttack(event.source, target);
         // console.log("Hit for", damageDone);
 
-        if (event.source.combatStats.lifeSteal > 0) {
-            let lifeStealHeal = Math.floor(damageDone * event.source.combatStats.lifeSteal);
+        if (event.source.combatDetails.lifeSteal > 0) {
+            let lifeStealHeal = Math.floor(damageDone * event.source.combatDetails.lifeSteal);
             let hitpointsAdded = event.source.addHitpoints(lifeStealHeal);
             this.simResult.addHitpointsGained(event.source, "lifesteal", hitpointsAdded);
             // console.log("Added hitpoints from life steal:", hitpointsAdded);
@@ -362,14 +362,14 @@ class CombatSimulator extends EventTarget {
             this.simResult.addAttack(target, event.source, "physicalReflect", physicalReflectDamageDone);
         }
 
-        if (target.combatStats.currentHitpoints == 0) {
+        if (target.combatDetails.currentHitpoints == 0) {
             this.eventQueue.clearEventsForUnit(target);
             this.simResult.addDeath(target);
             // console.log(target.hrid, "died");
         }
 
         // Could die from reflect damage
-        if (event.source.combatStats.currentHitpoints == 0) {
+        if (event.source.combatDetails.currentHitpoints == 0) {
             this.eventQueue.clearEventsForUnit(event.source);
             this.simResult.addDeath(event.source);
         }
@@ -382,7 +382,7 @@ class CombatSimulator extends EventTarget {
     checkEncounterEnd() {
         let encounterEnded = false;
 
-        if (this.enemies && !this.enemies.some((enemy) => enemy.combatStats.currentHitpoints > 0)) {
+        if (this.enemies && !this.enemies.some((enemy) => enemy.combatDetails.currentHitpoints > 0)) {
             this.eventQueue.clearEventsOfType(_events_autoAttackEvent__WEBPACK_IMPORTED_MODULE_1__["default"].type);
             let enemyRespawnEvent = new _events_enemyRespawnEvent__WEBPACK_IMPORTED_MODULE_7__["default"](this.simulationTime + ENEMY_RESPAWN_INTERVAL);
             this.eventQueue.addEvent(enemyRespawnEvent);
@@ -395,7 +395,7 @@ class CombatSimulator extends EventTarget {
         }
 
         if (
-            !this.players.some((player) => player.combatStats.currentHitpoints > 0) &&
+            !this.players.some((player) => player.combatDetails.currentHitpoints > 0) &&
             !this.eventQueue.containsEventOfType(_events_playerRespawnEvent__WEBPACK_IMPORTED_MODULE_9__["default"].type)
         ) {
             this.eventQueue.clearEventsOfType(_events_autoAttackEvent__WEBPACK_IMPORTED_MODULE_1__["default"].type);
@@ -411,7 +411,7 @@ class CombatSimulator extends EventTarget {
     }
 
     addNextAutoAttackEvent(source) {
-        let autoAttackEvent = new _events_autoAttackEvent__WEBPACK_IMPORTED_MODULE_1__["default"](this.simulationTime + source.combatStats.attackInterval, source);
+        let autoAttackEvent = new _events_autoAttackEvent__WEBPACK_IMPORTED_MODULE_1__["default"](this.simulationTime + source.combatDetails.attackInterval, source);
         this.eventQueue.addEvent(autoAttackEvent);
     }
 
@@ -452,9 +452,9 @@ class CombatSimulator extends EventTarget {
 
     processBleedTickEvent(event) {
         let tickDamage = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].calculateTickValue(event.damage, event.totalTicks, event.currentTick);
-        let damage = Math.min(tickDamage, event.target.combatStats.currentHitpoints);
+        let damage = Math.min(tickDamage, event.target.combatDetails.currentHitpoints);
 
-        event.target.combatStats.currentHitpoints -= damage;
+        event.target.combatDetails.currentHitpoints -= damage;
         this.simResult.addAttack(event.sourceRef, event.target, "bleed", damage);
 
         let targetStaminaExperience = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].calculateStaminaExperience(0, damage);
@@ -474,7 +474,7 @@ class CombatSimulator extends EventTarget {
             this.eventQueue.addEvent(bleedTickEvent);
         }
 
-        if (event.target.combatStats.currentHitpoints == 0) {
+        if (event.target.combatDetails.currentHitpoints == 0) {
             this.eventQueue.clearEventsForUnit(event.target);
             this.simResult.addDeath(event.target);
         }
@@ -489,16 +489,16 @@ class CombatSimulator extends EventTarget {
         }
 
         for (const unit of units) {
-            if (unit.combatStats.currentHitpoints <= 0) {
+            if (unit.combatDetails.currentHitpoints <= 0) {
                 continue;
             }
 
-            let hitpointRegen = Math.floor(unit.combatStats.maxHitpoints * unit.combatStats.HPRegen);
+            let hitpointRegen = Math.floor(unit.combatDetails.maxHitpoints * unit.combatDetails.HPRegen);
             let hitpointsAdded = unit.addHitpoints(hitpointRegen);
             this.simResult.addHitpointsGained(unit, "regen", hitpointsAdded);
             // console.log("Added hitpoints:", hitpointsAdded);
 
-            let manapointRegen = Math.floor(unit.combatStats.maxManapoints * unit.combatStats.MPRegen);
+            let manapointRegen = Math.floor(unit.combatDetails.maxManapoints * unit.combatDetails.MPRegen);
             let manapointsAdded = unit.addManapoints(manapointRegen);
             this.simResult.addManapointsGained(unit, "regen", manapointsAdded);
             // console.log("Added manapoints:", manapointsAdded);
@@ -524,7 +524,7 @@ class CombatSimulator extends EventTarget {
             triggeredSomething = false;
 
             this.players
-                .filter((player) => player.combatStats.currentHitpoints > 0)
+                .filter((player) => player.combatDetails.currentHitpoints > 0)
                 .forEach((player) => {
                     if (this.checkTriggersForUnit(player, this.players, this.enemies)) {
                         triggeredSomething = true;
@@ -533,7 +533,7 @@ class CombatSimulator extends EventTarget {
 
             if (this.enemies) {
                 this.enemies
-                    .filter((enemy) => enemy.combatStats.currentHitpoints > 0)
+                    .filter((enemy) => enemy.combatDetails.currentHitpoints > 0)
                     .forEach((enemy) => {
                         if (this.checkTriggersForUnit(enemy, this.enemies, this.players)) {
                             triggeredSomething = true;
@@ -544,7 +544,7 @@ class CombatSimulator extends EventTarget {
     }
 
     checkTriggersForUnit(unit, friendlies, enemies) {
-        if (unit.combatStats.currentHitpoints <= 0) {
+        if (unit.combatDetails.currentHitpoints <= 0) {
             throw new Error("Checking triggers for a dead unit");
         }
 
@@ -584,7 +584,7 @@ class CombatSimulator extends EventTarget {
     tryUseConsumable(source, consumable) {
         // console.log("Consuming:", consumable);
 
-        if (source.combatStats.currentHitpoints <= 0) {
+        if (source.combatDetails.currentHitpoints <= 0) {
             return false;
         }
 
@@ -628,11 +628,11 @@ class CombatSimulator extends EventTarget {
     }
 
     tryUseAbility(source, ability) {
-        if (source.combatStats.currentHitpoints <= 0) {
+        if (source.combatDetails.currentHitpoints <= 0) {
             return false;
         }
 
-        if (source.combatStats.currentManapoints < ability.manaCost) {
+        if (source.combatDetails.currentManapoints < ability.manaCost) {
             if (source.isPlayer) {
                 this.simResult.playerRanOutOfMana = true;
             }
@@ -641,7 +641,7 @@ class CombatSimulator extends EventTarget {
 
         // console.log("Casting:", ability);
 
-        source.combatStats.currentManapoints -= ability.manaCost;
+        source.combatDetails.currentManapoints -= ability.manaCost;
 
         let sourceIntelligenceExperience = _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].calculateIntelligenceExperience(ability.manaCost);
         this.simResult.addExperienceGain(source, "intelligence", sourceIntelligenceExperience);
@@ -674,7 +674,7 @@ class CombatSimulator extends EventTarget {
                             break;
                     }
 
-                    for (const target of targets.filter((unit) => unit && unit.combatStats.currentHitpoints > 0)) {
+                    for (const target of targets.filter((unit) => unit && unit.combatDetails.currentHitpoints > 0)) {
                         let { damageDone, damagePrevented, maxDamage, didHit, physicalReflectDamageDone } =
                             _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].processAttack(source, target, abilityEffect);
 
@@ -724,7 +724,7 @@ class CombatSimulator extends EventTarget {
                             this.simResult.addAttack(target, source, "physicalReflect", physicalReflectDamageDone);
                         }
 
-                        if (target.combatStats.currentHitpoints == 0) {
+                        if (target.combatDetails.currentHitpoints == 0) {
                             this.eventQueue.clearEventsForUnit(target);
                             this.simResult.addDeath(target);
                             // console.log(target.hrid, "died");
@@ -735,7 +735,7 @@ class CombatSimulator extends EventTarget {
         }
 
         // Could die from reflect damage
-        if (source.combatStats.currentHitpoints == 0) {
+        if (source.combatDetails.currentHitpoints == 0) {
             this.eventQueue.clearEventsForUnit(source);
             this.simResult.addDeath(source);
         }
@@ -778,7 +778,7 @@ class CombatUnit {
     drinks = [null, null, null];
 
     // Calculated combat stats including temporary buffs
-    combatStats = {
+    combatDetails = {
         combatStyleHrid: "smash",
         attackInterval: 3000000000,
         stabAccuracy: 0,
@@ -822,21 +822,21 @@ class CombatUnit {
 
     constructor() {}
 
-    updateCombatStats() {
-        this.combatStats.HPRegen = 0.01;
-        this.combatStats.MPRegen = 0.01;
+    updateCombatDetails() {
+        this.combatDetails.HPRegen = 0.01;
+        this.combatDetails.MPRegen = 0.01;
 
         ["stamina", "intelligence", "attack", "power", "defense"].forEach((stat) => {
-            this.combatStats[stat + "Level"] = this[stat + "Level"];
+            this.combatDetails[stat + "Level"] = this[stat + "Level"];
             let boosts = this.getBuffBoosts("/buff_types/" + stat + "_level");
             boosts.forEach((buff) => {
-                this.combatStats[stat + "Level"] += Math.floor(this[stat + "Level"] * buff.ratioBoost);
-                this.combatStats[stat + "Level"] += buff.flatBoost;
+                this.combatDetails[stat + "Level"] += Math.floor(this[stat + "Level"] * buff.ratioBoost);
+                this.combatDetails[stat + "Level"] += buff.flatBoost;
             });
         });
 
-        this.combatStats.maxHitpoints = 10 * (10 + this.combatStats.staminaLevel);
-        this.combatStats.maxManapoints = 10 * (10 + this.combatStats.intelligenceLevel);
+        this.combatDetails.maxHitpoints = 10 * (10 + this.combatDetails.staminaLevel);
+        this.combatDetails.maxManapoints = 10 * (10 + this.combatDetails.intelligenceLevel);
 
         let accuracyBoosts = this.getBuffBoosts("/buff_types/accuracy");
         let accuracyRatioBoost = accuracyBoosts[0]?.ratioBoost ?? 0;
@@ -845,56 +845,56 @@ class CombatUnit {
         let damageRatioBoost = damageBoosts[0]?.ratioBoost ?? 0;
 
         ["stab", "slash", "smash"].forEach((style) => {
-            this.combatStats[style + "AccuracyRating"] =
-                (10 + this.combatStats.attackLevel) *
-                (1 + this.combatStats[style + "Accuracy"]) *
+            this.combatDetails[style + "AccuracyRating"] =
+                (10 + this.combatDetails.attackLevel) *
+                (1 + this.combatDetails[style + "Accuracy"]) *
                 (1 + accuracyRatioBoost);
-            this.combatStats[style + "MaxDamage"] =
-                (10 + this.combatStats.powerLevel) * (1 + this.combatStats[style + "Damage"]) * (1 + damageRatioBoost);
-            this.combatStats[style + "EvasionRating"] =
-                (10 + this.combatStats.defenseLevel) * (1 + this.combatStats[style + "Evasion"]);
+            this.combatDetails[style + "MaxDamage"] =
+                (10 + this.combatDetails.powerLevel) * (1 + this.combatDetails[style + "Damage"]) * (1 + damageRatioBoost);
+            this.combatDetails[style + "EvasionRating"] =
+                (10 + this.combatDetails.defenseLevel) * (1 + this.combatDetails[style + "Evasion"]);
         });
 
         let attackIntervalBoosts = this.getBuffBoosts("/buff_types/attack_speed");
         let attackIntervalRatioBoost = attackIntervalBoosts
             .map((boost) => boost.ratioBoost)
             .reduce((prev, cur) => prev + cur, 0);
-        this.combatStats.attackInterval = this.combatStats.attackInterval * (1 / (1 + attackIntervalRatioBoost));
+        this.combatDetails.attackInterval = this.combatDetails.attackInterval * (1 / (1 + attackIntervalRatioBoost));
 
         let armorBoosts = this.getBuffBoosts("/buff_types/armor");
         let armorFlatBoost = armorBoosts[0]?.flatBoost ?? 0;
-        this.combatStats.armor += armorFlatBoost;
+        this.combatDetails.armor += armorFlatBoost;
 
         let lifeStealBoosts = this.getBuffBoosts("/buff_types/life_steal");
         let lifeStealFlatBoost = lifeStealBoosts[0]?.flatBoost ?? 0;
-        this.combatStats.lifeSteal += lifeStealFlatBoost;
+        this.combatDetails.lifeSteal += lifeStealFlatBoost;
 
         let physicalReflectPowerBoosts = this.getBuffBoosts("/buff_types/physical_reflect_power");
         let physicalReflectPowerFlatBoost = physicalReflectPowerBoosts[0]?.flatBoost ?? 0;
-        this.combatStats.physicalReflectPower += physicalReflectPowerFlatBoost;
+        this.combatDetails.physicalReflectPower += physicalReflectPowerFlatBoost;
 
         let HPRegenBoosts = this.getBuffBoosts("/buff_types/hp_regen");
         let HPRegenFlatBoost = HPRegenBoosts[0]?.flatBoost ?? 0;
-        this.combatStats.HPRegen += HPRegenFlatBoost;
+        this.combatDetails.HPRegen += HPRegenFlatBoost;
 
         let MPRegenBoosts = this.getBuffBoosts("/buff_types/mp_regen");
         let MPRegenFlatBoost = MPRegenBoosts[0]?.flatBoost ?? 0;
-        this.combatStats.MPRegen += MPRegenFlatBoost;
+        this.combatDetails.MPRegen += MPRegenFlatBoost;
 
         let dropRateBoosts = this.getBuffBoosts("/buff_types/combat_drop_rate");
         let dropRateRatioBoost = dropRateBoosts[0]?.ratioBoost ?? 0;
-        this.combatStats.dropRate += dropRateRatioBoost;
+        this.combatDetails.dropRate += dropRateRatioBoost;
 
         let experienceRateBoosts = this.getBuffBoosts("/buff_types/wisdom");
         let experienceRateFlatBoost = experienceRateBoosts[0]?.flatBoost ?? 0;
-        this.combatStats.experienceRate += experienceRateFlatBoost;
+        this.combatDetails.experienceRate += experienceRateFlatBoost;
     }
 
     addBuff(buff, currentTime) {
         buff.startTime = currentTime;
         this.combatBuffs[buff.sourceHrid] = buff;
 
-        this.updateCombatStats();
+        this.updateCombatDetails();
     }
 
     removeExpiredBuffs(currentTime) {
@@ -905,12 +905,12 @@ class CombatUnit {
             delete this.combatBuffs[buff.sourceHrid];
         });
 
-        this.updateCombatStats();
+        this.updateCombatDetails();
     }
 
     clearBuffs() {
         this.combatBuffs = {};
-        this.updateCombatStats();
+        this.updateCombatDetails();
     }
 
     getBuffBoosts(type) {
@@ -929,11 +929,11 @@ class CombatUnit {
         this.stunExpireTime = null;
 
         this.clearBuffs();
-        this.updateCombatStats();
+        this.updateCombatDetails();
         this.resetCooldowns(currentTime);
 
-        this.combatStats.currentHitpoints = this.combatStats.maxHitpoints;
-        this.combatStats.currentManapoints = this.combatStats.maxManapoints;
+        this.combatDetails.currentHitpoints = this.combatDetails.maxHitpoints;
+        this.combatDetails.currentManapoints = this.combatDetails.maxManapoints;
     }
 
     resetCooldowns(currentTime = 0) {
@@ -954,13 +954,13 @@ class CombatUnit {
     addHitpoints(hitpoints) {
         let hitpointsAdded = 0;
 
-        if (this.combatStats.currentHitpoints >= this.combatStats.maxHitpoints) {
+        if (this.combatDetails.currentHitpoints >= this.combatDetails.maxHitpoints) {
             return hitpointsAdded;
         }
 
-        let newHitpoints = Math.min(this.combatStats.currentHitpoints + hitpoints, this.combatStats.maxHitpoints);
-        hitpointsAdded = newHitpoints - this.combatStats.currentHitpoints;
-        this.combatStats.currentHitpoints = newHitpoints;
+        let newHitpoints = Math.min(this.combatDetails.currentHitpoints + hitpoints, this.combatDetails.maxHitpoints);
+        hitpointsAdded = newHitpoints - this.combatDetails.currentHitpoints;
+        this.combatDetails.currentHitpoints = newHitpoints;
 
         return hitpointsAdded;
     }
@@ -968,13 +968,13 @@ class CombatUnit {
     addManapoints(manapoints) {
         let manapointsAdded = 0;
 
-        if (this.combatStats.currentManapoints >= this.combatStats.maxManapoints) {
+        if (this.combatDetails.currentManapoints >= this.combatDetails.maxManapoints) {
             return manapointsAdded;
         }
 
-        let newManapoints = Math.min(this.combatStats.currentManapoints + manapoints, this.combatStats.maxManapoints);
-        manapointsAdded = newManapoints - this.combatStats.currentManapoints;
-        this.combatStats.currentManapoints = newManapoints;
+        let newManapoints = Math.min(this.combatDetails.currentManapoints + manapoints, this.combatDetails.maxManapoints);
+        manapointsAdded = newManapoints - this.combatDetails.currentManapoints;
+        this.combatDetails.currentManapoints = newManapoints;
 
         return manapointsAdded;
     }
@@ -1000,7 +1000,7 @@ class CombatUtilities {
         if (!enemies) {
             return null;
         }
-        let target = enemies.find((enemy) => enemy.combatStats.currentHitpoints > 0);
+        let target = enemies.find((enemy) => enemy.combatDetails.currentHitpoints > 0);
 
         return target ?? null;
     }
@@ -1044,8 +1044,8 @@ class CombatUtilities {
     }
 
     static calculateHitChance(source, target, combatStyle) {
-        let sourceAccuracy = source.combatStats[combatStyle + "AccuracyRating"];
-        let targetEvasion = target.combatStats[combatStyle + "EvasionRating"];
+        let sourceAccuracy = source.combatDetails[combatStyle + "AccuracyRating"];
+        let targetEvasion = target.combatDetails[combatStyle + "EvasionRating"];
 
         let hitChance = Math.pow(sourceAccuracy, 1.4) / (Math.pow(sourceAccuracy, 1.4) + Math.pow(targetEvasion, 1.4));
 
@@ -1053,9 +1053,9 @@ class CombatUtilities {
     }
 
     static processAttack(source, target, abilityEffect) {
-        let combatStyle = abilityEffect ? abilityEffect.combatStyleHrid : source.combatStats.combatStyleHrid;
+        let combatStyle = abilityEffect ? abilityEffect.combatStyleHrid : source.combatDetails.combatStyleHrid;
         let minDamage = 1;
-        let maxDamage = source.combatStats[combatStyle + "MaxDamage"];
+        let maxDamage = source.combatDetails[combatStyle + "MaxDamage"];
 
         if (abilityEffect) {
             minDamage += abilityEffect.damageFlat;
@@ -1064,7 +1064,7 @@ class CombatUtilities {
         }
 
         let damageRoll = CombatUtilities.randomInt(minDamage, maxDamage);
-        let maxPremitigatedDamage = Math.min(damageRoll, target.combatStats.currentHitpoints);
+        let maxPremitigatedDamage = Math.min(damageRoll, target.combatDetails.currentHitpoints);
 
         let damageDone = 0;
         let physicalReflectDamageDone = 0;
@@ -1073,22 +1073,22 @@ class CombatUtilities {
         let didHit = false;
         if (Math.random() < hitChance) {
             didHit = true;
-            let targetDamageTakenRatio = 100 / (100 + target.combatStats.armor);
+            let targetDamageTakenRatio = 100 / (100 + target.combatDetails.armor);
             let mitigatedDamage = Math.ceil(targetDamageTakenRatio * damageRoll);
-            damageDone = Math.min(mitigatedDamage, target.combatStats.currentHitpoints);
-            target.combatStats.currentHitpoints -= damageDone;
+            damageDone = Math.min(mitigatedDamage, target.combatDetails.currentHitpoints);
+            target.combatDetails.currentHitpoints -= damageDone;
 
-            if (target.combatStats.physicalReflectPower > 0) {
+            if (target.combatDetails.physicalReflectPower > 0) {
                 let physicalReflectDamage = Math.ceil(
-                    target.combatStats.armor * target.combatStats.physicalReflectPower
+                    target.combatDetails.armor * target.combatDetails.physicalReflectPower
                 );
-                let sourceDamageTakenRatio = 100 / (100 + source.combatStats.armor);
+                let sourceDamageTakenRatio = 100 / (100 + source.combatDetails.armor);
                 let mitigatedPhysicalReflectDamage = Math.ceil(sourceDamageTakenRatio * physicalReflectDamage);
                 physicalReflectDamageDone = Math.min(
                     mitigatedPhysicalReflectDamage,
-                    source.combatStats.currentHitpoints
+                    source.combatDetails.currentHitpoints
                 );
-                source.combatStats.currentHitpoints -= physicalReflectDamageDone;
+                source.combatDetails.currentHitpoints -= physicalReflectDamageDone;
             }
         }
 
@@ -1671,7 +1671,7 @@ class Monster extends _combatUnit__WEBPACK_IMPORTED_MODULE_1__["default"] {
         }
     }
 
-    updateCombatStats() {
+    updateCombatDetails() {
         let gameMonster = _data_combatMonsterDetailMap_json__WEBPACK_IMPORTED_MODULE_2__[this.hrid];
 
         this.staminaLevel = gameMonster.combatDetails.staminaLevel;
@@ -1681,13 +1681,13 @@ class Monster extends _combatUnit__WEBPACK_IMPORTED_MODULE_1__["default"] {
         this.defenseLevel = gameMonster.combatDetails.defenseLevel;
 
         let gameCombatStyle = gameMonster.combatDetails.combatStats.combatStyleHrids[0];
-        this.combatStats.combatStyleHrid = gameCombatStyle.slice(gameCombatStyle.lastIndexOf("/") + 1);
+        this.combatDetails.combatStyleHrid = gameCombatStyle.slice(gameCombatStyle.lastIndexOf("/") + 1);
 
         for (const [key, value] of Object.entries(gameMonster.combatDetails.combatStats)) {
-            this.combatStats[key] = value;
+            this.combatDetails[key] = value;
         }
 
-        super.updateCombatStats();
+        super.updateCombatDetails();
     }
 }
 
@@ -1755,18 +1755,18 @@ class Player extends _combatUnit__WEBPACK_IMPORTED_MODULE_1__["default"] {
         return player;
     }
 
-    updateCombatStats() {
+    updateCombatDetails() {
         if (this.equipment["/equipment_types/main_hand"]) {
-            this.combatStats.combatStyleHrid = this.equipment["/equipment_types/main_hand"].getCombatStyle();
-            this.combatStats.attackInterval =
+            this.combatDetails.combatStyleHrid = this.equipment["/equipment_types/main_hand"].getCombatStyle();
+            this.combatDetails.attackInterval =
                 this.equipment["/equipment_types/main_hand"].getCombatStat("attackInterval");
         } else if (this.equipment["/equipment_types/two_hand"]) {
-            this.combatStats.combatStyleHrid = this.equipment["/equipment_types/two_hand"].getCombatStyle();
-            this.combatStats.attackInterval =
+            this.combatDetails.combatStyleHrid = this.equipment["/equipment_types/two_hand"].getCombatStyle();
+            this.combatDetails.attackInterval =
                 this.equipment["/equipment_types/two_hand"].getCombatStat("attackInterval");
         } else {
-            this.combatStats.combatStyleHrid = "smash";
-            this.combatStats.attackInterval = 3000000000;
+            this.combatDetails.combatStyleHrid = "smash";
+            this.combatDetails.attackInterval = 3000000000;
         }
 
         [
@@ -1783,24 +1783,24 @@ class Player extends _combatUnit__WEBPACK_IMPORTED_MODULE_1__["default"] {
             "lifeSteal",
             "physicalReflectPower",
         ].forEach((stat) => {
-            this.combatStats[stat] = Object.values(this.equipment)
+            this.combatDetails[stat] = Object.values(this.equipment)
                 .filter((equipment) => equipment != null)
                 .map((equipment) => equipment.getCombatStat(stat))
                 .reduce((prev, cur) => prev + cur, 0);
         });
 
         if (this.equipment["/equipment_types/pouch"]) {
-            this.combatStats.foodSlots = 1 + this.equipment["/equipment_types/pouch"].getCombatStat("foodSlots");
-            this.combatStats.drinkSlots = 1 + this.equipment["/equipment_types/pouch"].getCombatStat("drinkSlots");
+            this.combatDetails.foodSlots = 1 + this.equipment["/equipment_types/pouch"].getCombatStat("foodSlots");
+            this.combatDetails.drinkSlots = 1 + this.equipment["/equipment_types/pouch"].getCombatStat("drinkSlots");
         } else {
-            this.combatStats.foodSlots = 1;
-            this.combatStats.drinkSlots = 1;
+            this.combatDetails.foodSlots = 1;
+            this.combatDetails.drinkSlots = 1;
         }
 
-        this.combatStats.dropRate = 0;
-        this.combatStats.experienceRate = 0;
+        this.combatDetails.dropRate = 0;
+        this.combatDetails.experienceRate = 0;
 
-        super.updateCombatStats();
+        super.updateCombatDetails();
     }
 }
 
@@ -1854,7 +1854,7 @@ class SimResult {
             };
         }
 
-        this.experienceGained[unit.hrid][type] += experience * (1 + unit.combatStats.experienceRate);
+        this.experienceGained[unit.hrid][type] += experience * (1 + unit.combatDetails.experienceRate);
     }
 
     addEncounterEnd() {
@@ -1993,7 +1993,7 @@ class Trigger {
         let dependencyValue;
         switch (this.conditionHrid) {
             case "/combat_trigger_conditions/number_of_active_units":
-                dependencyValue = dependency.filter((unit) => unit.combatStats.currentHitpoints > 0).length;
+                dependencyValue = dependency.filter((unit) => unit.combatDetails.currentHitpoints > 0).length;
                 break;
             default:
                 dependencyValue = dependency
@@ -2027,13 +2027,13 @@ class Trigger {
                 buffHrid += this.conditionHrid.slice(this.conditionHrid.lastIndexOf("/"));
                 return source.combatBuffs[buffHrid];
             case "/combat_trigger_conditions/current_hp":
-                return source.combatStats.currentHitpoints;
+                return source.combatDetails.currentHitpoints;
             case "/combat_trigger_conditions/current_mp":
-                return source.combatStats.currentManapoints;
+                return source.combatDetails.currentManapoints;
             case "/combat_trigger_conditions/missing_hp":
-                return source.combatStats.maxHitpoints - source.combatStats.currentHitpoints;
+                return source.combatDetails.maxHitpoints - source.combatDetails.currentHitpoints;
             case "/combat_trigger_conditions/missing_mp":
-                return source.combatStats.maxManapoints - source.combatStats.currentManapoints;
+                return source.combatDetails.maxManapoints - source.combatDetails.currentManapoints;
             case "/combat_trigger_conditions/stun_status":
                 // Replicate the game's behaviour of "stun status active" triggers activating
                 // immediately after the stun has worn off

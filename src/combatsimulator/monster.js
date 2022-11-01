@@ -19,7 +19,7 @@ class Monster extends CombatUnit {
         }
     }
 
-    updateCombatStats() {
+    updateCombatDetails() {
         let gameMonster = combatMonsterDetailMap[this.hrid];
 
         this.staminaLevel = gameMonster.combatDetails.staminaLevel;
@@ -29,13 +29,13 @@ class Monster extends CombatUnit {
         this.defenseLevel = gameMonster.combatDetails.defenseLevel;
 
         let gameCombatStyle = gameMonster.combatDetails.combatStats.combatStyleHrids[0];
-        this.combatStats.combatStyleHrid = gameCombatStyle.slice(gameCombatStyle.lastIndexOf("/") + 1);
+        this.combatDetails.combatStyleHrid = gameCombatStyle.slice(gameCombatStyle.lastIndexOf("/") + 1);
 
         for (const [key, value] of Object.entries(gameMonster.combatDetails.combatStats)) {
-            this.combatStats[key] = value;
+            this.combatDetails[key] = value;
         }
 
-        super.updateCombatStats();
+        super.updateCombatDetails();
     }
 }
 
