@@ -29,10 +29,10 @@ class Monster extends CombatUnit {
         this.defenseLevel = gameMonster.combatDetails.defenseLevel;
 
         let gameCombatStyle = gameMonster.combatDetails.combatStats.combatStyleHrids[0];
-        this.combatDetails.combatStyleHrid = gameCombatStyle.slice(gameCombatStyle.lastIndexOf("/") + 1);
+        this.combatDetails.combatStats.combatStyleHrid = gameCombatStyle.slice(gameCombatStyle.lastIndexOf("/") + 1);
 
         for (const [key, value] of Object.entries(gameMonster.combatDetails.combatStats)) {
-            this.combatDetails[key] = value;
+            this.combatDetails.combatStats[key] = value;
         }
 
         super.updateCombatDetails();

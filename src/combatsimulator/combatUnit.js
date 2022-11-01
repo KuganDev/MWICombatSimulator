@@ -16,26 +16,6 @@ class CombatUnit {
 
     // Calculated combat stats including temporary buffs
     combatDetails = {
-        combatStyleHrid: "smash",
-        attackInterval: 3000000000,
-        stabAccuracy: 0,
-        slashAccuracy: 0,
-        smashAccuracy: 0,
-        stabDamage: 0,
-        slashDamage: 0,
-        smashDamage: 0,
-        stabEvasion: 0,
-        slashEvasion: 0,
-        smashEvasion: 0,
-        armor: 0,
-        lifeSteal: 0,
-        physicalReflectPower: 0,
-        HPRegen: 0.01,
-        MPRegen: 0.01,
-        dropRate: 0,
-        experienceRate: 0,
-        foodSlots: 1,
-        drinkSlots: 1,
         staminaLevel: 1,
         intelligenceLevel: 1,
         attackLevel: 1,
@@ -54,14 +34,36 @@ class CombatUnit {
         stabEvasionRating: 11,
         slashEvasionRating: 11,
         smashEvasionRating: 11,
+        combatStats: {
+            combatStyleHrid: "smash",
+            attackInterval: 3000000000,
+            stabAccuracy: 0,
+            slashAccuracy: 0,
+            smashAccuracy: 0,
+            stabDamage: 0,
+            slashDamage: 0,
+            smashDamage: 0,
+            stabEvasion: 0,
+            slashEvasion: 0,
+            smashEvasion: 0,
+            armor: 0,
+            lifeSteal: 0,
+            HPRegen: 0.01,
+            MPRegen: 0.01,
+            physicalReflectPower: 0,
+            dropRate: 0,
+            experienceRate: 0,
+            foodSlots: 1,
+            drinkSlots: 1,
+        },
     };
     combatBuffs = {};
 
     constructor() {}
 
     updateCombatDetails() {
-        this.combatDetails.HPRegen = 0.01;
-        this.combatDetails.MPRegen = 0.01;
+        this.combatDetails.combatStats.HPRegen = 0.01;
+        this.combatDetails.combatStats.MPRegen = 0.01;
 
         ["stamina", "intelligence", "attack", "power", "defense"].forEach((stat) => {
             this.combatDetails[stat + "Level"] = this[stat + "Level"];
@@ -84,47 +86,50 @@ class CombatUnit {
         ["stab", "slash", "smash"].forEach((style) => {
             this.combatDetails[style + "AccuracyRating"] =
                 (10 + this.combatDetails.attackLevel) *
-                (1 + this.combatDetails[style + "Accuracy"]) *
+                (1 + this.combatDetails.combatStats[style + "Accuracy"]) *
                 (1 + accuracyRatioBoost);
             this.combatDetails[style + "MaxDamage"] =
-                (10 + this.combatDetails.powerLevel) * (1 + this.combatDetails[style + "Damage"]) * (1 + damageRatioBoost);
+                (10 + this.combatDetails.powerLevel) *
+                (1 + this.combatDetails.combatStats[style + "Damage"]) *
+                (1 + damageRatioBoost);
             this.combatDetails[style + "EvasionRating"] =
-                (10 + this.combatDetails.defenseLevel) * (1 + this.combatDetails[style + "Evasion"]);
+                (10 + this.combatDetails.defenseLevel) * (1 + this.combatDetails.combatStats[style + "Evasion"]);
         });
 
         let attackIntervalBoosts = this.getBuffBoosts("/buff_types/attack_speed");
         let attackIntervalRatioBoost = attackIntervalBoosts
             .map((boost) => boost.ratioBoost)
             .reduce((prev, cur) => prev + cur, 0);
-        this.combatDetails.attackInterval = this.combatDetails.attackInterval * (1 / (1 + attackIntervalRatioBoost));
+        this.combatDetails.combatStats.attackInterval =
+            this.combatDetails.combatStats.attackInterval * (1 / (1 + attackIntervalRatioBoost));
 
         let armorBoosts = this.getBuffBoosts("/buff_types/armor");
         let armorFlatBoost = armorBoosts[0]?.flatBoost ?? 0;
-        this.combatDetails.armor += armorFlatBoost;
+        this.combatDetails.combatStats.armor += armorFlatBoost;
 
         let lifeStealBoosts = this.getBuffBoosts("/buff_types/life_steal");
         let lifeStealFlatBoost = lifeStealBoosts[0]?.flatBoost ?? 0;
-        this.combatDetails.lifeSteal += lifeStealFlatBoost;
+        this.combatDetails.combatStats.lifeSteal += lifeStealFlatBoost;
 
         let physicalReflectPowerBoosts = this.getBuffBoosts("/buff_types/physical_reflect_power");
         let physicalReflectPowerFlatBoost = physicalReflectPowerBoosts[0]?.flatBoost ?? 0;
-        this.combatDetails.physicalReflectPower += physicalReflectPowerFlatBoost;
+        this.combatDetails.combatStats.physicalReflectPower += physicalReflectPowerFlatBoost;
 
         let HPRegenBoosts = this.getBuffBoosts("/buff_types/hp_regen");
         let HPRegenFlatBoost = HPRegenBoosts[0]?.flatBoost ?? 0;
-        this.combatDetails.HPRegen += HPRegenFlatBoost;
+        this.combatDetails.combatStats.HPRegen += HPRegenFlatBoost;
 
         let MPRegenBoosts = this.getBuffBoosts("/buff_types/mp_regen");
         let MPRegenFlatBoost = MPRegenBoosts[0]?.flatBoost ?? 0;
-        this.combatDetails.MPRegen += MPRegenFlatBoost;
+        this.combatDetails.combatStats.MPRegen += MPRegenFlatBoost;
 
         let dropRateBoosts = this.getBuffBoosts("/buff_types/combat_drop_rate");
         let dropRateRatioBoost = dropRateBoosts[0]?.ratioBoost ?? 0;
-        this.combatDetails.dropRate += dropRateRatioBoost;
+        this.combatDetails.combatStats.dropRate += dropRateRatioBoost;
 
         let experienceRateBoosts = this.getBuffBoosts("/buff_types/wisdom");
         let experienceRateFlatBoost = experienceRateBoosts[0]?.flatBoost ?? 0;
-        this.combatDetails.experienceRate += experienceRateFlatBoost;
+        this.combatDetails.combatStats.experienceRate += experienceRateFlatBoost;
     }
 
     addBuff(buff, currentTime) {
@@ -209,7 +214,10 @@ class CombatUnit {
             return manapointsAdded;
         }
 
-        let newManapoints = Math.min(this.combatDetails.currentManapoints + manapoints, this.combatDetails.maxManapoints);
+        let newManapoints = Math.min(
+            this.combatDetails.currentManapoints + manapoints,
+            this.combatDetails.maxManapoints
+        );
         manapointsAdded = newManapoints - this.combatDetails.currentManapoints;
         this.combatDetails.currentManapoints = newManapoints;
 

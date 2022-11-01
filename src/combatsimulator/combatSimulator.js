@@ -181,8 +181,8 @@ class CombatSimulator extends EventTarget {
             CombatUtilities.processAttack(event.source, target);
         // console.log("Hit for", damageDone);
 
-        if (event.source.combatDetails.lifeSteal > 0) {
-            let lifeStealHeal = Math.floor(damageDone * event.source.combatDetails.lifeSteal);
+        if (event.source.combatDetails.combatStats.lifeSteal > 0) {
+            let lifeStealHeal = Math.floor(damageDone * event.source.combatDetails.combatStats.lifeSteal);
             let hitpointsAdded = event.source.addHitpoints(lifeStealHeal);
             this.simResult.addHitpointsGained(event.source, "lifesteal", hitpointsAdded);
             // console.log("Added hitpoints from life steal:", hitpointsAdded);
@@ -255,7 +255,10 @@ class CombatSimulator extends EventTarget {
     }
 
     addNextAutoAttackEvent(source) {
-        let autoAttackEvent = new AutoAttackEvent(this.simulationTime + source.combatDetails.attackInterval, source);
+        let autoAttackEvent = new AutoAttackEvent(
+            this.simulationTime + source.combatDetails.combatStats.attackInterval,
+            source
+        );
         this.eventQueue.addEvent(autoAttackEvent);
     }
 
@@ -337,12 +340,12 @@ class CombatSimulator extends EventTarget {
                 continue;
             }
 
-            let hitpointRegen = Math.floor(unit.combatDetails.maxHitpoints * unit.combatDetails.HPRegen);
+            let hitpointRegen = Math.floor(unit.combatDetails.maxHitpoints * unit.combatDetails.combatStats.HPRegen);
             let hitpointsAdded = unit.addHitpoints(hitpointRegen);
             this.simResult.addHitpointsGained(unit, "regen", hitpointsAdded);
             // console.log("Added hitpoints:", hitpointsAdded);
 
-            let manapointRegen = Math.floor(unit.combatDetails.maxManapoints * unit.combatDetails.MPRegen);
+            let manapointRegen = Math.floor(unit.combatDetails.maxManapoints * unit.combatDetails.combatStats.MPRegen);
             let manapointsAdded = unit.addManapoints(manapointRegen);
             this.simResult.addManapointsGained(unit, "regen", manapointsAdded);
             // console.log("Added manapoints:", manapointsAdded);

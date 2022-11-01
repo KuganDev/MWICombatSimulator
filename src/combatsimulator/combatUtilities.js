@@ -56,7 +56,9 @@ class CombatUtilities {
     }
 
     static processAttack(source, target, abilityEffect) {
-        let combatStyle = abilityEffect ? abilityEffect.combatStyleHrid : source.combatDetails.combatStyleHrid;
+        let combatStyle = abilityEffect
+            ? abilityEffect.combatStyleHrid
+            : source.combatDetails.combatStats.combatStyleHrid;
         let minDamage = 1;
         let maxDamage = source.combatDetails[combatStyle + "MaxDamage"];
 
@@ -76,16 +78,16 @@ class CombatUtilities {
         let didHit = false;
         if (Math.random() < hitChance) {
             didHit = true;
-            let targetDamageTakenRatio = 100 / (100 + target.combatDetails.armor);
+            let targetDamageTakenRatio = 100 / (100 + target.combatDetails.combatStats.armor);
             let mitigatedDamage = Math.ceil(targetDamageTakenRatio * damageRoll);
             damageDone = Math.min(mitigatedDamage, target.combatDetails.currentHitpoints);
             target.combatDetails.currentHitpoints -= damageDone;
 
-            if (target.combatDetails.physicalReflectPower > 0) {
+            if (target.combatDetails.combatStats.physicalReflectPower > 0) {
                 let physicalReflectDamage = Math.ceil(
-                    target.combatDetails.armor * target.combatDetails.physicalReflectPower
+                    target.combatDetails.combatStats.armor * target.combatDetails.combatDetails.physicalReflectPower
                 );
-                let sourceDamageTakenRatio = 100 / (100 + source.combatDetails.armor);
+                let sourceDamageTakenRatio = 100 / (100 + source.combatDetails.combatStats.armor);
                 let mitigatedPhysicalReflectDamage = Math.ceil(sourceDamageTakenRatio * physicalReflectDamage);
                 physicalReflectDamageDone = Math.min(
                     mitigatedPhysicalReflectDamage,

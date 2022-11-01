@@ -343,8 +343,8 @@ class CombatSimulator extends EventTarget {
             _combatUtilities__WEBPACK_IMPORTED_MODULE_0__["default"].processAttack(event.source, target);
         // console.log("Hit for", damageDone);
 
-        if (event.source.combatDetails.lifeSteal > 0) {
-            let lifeStealHeal = Math.floor(damageDone * event.source.combatDetails.lifeSteal);
+        if (event.source.combatDetails.combatStats.lifeSteal > 0) {
+            let lifeStealHeal = Math.floor(damageDone * event.source.combatDetails.combatStats.lifeSteal);
             let hitpointsAdded = event.source.addHitpoints(lifeStealHeal);
             this.simResult.addHitpointsGained(event.source, "lifesteal", hitpointsAdded);
             // console.log("Added hitpoints from life steal:", hitpointsAdded);
@@ -417,7 +417,10 @@ class CombatSimulator extends EventTarget {
     }
 
     addNextAutoAttackEvent(source) {
-        let autoAttackEvent = new _events_autoAttackEvent__WEBPACK_IMPORTED_MODULE_1__["default"](this.simulationTime + source.combatDetails.attackInterval, source);
+        let autoAttackEvent = new _events_autoAttackEvent__WEBPACK_IMPORTED_MODULE_1__["default"](
+            this.simulationTime + source.combatDetails.combatStats.attackInterval,
+            source
+        );
         this.eventQueue.addEvent(autoAttackEvent);
     }
 
@@ -499,12 +502,12 @@ class CombatSimulator extends EventTarget {
                 continue;
             }
 
-            let hitpointRegen = Math.floor(unit.combatDetails.maxHitpoints * unit.combatDetails.HPRegen);
+            let hitpointRegen = Math.floor(unit.combatDetails.maxHitpoints * unit.combatDetails.combatStats.HPRegen);
             let hitpointsAdded = unit.addHitpoints(hitpointRegen);
             this.simResult.addHitpointsGained(unit, "regen", hitpointsAdded);
             // console.log("Added hitpoints:", hitpointsAdded);
 
-            let manapointRegen = Math.floor(unit.combatDetails.maxManapoints * unit.combatDetails.MPRegen);
+            let manapointRegen = Math.floor(unit.combatDetails.maxManapoints * unit.combatDetails.combatStats.MPRegen);
             let manapointsAdded = unit.addManapoints(manapointRegen);
             this.simResult.addManapointsGained(unit, "regen", manapointsAdded);
             // console.log("Added manapoints:", manapointsAdded);
@@ -791,26 +794,6 @@ class CombatUnit {
 
     // Calculated combat stats including temporary buffs
     combatDetails = {
-        combatStyleHrid: "smash",
-        attackInterval: 3000000000,
-        stabAccuracy: 0,
-        slashAccuracy: 0,
-        smashAccuracy: 0,
-        stabDamage: 0,
-        slashDamage: 0,
-        smashDamage: 0,
-        stabEvasion: 0,
-        slashEvasion: 0,
-        smashEvasion: 0,
-        armor: 0,
-        lifeSteal: 0,
-        physicalReflectPower: 0,
-        HPRegen: 0.01,
-        MPRegen: 0.01,
-        dropRate: 0,
-        experienceRate: 0,
-        foodSlots: 1,
-        drinkSlots: 1,
         staminaLevel: 1,
         intelligenceLevel: 1,
         attackLevel: 1,
@@ -829,14 +812,36 @@ class CombatUnit {
         stabEvasionRating: 11,
         slashEvasionRating: 11,
         smashEvasionRating: 11,
+        combatStats: {
+            combatStyleHrid: "smash",
+            attackInterval: 3000000000,
+            stabAccuracy: 0,
+            slashAccuracy: 0,
+            smashAccuracy: 0,
+            stabDamage: 0,
+            slashDamage: 0,
+            smashDamage: 0,
+            stabEvasion: 0,
+            slashEvasion: 0,
+            smashEvasion: 0,
+            armor: 0,
+            lifeSteal: 0,
+            HPRegen: 0.01,
+            MPRegen: 0.01,
+            physicalReflectPower: 0,
+            dropRate: 0,
+            experienceRate: 0,
+            foodSlots: 1,
+            drinkSlots: 1,
+        },
     };
     combatBuffs = {};
 
     constructor() {}
 
     updateCombatDetails() {
-        this.combatDetails.HPRegen = 0.01;
-        this.combatDetails.MPRegen = 0.01;
+        this.combatDetails.combatStats.HPRegen = 0.01;
+        this.combatDetails.combatStats.MPRegen = 0.01;
 
         ["stamina", "intelligence", "attack", "power", "defense"].forEach((stat) => {
             this.combatDetails[stat + "Level"] = this[stat + "Level"];
@@ -859,47 +864,50 @@ class CombatUnit {
         ["stab", "slash", "smash"].forEach((style) => {
             this.combatDetails[style + "AccuracyRating"] =
                 (10 + this.combatDetails.attackLevel) *
-                (1 + this.combatDetails[style + "Accuracy"]) *
+                (1 + this.combatDetails.combatStats[style + "Accuracy"]) *
                 (1 + accuracyRatioBoost);
             this.combatDetails[style + "MaxDamage"] =
-                (10 + this.combatDetails.powerLevel) * (1 + this.combatDetails[style + "Damage"]) * (1 + damageRatioBoost);
+                (10 + this.combatDetails.powerLevel) *
+                (1 + this.combatDetails.combatStats[style + "Damage"]) *
+                (1 + damageRatioBoost);
             this.combatDetails[style + "EvasionRating"] =
-                (10 + this.combatDetails.defenseLevel) * (1 + this.combatDetails[style + "Evasion"]);
+                (10 + this.combatDetails.defenseLevel) * (1 + this.combatDetails.combatStats[style + "Evasion"]);
         });
 
         let attackIntervalBoosts = this.getBuffBoosts("/buff_types/attack_speed");
         let attackIntervalRatioBoost = attackIntervalBoosts
             .map((boost) => boost.ratioBoost)
             .reduce((prev, cur) => prev + cur, 0);
-        this.combatDetails.attackInterval = this.combatDetails.attackInterval * (1 / (1 + attackIntervalRatioBoost));
+        this.combatDetails.combatStats.attackInterval =
+            this.combatDetails.combatStats.attackInterval * (1 / (1 + attackIntervalRatioBoost));
 
         let armorBoosts = this.getBuffBoosts("/buff_types/armor");
         let armorFlatBoost = armorBoosts[0]?.flatBoost ?? 0;
-        this.combatDetails.armor += armorFlatBoost;
+        this.combatDetails.combatStats.armor += armorFlatBoost;
 
         let lifeStealBoosts = this.getBuffBoosts("/buff_types/life_steal");
         let lifeStealFlatBoost = lifeStealBoosts[0]?.flatBoost ?? 0;
-        this.combatDetails.lifeSteal += lifeStealFlatBoost;
+        this.combatDetails.combatStats.lifeSteal += lifeStealFlatBoost;
 
         let physicalReflectPowerBoosts = this.getBuffBoosts("/buff_types/physical_reflect_power");
         let physicalReflectPowerFlatBoost = physicalReflectPowerBoosts[0]?.flatBoost ?? 0;
-        this.combatDetails.physicalReflectPower += physicalReflectPowerFlatBoost;
+        this.combatDetails.combatStats.physicalReflectPower += physicalReflectPowerFlatBoost;
 
         let HPRegenBoosts = this.getBuffBoosts("/buff_types/hp_regen");
         let HPRegenFlatBoost = HPRegenBoosts[0]?.flatBoost ?? 0;
-        this.combatDetails.HPRegen += HPRegenFlatBoost;
+        this.combatDetails.combatStats.HPRegen += HPRegenFlatBoost;
 
         let MPRegenBoosts = this.getBuffBoosts("/buff_types/mp_regen");
         let MPRegenFlatBoost = MPRegenBoosts[0]?.flatBoost ?? 0;
-        this.combatDetails.MPRegen += MPRegenFlatBoost;
+        this.combatDetails.combatStats.MPRegen += MPRegenFlatBoost;
 
         let dropRateBoosts = this.getBuffBoosts("/buff_types/combat_drop_rate");
         let dropRateRatioBoost = dropRateBoosts[0]?.ratioBoost ?? 0;
-        this.combatDetails.dropRate += dropRateRatioBoost;
+        this.combatDetails.combatStats.dropRate += dropRateRatioBoost;
 
         let experienceRateBoosts = this.getBuffBoosts("/buff_types/wisdom");
         let experienceRateFlatBoost = experienceRateBoosts[0]?.flatBoost ?? 0;
-        this.combatDetails.experienceRate += experienceRateFlatBoost;
+        this.combatDetails.combatStats.experienceRate += experienceRateFlatBoost;
     }
 
     addBuff(buff, currentTime) {
@@ -984,7 +992,10 @@ class CombatUnit {
             return manapointsAdded;
         }
 
-        let newManapoints = Math.min(this.combatDetails.currentManapoints + manapoints, this.combatDetails.maxManapoints);
+        let newManapoints = Math.min(
+            this.combatDetails.currentManapoints + manapoints,
+            this.combatDetails.maxManapoints
+        );
         manapointsAdded = newManapoints - this.combatDetails.currentManapoints;
         this.combatDetails.currentManapoints = newManapoints;
 
@@ -1065,7 +1076,9 @@ class CombatUtilities {
     }
 
     static processAttack(source, target, abilityEffect) {
-        let combatStyle = abilityEffect ? abilityEffect.combatStyleHrid : source.combatDetails.combatStyleHrid;
+        let combatStyle = abilityEffect
+            ? abilityEffect.combatStyleHrid
+            : source.combatDetails.combatStats.combatStyleHrid;
         let minDamage = 1;
         let maxDamage = source.combatDetails[combatStyle + "MaxDamage"];
 
@@ -1085,16 +1098,16 @@ class CombatUtilities {
         let didHit = false;
         if (Math.random() < hitChance) {
             didHit = true;
-            let targetDamageTakenRatio = 100 / (100 + target.combatDetails.armor);
+            let targetDamageTakenRatio = 100 / (100 + target.combatDetails.combatStats.armor);
             let mitigatedDamage = Math.ceil(targetDamageTakenRatio * damageRoll);
             damageDone = Math.min(mitigatedDamage, target.combatDetails.currentHitpoints);
             target.combatDetails.currentHitpoints -= damageDone;
 
-            if (target.combatDetails.physicalReflectPower > 0) {
+            if (target.combatDetails.combatStats.physicalReflectPower > 0) {
                 let physicalReflectDamage = Math.ceil(
-                    target.combatDetails.armor * target.combatDetails.physicalReflectPower
+                    target.combatDetails.combatStats.armor * target.combatDetails.combatDetails.physicalReflectPower
                 );
-                let sourceDamageTakenRatio = 100 / (100 + source.combatDetails.armor);
+                let sourceDamageTakenRatio = 100 / (100 + source.combatDetails.combatStats.armor);
                 let mitigatedPhysicalReflectDamage = Math.ceil(sourceDamageTakenRatio * physicalReflectDamage);
                 physicalReflectDamageDone = Math.min(
                     mitigatedPhysicalReflectDamage,
@@ -1693,10 +1706,10 @@ class Monster extends _combatUnit__WEBPACK_IMPORTED_MODULE_1__["default"] {
         this.defenseLevel = gameMonster.combatDetails.defenseLevel;
 
         let gameCombatStyle = gameMonster.combatDetails.combatStats.combatStyleHrids[0];
-        this.combatDetails.combatStyleHrid = gameCombatStyle.slice(gameCombatStyle.lastIndexOf("/") + 1);
+        this.combatDetails.combatStats.combatStyleHrid = gameCombatStyle.slice(gameCombatStyle.lastIndexOf("/") + 1);
 
         for (const [key, value] of Object.entries(gameMonster.combatDetails.combatStats)) {
-            this.combatDetails[key] = value;
+            this.combatDetails.combatStats[key] = value;
         }
 
         super.updateCombatDetails();
@@ -1769,16 +1782,18 @@ class Player extends _combatUnit__WEBPACK_IMPORTED_MODULE_1__["default"] {
 
     updateCombatDetails() {
         if (this.equipment["/equipment_types/main_hand"]) {
-            this.combatDetails.combatStyleHrid = this.equipment["/equipment_types/main_hand"].getCombatStyle();
-            this.combatDetails.attackInterval =
+            this.combatDetails.combatStats.combatStyleHrid =
+                this.equipment["/equipment_types/main_hand"].getCombatStyle();
+            this.combatDetails.combatStats.attackInterval =
                 this.equipment["/equipment_types/main_hand"].getCombatStat("attackInterval");
         } else if (this.equipment["/equipment_types/two_hand"]) {
-            this.combatDetails.combatStyleHrid = this.equipment["/equipment_types/two_hand"].getCombatStyle();
-            this.combatDetails.attackInterval =
+            this.combatDetails.combatStats.combatStyleHrid =
+                this.equipment["/equipment_types/two_hand"].getCombatStyle();
+            this.combatDetails.combatStats.attackInterval =
                 this.equipment["/equipment_types/two_hand"].getCombatStat("attackInterval");
         } else {
-            this.combatDetails.combatStyleHrid = "smash";
-            this.combatDetails.attackInterval = 3000000000;
+            this.combatDetails.combatStats.combatStyleHrid = "smash";
+            this.combatDetails.combatStats.attackInterval = 3000000000;
         }
 
         [
@@ -1795,22 +1810,22 @@ class Player extends _combatUnit__WEBPACK_IMPORTED_MODULE_1__["default"] {
             "lifeSteal",
             "physicalReflectPower",
         ].forEach((stat) => {
-            this.combatDetails[stat] = Object.values(this.equipment)
+            this.combatDetails.combatStats[stat] = Object.values(this.equipment)
                 .filter((equipment) => equipment != null)
                 .map((equipment) => equipment.getCombatStat(stat))
                 .reduce((prev, cur) => prev + cur, 0);
         });
 
         if (this.equipment["/equipment_types/pouch"]) {
-            this.combatDetails.foodSlots = 1 + this.equipment["/equipment_types/pouch"].getCombatStat("foodSlots");
-            this.combatDetails.drinkSlots = 1 + this.equipment["/equipment_types/pouch"].getCombatStat("drinkSlots");
+            this.combatDetails.combatStats.foodSlots = 1 + this.equipment["/equipment_types/pouch"].getCombatStat("foodSlots");
+            this.combatDetails.combatStats.drinkSlots = 1 + this.equipment["/equipment_types/pouch"].getCombatStat("drinkSlots");
         } else {
-            this.combatDetails.foodSlots = 1;
-            this.combatDetails.drinkSlots = 1;
+            this.combatDetails.combatStats.foodSlots = 1;
+            this.combatDetails.combatStats.drinkSlots = 1;
         }
 
-        this.combatDetails.dropRate = 0;
-        this.combatDetails.experienceRate = 0;
+        this.combatDetails.combatStats.dropRate = 0;
+        this.combatDetails.combatStats.experienceRate = 0;
 
         super.updateCombatDetails();
     }
@@ -1866,7 +1881,7 @@ class SimResult {
             };
         }
 
-        this.experienceGained[unit.hrid][type] += experience * (1 + unit.combatDetails.experienceRate);
+        this.experienceGained[unit.hrid][type] += experience * (1 + unit.combatDetails.combatStats.experienceRate);
     }
 
     addEncounterEnd() {

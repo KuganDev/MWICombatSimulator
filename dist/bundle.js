@@ -165,26 +165,6 @@ class CombatUnit {
 
     // Calculated combat stats including temporary buffs
     combatDetails = {
-        combatStyleHrid: "smash",
-        attackInterval: 3000000000,
-        stabAccuracy: 0,
-        slashAccuracy: 0,
-        smashAccuracy: 0,
-        stabDamage: 0,
-        slashDamage: 0,
-        smashDamage: 0,
-        stabEvasion: 0,
-        slashEvasion: 0,
-        smashEvasion: 0,
-        armor: 0,
-        lifeSteal: 0,
-        physicalReflectPower: 0,
-        HPRegen: 0.01,
-        MPRegen: 0.01,
-        dropRate: 0,
-        experienceRate: 0,
-        foodSlots: 1,
-        drinkSlots: 1,
         staminaLevel: 1,
         intelligenceLevel: 1,
         attackLevel: 1,
@@ -203,14 +183,36 @@ class CombatUnit {
         stabEvasionRating: 11,
         slashEvasionRating: 11,
         smashEvasionRating: 11,
+        combatStats: {
+            combatStyleHrid: "smash",
+            attackInterval: 3000000000,
+            stabAccuracy: 0,
+            slashAccuracy: 0,
+            smashAccuracy: 0,
+            stabDamage: 0,
+            slashDamage: 0,
+            smashDamage: 0,
+            stabEvasion: 0,
+            slashEvasion: 0,
+            smashEvasion: 0,
+            armor: 0,
+            lifeSteal: 0,
+            HPRegen: 0.01,
+            MPRegen: 0.01,
+            physicalReflectPower: 0,
+            dropRate: 0,
+            experienceRate: 0,
+            foodSlots: 1,
+            drinkSlots: 1,
+        },
     };
     combatBuffs = {};
 
     constructor() {}
 
     updateCombatDetails() {
-        this.combatDetails.HPRegen = 0.01;
-        this.combatDetails.MPRegen = 0.01;
+        this.combatDetails.combatStats.HPRegen = 0.01;
+        this.combatDetails.combatStats.MPRegen = 0.01;
 
         ["stamina", "intelligence", "attack", "power", "defense"].forEach((stat) => {
             this.combatDetails[stat + "Level"] = this[stat + "Level"];
@@ -233,47 +235,50 @@ class CombatUnit {
         ["stab", "slash", "smash"].forEach((style) => {
             this.combatDetails[style + "AccuracyRating"] =
                 (10 + this.combatDetails.attackLevel) *
-                (1 + this.combatDetails[style + "Accuracy"]) *
+                (1 + this.combatDetails.combatStats[style + "Accuracy"]) *
                 (1 + accuracyRatioBoost);
             this.combatDetails[style + "MaxDamage"] =
-                (10 + this.combatDetails.powerLevel) * (1 + this.combatDetails[style + "Damage"]) * (1 + damageRatioBoost);
+                (10 + this.combatDetails.powerLevel) *
+                (1 + this.combatDetails.combatStats[style + "Damage"]) *
+                (1 + damageRatioBoost);
             this.combatDetails[style + "EvasionRating"] =
-                (10 + this.combatDetails.defenseLevel) * (1 + this.combatDetails[style + "Evasion"]);
+                (10 + this.combatDetails.defenseLevel) * (1 + this.combatDetails.combatStats[style + "Evasion"]);
         });
 
         let attackIntervalBoosts = this.getBuffBoosts("/buff_types/attack_speed");
         let attackIntervalRatioBoost = attackIntervalBoosts
             .map((boost) => boost.ratioBoost)
             .reduce((prev, cur) => prev + cur, 0);
-        this.combatDetails.attackInterval = this.combatDetails.attackInterval * (1 / (1 + attackIntervalRatioBoost));
+        this.combatDetails.combatStats.attackInterval =
+            this.combatDetails.combatStats.attackInterval * (1 / (1 + attackIntervalRatioBoost));
 
         let armorBoosts = this.getBuffBoosts("/buff_types/armor");
         let armorFlatBoost = armorBoosts[0]?.flatBoost ?? 0;
-        this.combatDetails.armor += armorFlatBoost;
+        this.combatDetails.combatStats.armor += armorFlatBoost;
 
         let lifeStealBoosts = this.getBuffBoosts("/buff_types/life_steal");
         let lifeStealFlatBoost = lifeStealBoosts[0]?.flatBoost ?? 0;
-        this.combatDetails.lifeSteal += lifeStealFlatBoost;
+        this.combatDetails.combatStats.lifeSteal += lifeStealFlatBoost;
 
         let physicalReflectPowerBoosts = this.getBuffBoosts("/buff_types/physical_reflect_power");
         let physicalReflectPowerFlatBoost = physicalReflectPowerBoosts[0]?.flatBoost ?? 0;
-        this.combatDetails.physicalReflectPower += physicalReflectPowerFlatBoost;
+        this.combatDetails.combatStats.physicalReflectPower += physicalReflectPowerFlatBoost;
 
         let HPRegenBoosts = this.getBuffBoosts("/buff_types/hp_regen");
         let HPRegenFlatBoost = HPRegenBoosts[0]?.flatBoost ?? 0;
-        this.combatDetails.HPRegen += HPRegenFlatBoost;
+        this.combatDetails.combatStats.HPRegen += HPRegenFlatBoost;
 
         let MPRegenBoosts = this.getBuffBoosts("/buff_types/mp_regen");
         let MPRegenFlatBoost = MPRegenBoosts[0]?.flatBoost ?? 0;
-        this.combatDetails.MPRegen += MPRegenFlatBoost;
+        this.combatDetails.combatStats.MPRegen += MPRegenFlatBoost;
 
         let dropRateBoosts = this.getBuffBoosts("/buff_types/combat_drop_rate");
         let dropRateRatioBoost = dropRateBoosts[0]?.ratioBoost ?? 0;
-        this.combatDetails.dropRate += dropRateRatioBoost;
+        this.combatDetails.combatStats.dropRate += dropRateRatioBoost;
 
         let experienceRateBoosts = this.getBuffBoosts("/buff_types/wisdom");
         let experienceRateFlatBoost = experienceRateBoosts[0]?.flatBoost ?? 0;
-        this.combatDetails.experienceRate += experienceRateFlatBoost;
+        this.combatDetails.combatStats.experienceRate += experienceRateFlatBoost;
     }
 
     addBuff(buff, currentTime) {
@@ -358,7 +363,10 @@ class CombatUnit {
             return manapointsAdded;
         }
 
-        let newManapoints = Math.min(this.combatDetails.currentManapoints + manapoints, this.combatDetails.maxManapoints);
+        let newManapoints = Math.min(
+            this.combatDetails.currentManapoints + manapoints,
+            this.combatDetails.maxManapoints
+        );
         manapointsAdded = newManapoints - this.combatDetails.currentManapoints;
         this.combatDetails.currentManapoints = newManapoints;
 
@@ -580,16 +588,18 @@ class Player extends _combatUnit__WEBPACK_IMPORTED_MODULE_1__["default"] {
 
     updateCombatDetails() {
         if (this.equipment["/equipment_types/main_hand"]) {
-            this.combatDetails.combatStyleHrid = this.equipment["/equipment_types/main_hand"].getCombatStyle();
-            this.combatDetails.attackInterval =
+            this.combatDetails.combatStats.combatStyleHrid =
+                this.equipment["/equipment_types/main_hand"].getCombatStyle();
+            this.combatDetails.combatStats.attackInterval =
                 this.equipment["/equipment_types/main_hand"].getCombatStat("attackInterval");
         } else if (this.equipment["/equipment_types/two_hand"]) {
-            this.combatDetails.combatStyleHrid = this.equipment["/equipment_types/two_hand"].getCombatStyle();
-            this.combatDetails.attackInterval =
+            this.combatDetails.combatStats.combatStyleHrid =
+                this.equipment["/equipment_types/two_hand"].getCombatStyle();
+            this.combatDetails.combatStats.attackInterval =
                 this.equipment["/equipment_types/two_hand"].getCombatStat("attackInterval");
         } else {
-            this.combatDetails.combatStyleHrid = "smash";
-            this.combatDetails.attackInterval = 3000000000;
+            this.combatDetails.combatStats.combatStyleHrid = "smash";
+            this.combatDetails.combatStats.attackInterval = 3000000000;
         }
 
         [
@@ -606,22 +616,22 @@ class Player extends _combatUnit__WEBPACK_IMPORTED_MODULE_1__["default"] {
             "lifeSteal",
             "physicalReflectPower",
         ].forEach((stat) => {
-            this.combatDetails[stat] = Object.values(this.equipment)
+            this.combatDetails.combatStats[stat] = Object.values(this.equipment)
                 .filter((equipment) => equipment != null)
                 .map((equipment) => equipment.getCombatStat(stat))
                 .reduce((prev, cur) => prev + cur, 0);
         });
 
         if (this.equipment["/equipment_types/pouch"]) {
-            this.combatDetails.foodSlots = 1 + this.equipment["/equipment_types/pouch"].getCombatStat("foodSlots");
-            this.combatDetails.drinkSlots = 1 + this.equipment["/equipment_types/pouch"].getCombatStat("drinkSlots");
+            this.combatDetails.combatStats.foodSlots = 1 + this.equipment["/equipment_types/pouch"].getCombatStat("foodSlots");
+            this.combatDetails.combatStats.drinkSlots = 1 + this.equipment["/equipment_types/pouch"].getCombatStat("drinkSlots");
         } else {
-            this.combatDetails.foodSlots = 1;
-            this.combatDetails.drinkSlots = 1;
+            this.combatDetails.combatStats.foodSlots = 1;
+            this.combatDetails.combatStats.drinkSlots = 1;
         }
 
-        this.combatDetails.dropRate = 0;
-        this.combatDetails.experienceRate = 0;
+        this.combatDetails.combatStats.dropRate = 0;
+        this.combatDetails.combatStats.experienceRate = 0;
 
         super.updateCombatDetails();
     }
@@ -1200,15 +1210,15 @@ function updateCombatStatsUI() {
     });
 
     let combatStyleElement = document.getElementById("combatStat_combatStyleHrid");
-    let combatStyle = player.combatDetails.combatStyleHrid;
+    let combatStyle = player.combatDetails.combatStats.combatStyleHrid;
     combatStyleElement.innerHTML = combatStyle.charAt(0).toUpperCase() + combatStyle.slice(1);
 
     let attackIntervalElement = document.getElementById("combatStat_attackInterval");
-    attackIntervalElement.innerHTML = (player.combatDetails.attackInterval / 1e9).toLocaleString() + "s";
+    attackIntervalElement.innerHTML = (player.combatDetails.combatStats.attackInterval / 1e9).toLocaleString() + "s";
 
     ["lifeSteal", "HPRegen", "MPRegen"].forEach((stat) => {
         let element = document.getElementById("combatStat_" + stat);
-        let value = (100 * player.combatDetails[stat]).toLocaleString([], {
+        let value = (100 * player.combatDetails.combatStats[stat]).toLocaleString([], {
             minimumFractionDigits: 0,
             maximumFractionDigits: 2,
         });
@@ -1281,8 +1291,8 @@ function updateFoodUI() {
         let selectElement = document.getElementById("selectFood_" + i);
         let triggerButton = document.getElementById("buttonFoodTrigger_" + i);
 
-        selectElement.disabled = i >= player.combatDetails.foodSlots;
-        triggerButton.disabled = i >= player.combatDetails.foodSlots || !food[i];
+        selectElement.disabled = i >= player.combatDetails.combatStats.foodSlots;
+        triggerButton.disabled = i >= player.combatDetails.combatStats.foodSlots || !food[i];
     }
 }
 
@@ -1328,8 +1338,8 @@ function updateDrinksUI() {
         let selectElement = document.getElementById("selectDrink_" + i);
         let triggerButton = document.getElementById("buttonDrinkTrigger_" + i);
 
-        selectElement.disabled = i >= player.combatDetails.drinkSlots;
-        triggerButton.disabled = i >= player.combatDetails.drinkSlots || !drinks[i];
+        selectElement.disabled = i >= player.combatDetails.combatStats.drinkSlots;
+        triggerButton.disabled = i >= player.combatDetails.combatStats.drinkSlots || !drinks[i];
     }
 }
 
@@ -1672,7 +1682,7 @@ function showKills(simResult) {
 
     let hoursSimulated = simResult.simulatedTime / ONE_HOUR;
     let playerDeaths = simResult.deaths["player"] ?? 0;
-    let encountersPerHour = ((simResult.encounters) / hoursSimulated).toFixed(1);
+    let encountersPerHour = (simResult.encounters / hoursSimulated).toFixed(1);
 
     let encountersRow = createRow(["col-md-6", "col-md-6 text-end"], ["Encounters", encountersPerHour]);
     newChildren.push(encountersRow);
@@ -2064,14 +2074,14 @@ function startSimulation() {
     updateUI();
 
     for (let i = 0; i < 3; i++) {
-        if (food[i] && i < player.combatDetails.foodSlots) {
+        if (food[i] && i < player.combatDetails.combatStats.foodSlots) {
             let consumable = new _combatsimulator_consumable_js__WEBPACK_IMPORTED_MODULE_5__["default"](food[i], triggerMap[food[i]]);
             player.food[i] = consumable;
         } else {
             player.food[i] = null;
         }
 
-        if (drinks[i] && i < player.combatDetails.drinkSlots) {
+        if (drinks[i] && i < player.combatDetails.combatStats.drinkSlots) {
             let consumable = new _combatsimulator_consumable_js__WEBPACK_IMPORTED_MODULE_5__["default"](drinks[i], triggerMap[drinks[i]]);
             player.drinks[i] = consumable;
         } else {
