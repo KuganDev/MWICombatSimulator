@@ -497,13 +497,19 @@ class CombatSimulator extends EventTarget {
         for (const abilityEffect of ability.abilityEffects) {
             switch (abilityEffect.effectType) {
                 case "/ability_effect_types/buff":
-                    source.addBuff(abilityEffect.buff, this.simulationTime);
-                    // console.log("Added buff:", abilityEffect.buff);
-                    let checkBuffExpirationEvent = new CheckBuffExpirationEvent(
-                        this.simulationTime + abilityEffect.buff.duration,
-                        source
-                    );
-                    this.eventQueue.addEvent(checkBuffExpirationEvent);
+                    if (abilityEffect.targetType != "self") {
+                        throw new Error("Unsupported target type for buff ability effect: " + ability.hrid);
+                    }
+
+                    for (const buff of abilityEffect.buffs) {
+                        source.addBuff(buff, this.simulationTime);
+                        // console.log("Added buff:", abilityEffect.buff);
+                        let checkBuffExpirationEvent = new CheckBuffExpirationEvent(
+                            this.simulationTime + buff.duration,
+                            source
+                        );
+                        this.eventQueue.addEvent(checkBuffExpirationEvent);
+                    }
                     break;
                 case "/ability_effect_types/damage":
                     let targets;

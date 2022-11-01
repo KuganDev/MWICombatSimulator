@@ -28,8 +28,14 @@ class Ability {
                 bleedDuration: effect.bleedDuration,
                 stunChance: effect.stunChance,
                 stunDuration: effect.stunDuration,
-                buff: effect.buff.duration > 0 ? new Buff(effect.buff, this.level) : null,
+                buffs: null,
             };
+            if (effect.buffs) {
+                abilityEffect.buffs = [];
+                for (const buff of effect.buffs) {
+                    abilityEffect.buffs.push(new Buff(buff, this.level));
+                }
+            }
             this.abilityEffects.push(abilityEffect);
         }
 

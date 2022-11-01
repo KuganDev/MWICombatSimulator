@@ -45,8 +45,14 @@ class Ability {
                 bleedDuration: effect.bleedDuration,
                 stunChance: effect.stunChance,
                 stunDuration: effect.stunDuration,
-                buff: effect.buff.duration > 0 ? new _buff__WEBPACK_IMPORTED_MODULE_0__["default"](effect.buff, this.level) : null,
+                buffs: null,
             };
+            if (effect.buffs) {
+                abilityEffect.buffs = [];
+                for (const buff of effect.buffs) {
+                    abilityEffect.buffs.push(new _buff__WEBPACK_IMPORTED_MODULE_0__["default"](buff, this.level));
+                }
+            }
             this.abilityEffects.push(abilityEffect);
         }
 
@@ -653,13 +659,19 @@ class CombatSimulator extends EventTarget {
         for (const abilityEffect of ability.abilityEffects) {
             switch (abilityEffect.effectType) {
                 case "/ability_effect_types/buff":
-                    source.addBuff(abilityEffect.buff, this.simulationTime);
-                    // console.log("Added buff:", abilityEffect.buff);
-                    let checkBuffExpirationEvent = new _events_checkBuffExpirationEvent__WEBPACK_IMPORTED_MODULE_3__["default"](
-                        this.simulationTime + abilityEffect.buff.duration,
-                        source
-                    );
-                    this.eventQueue.addEvent(checkBuffExpirationEvent);
+                    if (abilityEffect.targetType != "self") {
+                        throw new Error("Unsupported target type for buff ability effect: " + ability.hrid);
+                    }
+
+                    for (const buff of abilityEffect.buffs) {
+                        source.addBuff(buff, this.simulationTime);
+                        // console.log("Added buff:", abilityEffect.buff);
+                        let checkBuffExpirationEvent = new _events_checkBuffExpirationEvent__WEBPACK_IMPORTED_MODULE_3__["default"](
+                            this.simulationTime + buff.duration,
+                            source
+                        );
+                        this.eventQueue.addEvent(checkBuffExpirationEvent);
+                    }
                     break;
                 case "/ability_effect_types/damage":
                     let targets;

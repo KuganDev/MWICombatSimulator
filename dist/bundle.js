@@ -45,8 +45,14 @@ class Ability {
                 bleedDuration: effect.bleedDuration,
                 stunChance: effect.stunChance,
                 stunDuration: effect.stunDuration,
-                buff: effect.buff.duration > 0 ? new _buff__WEBPACK_IMPORTED_MODULE_0__["default"](effect.buff, this.level) : null,
+                buffs: null,
             };
+            if (effect.buffs) {
+                abilityEffect.buffs = [];
+                for (const buff of effect.buffs) {
+                    abilityEffect.buffs.push(new _buff__WEBPACK_IMPORTED_MODULE_0__["default"](buff, this.level));
+                }
+            }
             this.abilityEffects.push(abilityEffect);
         }
 
