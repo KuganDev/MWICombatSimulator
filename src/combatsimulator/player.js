@@ -31,6 +31,8 @@ class Player extends CombatUnit {
         player.attackLevel = dto.attackLevel;
         player.powerLevel = dto.powerLevel;
         player.defenseLevel = dto.defenseLevel;
+        player.rangedLevel = dto.rangedLevel;
+        player.magicLevel = dto.magicLevel;
 
         for (const [key, value] of Object.entries(dto.equipment)) {
             player.equipment[key] = value ? Equipment.createFromDTO(value) : null;
@@ -47,15 +49,18 @@ class Player extends CombatUnit {
         if (this.equipment["/equipment_types/main_hand"]) {
             this.combatDetails.combatStats.combatStyleHrid =
                 this.equipment["/equipment_types/main_hand"].getCombatStyle();
+            this.combatDetails.combatStats.damageType = this.equipment["/equipment_types/main_hand"].getDamageType();
             this.combatDetails.combatStats.attackInterval =
                 this.equipment["/equipment_types/main_hand"].getCombatStat("attackInterval");
         } else if (this.equipment["/equipment_types/two_hand"]) {
             this.combatDetails.combatStats.combatStyleHrid =
                 this.equipment["/equipment_types/two_hand"].getCombatStyle();
+            this.combatDetails.combatStats.damageType = this.equipment["/equipment_types/two_hand"].getDamageType();
             this.combatDetails.combatStats.attackInterval =
                 this.equipment["/equipment_types/two_hand"].getCombatStat("attackInterval");
         } else {
             this.combatDetails.combatStats.combatStyleHrid = "smash";
+            this.combatDetails.combatStats.damageType = "/damage_types/physical";
             this.combatDetails.combatStats.attackInterval = 3000000000;
         }
 
@@ -63,15 +68,32 @@ class Player extends CombatUnit {
             "stabAccuracy",
             "slashAccuracy",
             "smashAccuracy",
+            "rangedAccuracy",
             "stabDamage",
             "slashDamage",
             "smashDamage",
+            "rangedDamage",
+            "magicDamage",
+            "physicalAmplify",
+            "waterAmplify",
+            "natureAmplify",
+            "fireAmplify",
+            "healingAmplify",
             "stabEvasion",
             "slashEvasion",
             "smashEvasion",
+            "rangedEvasion",
             "armor",
+            "waterResistance",
+            "natureResistance",
+            "fireResistance",
+            "maxHitpoints",
+            "maxManapoints",
             "lifeSteal",
             "physicalReflectPower",
+            "dropRate",
+            "dropQuantity",
+            "experienceRate",
         ].forEach((stat) => {
             this.combatDetails.combatStats[stat] = Object.values(this.equipment)
                 .filter((equipment) => equipment != null)
@@ -80,15 +102,14 @@ class Player extends CombatUnit {
         });
 
         if (this.equipment["/equipment_types/pouch"]) {
-            this.combatDetails.combatStats.foodSlots = 1 + this.equipment["/equipment_types/pouch"].getCombatStat("foodSlots");
-            this.combatDetails.combatStats.drinkSlots = 1 + this.equipment["/equipment_types/pouch"].getCombatStat("drinkSlots");
+            this.combatDetails.combatStats.foodSlots =
+                1 + this.equipment["/equipment_types/pouch"].getCombatStat("foodSlots");
+            this.combatDetails.combatStats.drinkSlots =
+                1 + this.equipment["/equipment_types/pouch"].getCombatStat("drinkSlots");
         } else {
             this.combatDetails.combatStats.foodSlots = 1;
             this.combatDetails.combatStats.drinkSlots = 1;
         }
-
-        this.combatDetails.combatStats.dropRate = 0;
-        this.combatDetails.combatStats.experienceRate = 0;
 
         super.updateCombatDetails();
     }

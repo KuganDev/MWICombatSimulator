@@ -787,6 +787,8 @@ class CombatUnit {
     attackLevel = 1;
     powerLevel = 1;
     defenseLevel = 1;
+    rangedLevel = 1;
+    magicLevel = 1;
 
     abilities = [null, null, null, null];
     food = [null, null, null];
@@ -799,6 +801,8 @@ class CombatUnit {
         attackLevel: 1,
         powerLevel: 1,
         defenseLevel: 1,
+        rangedLevel: 1,
+        magicLevel: 1,
         maxHitpoints: 110,
         currentHitpoints: 110,
         maxManapoints: 110,
@@ -814,22 +818,38 @@ class CombatUnit {
         smashEvasionRating: 11,
         combatStats: {
             combatStyleHrid: "smash",
+            damageType: "/damage_types/physical",
             attackInterval: 3000000000,
             stabAccuracy: 0,
             slashAccuracy: 0,
             smashAccuracy: 0,
+            rangedAccuracy: 0,
             stabDamage: 0,
             slashDamage: 0,
             smashDamage: 0,
+            rangedDamage: 0,
+            magicDamage: 0,
+            physicalAmplify: 0,
+            waterAmplify: 0,
+            natureAmplify: 0,
+            fireAmplify: 0,
+            healingAmplify: 0,
             stabEvasion: 0,
             slashEvasion: 0,
             smashEvasion: 0,
+            rangedEvasion: 0,
             armor: 0,
+            waterResistance: 0,
+            natureResistance: 0,
+            fireResistance: 0,
+            maxHitpoints: 0,
+            maxManapoints: 0,
             lifeSteal: 0,
             HPRegen: 0.01,
             MPRegen: 0.01,
             physicalReflectPower: 0,
             dropRate: 0,
+            dropQuantity: 0,
             experienceRate: 0,
             foodSlots: 1,
             drinkSlots: 1,
@@ -843,7 +863,7 @@ class CombatUnit {
         this.combatDetails.combatStats.HPRegen = 0.01;
         this.combatDetails.combatStats.MPRegen = 0.01;
 
-        ["stamina", "intelligence", "attack", "power", "defense"].forEach((stat) => {
+        ["stamina", "intelligence", "attack", "power", "defense", "ranged", "magic"].forEach((stat) => {
             this.combatDetails[stat + "Level"] = this[stat + "Level"];
             let boosts = this.getBuffBoosts("/buff_types/" + stat + "_level");
             boosts.forEach((buff) => {
@@ -855,11 +875,8 @@ class CombatUnit {
         this.combatDetails.maxHitpoints = 10 * (10 + this.combatDetails.staminaLevel);
         this.combatDetails.maxManapoints = 10 * (10 + this.combatDetails.intelligenceLevel);
 
-        let accuracyBoosts = this.getBuffBoosts("/buff_types/accuracy");
-        let accuracyRatioBoost = accuracyBoosts[0]?.ratioBoost ?? 0;
-
-        let damageBoosts = this.getBuffBoosts("/buff_types/damage");
-        let damageRatioBoost = damageBoosts[0]?.ratioBoost ?? 0;
+        let accuracyRatioBoost = this.getBuffBoost("/buff_types/accuracy").ratioBoost;
+        let damageRatioBoost = this.getBuffBoost("/buff_types/damage").ratioBoost;
 
         ["stab", "slash", "smash"].forEach((style) => {
             this.combatDetails[style + "AccuracyRating"] =
@@ -874,6 +891,11 @@ class CombatUnit {
                 (10 + this.combatDetails.defenseLevel) * (1 + this.combatDetails.combatStats[style + "Evasion"]);
         });
 
+        this.combatDetails.combatStats.physicalAmplify += this.getBuffBoost("/buff_types/physical_amplify").flatBoost;
+        this.combatDetails.combatStats.physicalAmplify += this.getBuffBoost("/buff_types/water_amplify").flatBoost;
+        this.combatDetails.combatStats.natureAmplify += this.getBuffBoost("/buff_types/nature_amplify").flatBoost;
+        this.combatDetails.combatStats.fireAmplify += this.getBuffBoost("/buff_types/fire_amplify").flatBoost;
+
         let attackIntervalBoosts = this.getBuffBoosts("/buff_types/attack_speed");
         let attackIntervalRatioBoost = attackIntervalBoosts
             .map((boost) => boost.ratioBoost)
@@ -882,32 +904,19 @@ class CombatUnit {
             this.combatDetails.combatStats.attackInterval * (1 / (1 + attackIntervalRatioBoost));
 
         let armorBoosts = this.getBuffBoosts("/buff_types/armor");
-        let armorFlatBoost = armorBoosts[0]?.flatBoost ?? 0;
+        let armorFlatBoost = armorBoosts.map((boost) => boost.flatBoost).reduce((prev, cur) => prev + cur, 0);
         this.combatDetails.combatStats.armor += armorFlatBoost;
 
-        let lifeStealBoosts = this.getBuffBoosts("/buff_types/life_steal");
-        let lifeStealFlatBoost = lifeStealBoosts[0]?.flatBoost ?? 0;
-        this.combatDetails.combatStats.lifeSteal += lifeStealFlatBoost;
+        this.combatDetails.combatStats.waterResistance += this.getBuffBoost("/buff_types/water_resistance").flatBoost;
+        this.combatDetails.combatStats.natureResistance += this.getBuffBoost("/buff_types/nature_resistance").flatBoost;
+        this.combatDetails.combatStats.fireResistance += this.getBuffBoost("/buff_types/fire_resistance").flatBoost;
 
-        let physicalReflectPowerBoosts = this.getBuffBoosts("/buff_types/physical_reflect_power");
-        let physicalReflectPowerFlatBoost = physicalReflectPowerBoosts[0]?.flatBoost ?? 0;
-        this.combatDetails.combatStats.physicalReflectPower += physicalReflectPowerFlatBoost;
-
-        let HPRegenBoosts = this.getBuffBoosts("/buff_types/hp_regen");
-        let HPRegenFlatBoost = HPRegenBoosts[0]?.flatBoost ?? 0;
-        this.combatDetails.combatStats.HPRegen += HPRegenFlatBoost;
-
-        let MPRegenBoosts = this.getBuffBoosts("/buff_types/mp_regen");
-        let MPRegenFlatBoost = MPRegenBoosts[0]?.flatBoost ?? 0;
-        this.combatDetails.combatStats.MPRegen += MPRegenFlatBoost;
-
-        let dropRateBoosts = this.getBuffBoosts("/buff_types/combat_drop_rate");
-        let dropRateRatioBoost = dropRateBoosts[0]?.ratioBoost ?? 0;
-        this.combatDetails.combatStats.dropRate += dropRateRatioBoost;
-
-        let experienceRateBoosts = this.getBuffBoosts("/buff_types/wisdom");
-        let experienceRateFlatBoost = experienceRateBoosts[0]?.flatBoost ?? 0;
-        this.combatDetails.combatStats.experienceRate += experienceRateFlatBoost;
+        this.combatDetails.combatStats.lifeSteal += this.getBuffBoost("/buff_types/life_steal").flatBoost;
+        this.combatDetails.combatStats.HPRegen += this.getBuffBoost("/buff_types/hp_regen").flatBoost;
+        this.combatDetails.combatStats.MPRegen += this.getBuffBoost("/buff_types/mp_regen").flatBoost;
+        this.combatDetails.combatStats.physicalReflectPower += this.getBuffBoost("/buff_types/physical_reflect_power").flatBoost;
+        this.combatDetails.combatStats.dropRate += this.getBuffBoost("/buff_types/combat_drop_rate").ratioBoost;
+        this.combatDetails.combatStats.experienceRate += this.getBuffBoost("/buff_types/wisdom").flatBoost;
     }
 
     addBuff(buff, currentTime) {
@@ -942,6 +951,21 @@ class CombatUnit {
             });
 
         return boosts;
+    }
+
+    getBuffBoost(type) {
+        let boosts = this.getBuffBoosts(type);
+
+        if (boosts.length > 1) {
+            throw new Error("Using getBuffBoost with multiple buffs active: " + type);
+        }
+
+        let boost = {
+            ratioBoost: boosts[0]?.ratioBoost ?? 0,
+            flatBoost: boosts[0]?.flatBoost ?? 0,
+        };
+
+        return boost;
     }
 
     reset(currentTime = 0) {
@@ -1295,6 +1319,10 @@ class Equipment {
         let combatStyle = gameCombatStyle.slice(gameCombatStyle.lastIndexOf("/") + 1);
 
         return combatStyle;
+    }
+
+    getDamageType() {
+        return this.gameItem.equipmentDetail.combatStats.damageType;
     }
 }
 
@@ -1704,6 +1732,8 @@ class Monster extends _combatUnit__WEBPACK_IMPORTED_MODULE_1__["default"] {
         this.attackLevel = gameMonster.combatDetails.attackLevel;
         this.powerLevel = gameMonster.combatDetails.powerLevel;
         this.defenseLevel = gameMonster.combatDetails.defenseLevel;
+        this.rangedLevel = gameMonster.combatDetails.rangedLevel;
+        this.magicLevel = gameMonster.combatDetails.magicLevel;
 
         let gameCombatStyle = gameMonster.combatDetails.combatStats.combatStyleHrids[0];
         this.combatDetails.combatStats.combatStyleHrid = gameCombatStyle.slice(gameCombatStyle.lastIndexOf("/") + 1);
@@ -1768,6 +1798,8 @@ class Player extends _combatUnit__WEBPACK_IMPORTED_MODULE_1__["default"] {
         player.attackLevel = dto.attackLevel;
         player.powerLevel = dto.powerLevel;
         player.defenseLevel = dto.defenseLevel;
+        player.rangedLevel = dto.rangedLevel;
+        player.magicLevel = dto.magicLevel;
 
         for (const [key, value] of Object.entries(dto.equipment)) {
             player.equipment[key] = value ? _equipment__WEBPACK_IMPORTED_MODULE_3__["default"].createFromDTO(value) : null;
@@ -1784,15 +1816,18 @@ class Player extends _combatUnit__WEBPACK_IMPORTED_MODULE_1__["default"] {
         if (this.equipment["/equipment_types/main_hand"]) {
             this.combatDetails.combatStats.combatStyleHrid =
                 this.equipment["/equipment_types/main_hand"].getCombatStyle();
+            this.combatDetails.combatStats.damageType = this.equipment["/equipment_types/main_hand"].getDamageType();
             this.combatDetails.combatStats.attackInterval =
                 this.equipment["/equipment_types/main_hand"].getCombatStat("attackInterval");
         } else if (this.equipment["/equipment_types/two_hand"]) {
             this.combatDetails.combatStats.combatStyleHrid =
                 this.equipment["/equipment_types/two_hand"].getCombatStyle();
+            this.combatDetails.combatStats.damageType = this.equipment["/equipment_types/two_hand"].getDamageType();
             this.combatDetails.combatStats.attackInterval =
                 this.equipment["/equipment_types/two_hand"].getCombatStat("attackInterval");
         } else {
             this.combatDetails.combatStats.combatStyleHrid = "smash";
+            this.combatDetails.combatStats.damageType = "/damage_types/physical";
             this.combatDetails.combatStats.attackInterval = 3000000000;
         }
 
@@ -1800,15 +1835,32 @@ class Player extends _combatUnit__WEBPACK_IMPORTED_MODULE_1__["default"] {
             "stabAccuracy",
             "slashAccuracy",
             "smashAccuracy",
+            "rangedAccuracy",
             "stabDamage",
             "slashDamage",
             "smashDamage",
+            "rangedDamage",
+            "magicDamage",
+            "physicalAmplify",
+            "waterAmplify",
+            "natureAmplify",
+            "fireAmplify",
+            "healingAmplify",
             "stabEvasion",
             "slashEvasion",
             "smashEvasion",
+            "rangedEvasion",
             "armor",
+            "waterResistance",
+            "natureResistance",
+            "fireResistance",
+            "maxHitpoints",
+            "maxManapoints",
             "lifeSteal",
             "physicalReflectPower",
+            "dropRate",
+            "dropQuantity",
+            "experienceRate",
         ].forEach((stat) => {
             this.combatDetails.combatStats[stat] = Object.values(this.equipment)
                 .filter((equipment) => equipment != null)
@@ -1817,15 +1869,14 @@ class Player extends _combatUnit__WEBPACK_IMPORTED_MODULE_1__["default"] {
         });
 
         if (this.equipment["/equipment_types/pouch"]) {
-            this.combatDetails.combatStats.foodSlots = 1 + this.equipment["/equipment_types/pouch"].getCombatStat("foodSlots");
-            this.combatDetails.combatStats.drinkSlots = 1 + this.equipment["/equipment_types/pouch"].getCombatStat("drinkSlots");
+            this.combatDetails.combatStats.foodSlots =
+                1 + this.equipment["/equipment_types/pouch"].getCombatStat("foodSlots");
+            this.combatDetails.combatStats.drinkSlots =
+                1 + this.equipment["/equipment_types/pouch"].getCombatStat("drinkSlots");
         } else {
             this.combatDetails.combatStats.foodSlots = 1;
             this.combatDetails.combatStats.drinkSlots = 1;
         }
-
-        this.combatDetails.combatStats.dropRate = 0;
-        this.combatDetails.combatStats.experienceRate = 0;
 
         super.updateCombatDetails();
     }

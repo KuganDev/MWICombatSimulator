@@ -34,6 +34,10 @@ class Equipment {
 
         return combatStyle;
     }
+
+    getDamageType() {
+        return this.gameItem.equipmentDetail.combatStats.damageType;
+    }
 }
 
 export default Equipment;

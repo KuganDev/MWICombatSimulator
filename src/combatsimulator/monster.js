@@ -27,6 +27,8 @@ class Monster extends CombatUnit {
         this.attackLevel = gameMonster.combatDetails.attackLevel;
         this.powerLevel = gameMonster.combatDetails.powerLevel;
         this.defenseLevel = gameMonster.combatDetails.defenseLevel;
+        this.rangedLevel = gameMonster.combatDetails.rangedLevel;
+        this.magicLevel = gameMonster.combatDetails.magicLevel;
 
         let gameCombatStyle = gameMonster.combatDetails.combatStats.combatStyleHrids[0];
         this.combatDetails.combatStats.combatStyleHrid = gameCombatStyle.slice(gameCombatStyle.lastIndexOf("/") + 1);
