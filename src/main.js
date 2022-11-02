@@ -204,7 +204,7 @@ function updateCombatStatsUI() {
 // #region Level
 
 function initLevelSection() {
-    ["stamina", "intelligence", "attack", "power", "defense"].forEach((skill) => {
+    ["stamina", "intelligence", "attack", "power", "defense", "ranged", "magic"].forEach((skill) => {
         let levelInput = document.getElementById("inputLevel_" + skill);
         levelInput.value = 1;
         levelInput.addEventListener("change", levelInputHandler);
@@ -217,7 +217,7 @@ function levelInputHandler() {
 }
 
 function updateLevels() {
-    ["stamina", "intelligence", "attack", "power", "defense"].forEach((skill) => {
+    ["stamina", "intelligence", "attack", "power", "defense", "ranged", "magic"].forEach((skill) => {
         let levelInput = document.getElementById("inputLevel_" + skill);
         player[skill + "Level"] = Number(levelInput.value);
     });
@@ -1220,7 +1220,7 @@ function getEquipmentSetFromUI() {
         triggerMap: {},
     };
 
-    ["stamina", "intelligence", "attack", "power", "defense"].forEach((skill) => {
+    ["stamina", "intelligence", "attack", "power", "defense", "ranged", "magic"].forEach((skill) => {
         let levelInput = document.getElementById("inputLevel_" + skill);
         equipmentSet.levels[skill] = Number(levelInput.value);
     });
@@ -1260,9 +1260,9 @@ function getEquipmentSetFromUI() {
 }
 
 function loadEquipmentSetIntoUI(equipmentSet) {
-    ["stamina", "intelligence", "attack", "power", "defense"].forEach((skill) => {
+    ["stamina", "intelligence", "attack", "power", "defense", "ranged", "magic"].forEach((skill) => {
         let levelInput = document.getElementById("inputLevel_" + skill);
-        levelInput.value = equipmentSet.levels[skill];
+        levelInput.value = equipmentSet.levels[skill] ?? 1;
     });
 
     ["head", "body", "legs", "feet", "hands", "weapon", "off_hand", "pouch"].forEach((type) => {
