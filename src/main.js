@@ -10,6 +10,7 @@ import combatTriggerComparatorDetailMap from "./combatsimulator/data/combatTrigg
 import abilitySlotsLevelRequirementList from "./combatsimulator/data/abilitySlotsLevelRequirementList.json";
 import actionDetailMap from "./combatsimulator/data/actionDetailMap.json";
 import combatMonsterDetailMap from "./combatsimulator/data/combatMonsterDetailMap.json";
+import damageTypeDetailMap from "./combatsimulator/data/damageTypeDetailMap.json";
 
 const ONE_SECOND = 1e9;
 const ONE_HOUR = 60 * 60 * ONE_SECOND;
@@ -164,6 +165,17 @@ function updateEquipmentState() {
 function updateCombatStatsUI() {
     player.updateCombatDetails();
 
+    let combatStyleElement = document.getElementById("combatStat_combatStyleHrid");
+    let combatStyle = player.combatDetails.combatStats.combatStyleHrid;
+    combatStyleElement.innerHTML = combatStyle.charAt(0).toUpperCase() + combatStyle.slice(1);
+
+    let damageTypeElement = document.getElementById("combatStat_damageType");
+    let damageType = damageTypeDetailMap[player.combatDetails.combatStats.damageType];
+    damageTypeElement.innerHTML = damageType.name;
+
+    let attackIntervalElement = document.getElementById("combatStat_attackInterval");
+    attackIntervalElement.innerHTML = (player.combatDetails.combatStats.attackInterval / 1e9).toLocaleString() + "s";
+
     [
         "maxHitpoints",
         "maxManapoints",
@@ -173,23 +185,34 @@ function updateCombatStatsUI() {
         "slashMaxDamage",
         "smashAccuracyRating",
         "smashMaxDamage",
+        "rangedAccuracyRating",
+        "rangedMaxDamage",
+        "magicMaxDamage",
         "stabEvasionRating",
         "slashEvasionRating",
         "smashEvasionRating",
-        "armor",
+        "rangedEvasionRating",
+        "totalArmor",
+        "totalWaterResistance",
+        "totalNatureResistance",
+        "totalFireResistance",
     ].forEach((stat) => {
         let element = document.getElementById("combatStat_" + stat);
         element.innerHTML = Math.floor(player.combatDetails[stat]);
     });
 
-    let combatStyleElement = document.getElementById("combatStat_combatStyleHrid");
-    let combatStyle = player.combatDetails.combatStats.combatStyleHrid;
-    combatStyleElement.innerHTML = combatStyle.charAt(0).toUpperCase() + combatStyle.slice(1);
-
-    let attackIntervalElement = document.getElementById("combatStat_attackInterval");
-    attackIntervalElement.innerHTML = (player.combatDetails.combatStats.attackInterval / 1e9).toLocaleString() + "s";
-
-    ["lifeSteal", "HPRegen", "MPRegen"].forEach((stat) => {
+    [
+        "physicalAmplify",
+        "waterAmplify",
+        "natureAmplify",
+        "fireAmplify",
+        "healingAmplify",
+        "lifeSteal",
+        "physicalReflectPower",
+        "HPRegen",
+        "MPRegen",
+        "experienceRate",
+    ].forEach((stat) => {
         let element = document.getElementById("combatStat_" + stat);
         let value = (100 * player.combatDetails.combatStats[stat]).toLocaleString([], {
             minimumFractionDigits: 0,

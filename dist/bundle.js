@@ -950,6 +950,16 @@ module.exports = JSON.parse('{"/combat_trigger_dependencies/all_allies":{"hrid":
 
 /***/ }),
 
+/***/ "./src/combatsimulator/data/damageTypeDetailMap.json":
+/*!***********************************************************!*\
+  !*** ./src/combatsimulator/data/damageTypeDetailMap.json ***!
+  \***********************************************************/
+/***/ ((module) => {
+
+module.exports = JSON.parse('{"/damage_types/fire":{"hrid":"/damage_types/fire","name":"Fire"},"/damage_types/nature":{"hrid":"/damage_types/nature","name":"Nature"},"/damage_types/physical":{"hrid":"/damage_types/physical","name":"Physical"},"/damage_types/water":{"hrid":"/damage_types/water","name":"Water"}}');
+
+/***/ }),
+
 /***/ "./src/combatsimulator/data/enhancementLevelTotalMultiplierTable.json":
 /*!****************************************************************************!*\
   !*** ./src/combatsimulator/data/enhancementLevelTotalMultiplierTable.json ***!
@@ -1115,6 +1125,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _combatsimulator_data_abilitySlotsLevelRequirementList_json__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./combatsimulator/data/abilitySlotsLevelRequirementList.json */ "./src/combatsimulator/data/abilitySlotsLevelRequirementList.json");
 /* harmony import */ var _combatsimulator_data_actionDetailMap_json__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./combatsimulator/data/actionDetailMap.json */ "./src/combatsimulator/data/actionDetailMap.json");
 /* harmony import */ var _combatsimulator_data_combatMonsterDetailMap_json__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./combatsimulator/data/combatMonsterDetailMap.json */ "./src/combatsimulator/data/combatMonsterDetailMap.json");
+/* harmony import */ var _combatsimulator_data_damageTypeDetailMap_json__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./combatsimulator/data/damageTypeDetailMap.json */ "./src/combatsimulator/data/damageTypeDetailMap.json");
+
 
 
 
@@ -1281,6 +1293,17 @@ function updateEquipmentState() {
 function updateCombatStatsUI() {
     player.updateCombatDetails();
 
+    let combatStyleElement = document.getElementById("combatStat_combatStyleHrid");
+    let combatStyle = player.combatDetails.combatStats.combatStyleHrid;
+    combatStyleElement.innerHTML = combatStyle.charAt(0).toUpperCase() + combatStyle.slice(1);
+
+    let damageTypeElement = document.getElementById("combatStat_damageType");
+    let damageType = _combatsimulator_data_damageTypeDetailMap_json__WEBPACK_IMPORTED_MODULE_12__[player.combatDetails.combatStats.damageType];
+    damageTypeElement.innerHTML = damageType.name;
+
+    let attackIntervalElement = document.getElementById("combatStat_attackInterval");
+    attackIntervalElement.innerHTML = (player.combatDetails.combatStats.attackInterval / 1e9).toLocaleString() + "s";
+
     [
         "maxHitpoints",
         "maxManapoints",
@@ -1290,23 +1313,34 @@ function updateCombatStatsUI() {
         "slashMaxDamage",
         "smashAccuracyRating",
         "smashMaxDamage",
+        "rangedAccuracyRating",
+        "rangedMaxDamage",
+        "magicMaxDamage",
         "stabEvasionRating",
         "slashEvasionRating",
         "smashEvasionRating",
-        "armor",
+        "rangedEvasionRating",
+        "totalArmor",
+        "totalWaterResistance",
+        "totalNatureResistance",
+        "totalFireResistance",
     ].forEach((stat) => {
         let element = document.getElementById("combatStat_" + stat);
         element.innerHTML = Math.floor(player.combatDetails[stat]);
     });
 
-    let combatStyleElement = document.getElementById("combatStat_combatStyleHrid");
-    let combatStyle = player.combatDetails.combatStats.combatStyleHrid;
-    combatStyleElement.innerHTML = combatStyle.charAt(0).toUpperCase() + combatStyle.slice(1);
-
-    let attackIntervalElement = document.getElementById("combatStat_attackInterval");
-    attackIntervalElement.innerHTML = (player.combatDetails.combatStats.attackInterval / 1e9).toLocaleString() + "s";
-
-    ["lifeSteal", "HPRegen", "MPRegen"].forEach((stat) => {
+    [
+        "physicalAmplify",
+        "waterAmplify",
+        "natureAmplify",
+        "fireAmplify",
+        "healingAmplify",
+        "lifeSteal",
+        "physicalReflectPower",
+        "HPRegen",
+        "MPRegen",
+        "experienceRate",
+    ].forEach((stat) => {
         let element = document.getElementById("combatStat_" + stat);
         let value = (100 * player.combatDetails.combatStats[stat]).toLocaleString([], {
             minimumFractionDigits: 0,

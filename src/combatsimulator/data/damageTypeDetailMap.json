@@ -1,0 +1,12 @@
+{
+    "/damage_types/fire": { "hrid": "/damage_types/fire", "name": "Fire" },
+    "/damage_types/nature": {
+        "hrid": "/damage_types/nature",
+        "name": "Nature"
+    },
+    "/damage_types/physical": {
+        "hrid": "/damage_types/physical",
+        "name": "Physical"
+    },
+    "/damage_types/water": { "hrid": "/damage_types/water", "name": "Water" }
+}
