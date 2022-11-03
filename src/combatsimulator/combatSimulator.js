@@ -177,33 +177,28 @@ class CombatSimulator extends EventTarget {
             return;
         }
 
-        let { damageDone, damagePrevented, maxDamage, didHit, physicalReflectDamageDone } =
-            CombatUtilities.processAttack(event.source, target);
-        // console.log("Hit for", damageDone);
+        let attackResult = CombatUtilities.processAttack(event.source, target);
 
-        if (event.source.combatDetails.combatStats.lifeSteal > 0) {
-            let lifeStealHeal = Math.floor(damageDone * event.source.combatDetails.combatStats.lifeSteal);
-            let hitpointsAdded = event.source.addHitpoints(lifeStealHeal);
-            this.simResult.addHitpointsGained(event.source, "lifesteal", hitpointsAdded);
-            // console.log("Added hitpoints from life steal:", hitpointsAdded);
+        this.simResult.addAttack(
+            event.source,
+            target,
+            "autoAttack",
+            attackResult.didHit ? attackResult.damageDone : "miss"
+        );
+
+        if (attackResult.lifeStealHeal > 0) {
+            this.simResult.addHitpointsGained(event.source, "lifesteal", attackResult.lifeStealHeal);
         }
 
-        this.simResult.addAttack(event.source, target, "autoAttack", didHit ? damageDone : "miss");
+        if (attackResult.reflectDamageDone > 0) {
+            this.simResult.addAttack(target, event.source, "physicalReflect", attackResult.reflectDamageDone);
+        }
 
-        let targetStaminaExperience = CombatUtilities.calculateStaminaExperience(damagePrevented, damageDone);
-        let targetDefenseExperience = CombatUtilities.calculateDefenseExperience(damagePrevented);
-        let sourceAttackExperience = CombatUtilities.calculateAttackExperience(damageDone);
-        let sourcePowerExperience = CombatUtilities.calculatePowerExperience(maxDamage);
-
-        this.simResult.addExperienceGain(target, "stamina", targetStaminaExperience);
-        this.simResult.addExperienceGain(target, "defense", targetDefenseExperience);
-        this.simResult.addExperienceGain(event.source, "attack", sourceAttackExperience);
-        this.simResult.addExperienceGain(event.source, "power", sourcePowerExperience);
-
-        if (physicalReflectDamageDone > 0) {
-            let physicalReflectDamageExperience = CombatUtilities.calculateAttackExperience(physicalReflectDamageDone);
-            this.simResult.addExperienceGain(target, "defense", physicalReflectDamageExperience);
-            this.simResult.addAttack(target, event.source, "physicalReflect", physicalReflectDamageDone);
+        for (const [skill, xp] of Object.entries(attackResult.experienceGained.source)) {
+            this.simResult.addExperienceGain(event.source, skill, xp);
+        }
+        for (const [skill, xp] of Object.entries(attackResult.experienceGained.target)) {
+            this.simResult.addExperienceGain(target, skill, xp);
         }
 
         if (target.combatDetails.currentHitpoints == 0) {
@@ -304,9 +299,6 @@ class CombatSimulator extends EventTarget {
         event.target.combatDetails.currentHitpoints -= damage;
         this.simResult.addAttack(event.sourceRef, event.target, "bleed", damage);
 
-        let targetStaminaExperience = CombatUtilities.calculateStaminaExperience(0, damage);
-
-        this.simResult.addExperienceGain(event.target, "stamina", targetStaminaExperience);
         // console.log(event.target.hrid, "bleed for", damage);
 
         if (event.currentTick < event.totalTicks) {
@@ -528,22 +520,25 @@ class CombatSimulator extends EventTarget {
                     }
 
                     for (const target of targets.filter((unit) => unit && unit.combatDetails.currentHitpoints > 0)) {
-                        let { damageDone, damagePrevented, maxDamage, didHit, physicalReflectDamageDone } =
-                            CombatUtilities.processAttack(source, target, abilityEffect);
+                        let attackResult = CombatUtilities.processAttack(source, target, abilityEffect);
 
-                        if (abilityEffect.bleedRatio > 0 && damageDone > 0) {
+                        if (abilityEffect.bleedRatio > 0 && attackResult.damageDone > 0) {
                             let bleedTickEvent = new BleedTickEvent(
                                 this.simulationTime + DOT_TICK_INTERVAL,
                                 source,
                                 target,
-                                damageDone * abilityEffect.bleedRatio,
+                                attackResult.damageDone * abilityEffect.bleedRatio,
                                 abilityEffect.bleedDuration / DOT_TICK_INTERVAL,
                                 1
                             );
                             this.eventQueue.addEvent(bleedTickEvent);
                         }
 
-                        if (didHit && abilityEffect.stunChance > 0 && Math.random() < abilityEffect.stunChance) {
+                        if (
+                            attackResult.didHit &&
+                            abilityEffect.stunChance > 0 &&
+                            Math.random() < abilityEffect.stunChance
+                        ) {
                             target.isStunned = true;
                             target.stunExpireTime = this.simulationTime + abilityEffect.stunDuration;
                             this.eventQueue.clearMatching(
@@ -553,28 +548,22 @@ class CombatSimulator extends EventTarget {
                             this.eventQueue.addEvent(stunExpirationEvent);
                         }
 
-                        // console.log("Ability hit", target.hrid, "for", damageDone);
-
-                        this.simResult.addAttack(source, target, ability.hrid, didHit ? damageDone : "miss");
-
-                        let targetStaminaExperience = CombatUtilities.calculateStaminaExperience(
-                            damagePrevented,
-                            damageDone
+                        this.simResult.addAttack(
+                            source,
+                            target,
+                            ability.hrid,
+                            attackResult.didHit ? attackResult.damageDone : "miss"
                         );
-                        let targetDefenseExperience = CombatUtilities.calculateDefenseExperience(damagePrevented);
-                        let sourceAttackExperience = CombatUtilities.calculateAttackExperience(damageDone);
-                        let sourcePowerExperience = CombatUtilities.calculatePowerExperience(maxDamage);
 
-                        this.simResult.addExperienceGain(target, "stamina", targetStaminaExperience);
-                        this.simResult.addExperienceGain(target, "defense", targetDefenseExperience);
-                        this.simResult.addExperienceGain(source, "attack", sourceAttackExperience);
-                        this.simResult.addExperienceGain(source, "power", sourcePowerExperience);
+                        if (attackResult.reflectDamageDone > 0) {
+                            this.simResult.addAttack(target, source, "physicalReflect", attackResult.reflectDamageDone);
+                        }
 
-                        if (physicalReflectDamageDone > 0) {
-                            let physicalReflectDamageExperience =
-                                CombatUtilities.calculateAttackExperience(physicalReflectDamageDone);
-                            this.simResult.addExperienceGain(target, "defense", physicalReflectDamageExperience);
-                            this.simResult.addAttack(target, source, "physicalReflect", physicalReflectDamageDone);
+                        for (const [skill, xp] of Object.entries(attackResult.experienceGained.source)) {
+                            this.simResult.addExperienceGain(source, skill, xp);
+                        }
+                        for (const [skill, xp] of Object.entries(attackResult.experienceGained.target)) {
+                            this.simResult.addExperienceGain(target, skill, xp);
                         }
 
                         if (target.combatDetails.currentHitpoints == 0) {

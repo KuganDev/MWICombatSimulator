@@ -39,6 +39,7 @@ class Ability {
                 targetType: effect.targetType,
                 effectType: effect.effectType,
                 combatStyleHrid: effect.combatStyleHrid.slice(effect.combatStyleHrid.lastIndexOf("/") + 1),
+                damageType: effect.damageType,
                 damageFlat: effect.baseDamageFlat + (this.level - 1) * effect.baseDamageFlatLevelBonus,
                 damageRatio: effect.baseDamageRatio + (this.level - 1) * effect.baseDamageRatioLevelBonus,
                 bleedRatio: effect.bleedRatio,
@@ -1849,8 +1850,11 @@ function showExperienceGained(simResult) {
     let totalRow = createRow(["col-md-6", "col-md-6 text-end"], ["Total", totalExperiencePerHour]);
     newChildren.push(totalRow);
 
-    ["Stamina", "Intelligence", "Attack", "Power", "Defense"].forEach((skill) => {
+    ["Stamina", "Intelligence", "Attack", "Power", "Defense", "Ranged", "Magic"].forEach((skill) => {
         let experience = simResult.experienceGained["player"][skill.toLowerCase()] ?? 0;
+        if (experience == 0) {
+            return;
+        }
         let experiencePerHour = (experience / hoursSimulated).toFixed(0);
         let experienceRow = createRow(["col-md-6", "col-md-6 text-end"], [skill, experiencePerHour]);
         newChildren.push(experienceRow);

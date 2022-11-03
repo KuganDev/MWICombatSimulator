@@ -30,6 +30,8 @@ class SimResult {
                 attack: 0,
                 power: 0,
                 defense: 0,
+                ranged: 0,
+                magic: 0,
             };
         }
 
