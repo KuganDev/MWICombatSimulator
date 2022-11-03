@@ -547,6 +547,17 @@ class CombatSimulator extends EventTarget {
         for (const target of targets.filter((unit) => unit && unit.combatDetails.currentHitpoints > 0)) {
             let attackResult = CombatUtilities.processAttack(source, target, abilityEffect);
 
+            if (attackResult.didHit && abilityEffect.buffs) {
+                for (const buff of abilityEffect.buffs) {
+                    target.addBuff(buff, this.simulationTime);
+                    let checkBuffExpirationEvent = new CheckBuffExpirationEvent(
+                        this.simulationTime + buff.duration,
+                        target
+                    );
+                    this.eventQueue.addEvent(checkBuffExpirationEvent);
+                }
+            }
+
             if (abilityEffect.bleedRatio > 0 && attackResult.damageDone > 0) {
                 let bleedTickEvent = new BleedTickEvent(
                     this.simulationTime + DOT_TICK_INTERVAL,
