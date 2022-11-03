@@ -1923,7 +1923,11 @@ function showHitpointsGained(simResult) {
                 sourceText = "Life Steal";
                 break;
             default:
-                sourceText = _combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_3__[source].name;
+                if (_combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_3__[source]) {
+                    sourceText = _combatsimulator_data_itemDetailMap_json__WEBPACK_IMPORTED_MODULE_3__[source].name;
+                } else if (_combatsimulator_data_abilityDetailMap_json__WEBPACK_IMPORTED_MODULE_2__[source]) {
+                    sourceText = _combatsimulator_data_abilityDetailMap_json__WEBPACK_IMPORTED_MODULE_2__[source].name;
+                }
                 break;
         }
         let hitpointsPerSecond = (amount / secondsSimulated).toFixed(2);

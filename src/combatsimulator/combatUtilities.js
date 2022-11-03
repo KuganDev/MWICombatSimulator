@@ -220,6 +220,26 @@ class CombatUtilities {
         return { damageDone, didHit, reflectDamageDone, lifeStealHeal, experienceGained };
     }
 
+    static processHeal(source, abilityEffect) {
+        if (abilityEffect.combatStyleHrid != "magic") {
+            throw new Error("Heal ability effect not supported for combat style: " + abilityEffect.combatStyleHrid);
+        }
+
+        let healingAmplify = 1 + source.combatDetails.combatStats.healingAmplify;
+        let magicMaxDamage = source.combatDetails.magicMaxDamage;
+
+        let baseHealFlat = abilityEffect.damageFlat;
+        let baseHealRatio = abilityEffect.damageRatio;
+
+        let minHeal = healingAmplify * (1 + baseHealFlat);
+        let maxHeal = healingAmplify * (baseHealRatio * magicMaxDamage + baseHealFlat);
+
+        let heal = this.randomInt(minHeal, maxHeal);
+        let amountHealed = source.addHitpoints(heal);
+
+        return amountHealed;
+    }
+
     static calculateTickValue(totalValue, totalTicks, currentTick) {
         let currentSum = Math.floor((currentTick * totalValue) / totalTicks);
         let previousSum = Math.floor(((currentTick - 1) * totalValue) / totalTicks);

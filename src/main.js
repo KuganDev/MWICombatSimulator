@@ -794,7 +794,11 @@ function showHitpointsGained(simResult) {
                 sourceText = "Life Steal";
                 break;
             default:
-                sourceText = itemDetailMap[source].name;
+                if (itemDetailMap[source]) {
+                    sourceText = itemDetailMap[source].name;
+                } else if (abilityDetailMap[source]) {
+                    sourceText = abilityDetailMap[source].name;
+                }
                 break;
         }
         let hitpointsPerSecond = (amount / secondsSimulated).toFixed(2);

@@ -492,87 +492,16 @@ class CombatSimulator extends EventTarget {
         for (const abilityEffect of ability.abilityEffects) {
             switch (abilityEffect.effectType) {
                 case "/ability_effect_types/buff":
-                    if (abilityEffect.targetType != "self") {
-                        throw new Error("Unsupported target type for buff ability effect: " + ability.hrid);
-                    }
-
-                    for (const buff of abilityEffect.buffs) {
-                        source.addBuff(buff, this.simulationTime);
-                        // console.log("Added buff:", abilityEffect.buff);
-                        let checkBuffExpirationEvent = new CheckBuffExpirationEvent(
-                            this.simulationTime + buff.duration,
-                            source
-                        );
-                        this.eventQueue.addEvent(checkBuffExpirationEvent);
-                    }
+                    this.processAbilityBuffEffect(source, ability, abilityEffect);
                     break;
                 case "/ability_effect_types/damage":
-                    let targets;
-                    switch (abilityEffect.targetType) {
-                        case "enemy":
-                            targets = source.isPlayer
-                                ? [CombatUtilities.getTarget(this.enemies)]
-                                : [CombatUtilities.getTarget(this.players)];
-                            break;
-                        case "all enemies":
-                            targets = source.isPlayer ? this.enemies : this.players;
-                            break;
-                    }
-
-                    for (const target of targets.filter((unit) => unit && unit.combatDetails.currentHitpoints > 0)) {
-                        let attackResult = CombatUtilities.processAttack(source, target, abilityEffect);
-
-                        if (abilityEffect.bleedRatio > 0 && attackResult.damageDone > 0) {
-                            let bleedTickEvent = new BleedTickEvent(
-                                this.simulationTime + DOT_TICK_INTERVAL,
-                                source,
-                                target,
-                                attackResult.damageDone * abilityEffect.bleedRatio,
-                                abilityEffect.bleedDuration / DOT_TICK_INTERVAL,
-                                1
-                            );
-                            this.eventQueue.addEvent(bleedTickEvent);
-                        }
-
-                        if (
-                            attackResult.didHit &&
-                            abilityEffect.stunChance > 0 &&
-                            Math.random() < abilityEffect.stunChance
-                        ) {
-                            target.isStunned = true;
-                            target.stunExpireTime = this.simulationTime + abilityEffect.stunDuration;
-                            this.eventQueue.clearMatching(
-                                (event) => event.type == AutoAttackEvent.type && event.source == target
-                            );
-                            let stunExpirationEvent = new StunExpirationEvent(target.stunExpireTime, target);
-                            this.eventQueue.addEvent(stunExpirationEvent);
-                        }
-
-                        this.simResult.addAttack(
-                            source,
-                            target,
-                            ability.hrid,
-                            attackResult.didHit ? attackResult.damageDone : "miss"
-                        );
-
-                        if (attackResult.reflectDamageDone > 0) {
-                            this.simResult.addAttack(target, source, "physicalReflect", attackResult.reflectDamageDone);
-                        }
-
-                        for (const [skill, xp] of Object.entries(attackResult.experienceGained.source)) {
-                            this.simResult.addExperienceGain(source, skill, xp);
-                        }
-                        for (const [skill, xp] of Object.entries(attackResult.experienceGained.target)) {
-                            this.simResult.addExperienceGain(target, skill, xp);
-                        }
-
-                        if (target.combatDetails.currentHitpoints == 0) {
-                            this.eventQueue.clearEventsForUnit(target);
-                            this.simResult.addDeath(target);
-                            // console.log(target.hrid, "died");
-                        }
-                    }
+                    this.processAbilityDamageEffect(source, ability, abilityEffect);
                     break;
+                case "/ability_effect_types/heal":
+                    this.processAbilityHealEffect(source, ability, abilityEffect);
+                    break;
+                default:
+                    throw new Error("Unsupported effect type for ability: " + ability.hrid);
             }
         }
 
@@ -585,6 +514,95 @@ class CombatSimulator extends EventTarget {
         this.checkEncounterEnd();
 
         return true;
+    }
+
+    processAbilityBuffEffect(source, ability, abilityEffect) {
+        if (abilityEffect.targetType != "self") {
+            throw new Error("Unsupported target type for buff ability effect: " + ability.hrid);
+        }
+
+        for (const buff of abilityEffect.buffs) {
+            source.addBuff(buff, this.simulationTime);
+            // console.log("Added buff:", abilityEffect.buff);
+            let checkBuffExpirationEvent = new CheckBuffExpirationEvent(this.simulationTime + buff.duration, source);
+            this.eventQueue.addEvent(checkBuffExpirationEvent);
+        }
+    }
+
+    processAbilityDamageEffect(source, ability, abilityEffect) {
+        let targets;
+        switch (abilityEffect.targetType) {
+            case "enemy":
+                targets = source.isPlayer
+                    ? [CombatUtilities.getTarget(this.enemies)]
+                    : [CombatUtilities.getTarget(this.players)];
+                break;
+            case "all enemies":
+                targets = source.isPlayer ? this.enemies : this.players;
+                break;
+            default:
+                throw new Error("Unsupported target type for damage ability effect: " + ability.hrid);
+        }
+
+        for (const target of targets.filter((unit) => unit && unit.combatDetails.currentHitpoints > 0)) {
+            let attackResult = CombatUtilities.processAttack(source, target, abilityEffect);
+
+            if (abilityEffect.bleedRatio > 0 && attackResult.damageDone > 0) {
+                let bleedTickEvent = new BleedTickEvent(
+                    this.simulationTime + DOT_TICK_INTERVAL,
+                    source,
+                    target,
+                    attackResult.damageDone * abilityEffect.bleedRatio,
+                    abilityEffect.bleedDuration / DOT_TICK_INTERVAL,
+                    1
+                );
+                this.eventQueue.addEvent(bleedTickEvent);
+            }
+
+            if (attackResult.didHit && abilityEffect.stunChance > 0 && Math.random() < abilityEffect.stunChance) {
+                target.isStunned = true;
+                target.stunExpireTime = this.simulationTime + abilityEffect.stunDuration;
+                this.eventQueue.clearMatching((event) => event.type == AutoAttackEvent.type && event.source == target);
+                let stunExpirationEvent = new StunExpirationEvent(target.stunExpireTime, target);
+                this.eventQueue.addEvent(stunExpirationEvent);
+            }
+
+            this.simResult.addAttack(
+                source,
+                target,
+                ability.hrid,
+                attackResult.didHit ? attackResult.damageDone : "miss"
+            );
+
+            if (attackResult.reflectDamageDone > 0) {
+                this.simResult.addAttack(target, source, "physicalReflect", attackResult.reflectDamageDone);
+            }
+
+            for (const [skill, xp] of Object.entries(attackResult.experienceGained.source)) {
+                this.simResult.addExperienceGain(source, skill, xp);
+            }
+            for (const [skill, xp] of Object.entries(attackResult.experienceGained.target)) {
+                this.simResult.addExperienceGain(target, skill, xp);
+            }
+
+            if (target.combatDetails.currentHitpoints == 0) {
+                this.eventQueue.clearEventsForUnit(target);
+                this.simResult.addDeath(target);
+                // console.log(target.hrid, "died");
+            }
+        }
+    }
+
+    processAbilityHealEffect(source, ability, abilityEffect) {
+        if (abilityEffect.targetType != "self") {
+            throw new Error("Unsupported target type for heal ability effect: " + ability.hrid);
+        }
+
+        let amountHealed = CombatUtilities.processHeal(source, abilityEffect);
+        let experienceGained = CombatUtilities.calculateMagicExperience(amountHealed);
+
+        this.simResult.addHitpointsGained(source, ability.hrid, amountHealed);
+        this.simResult.addExperienceGain(source, "magic", experienceGained);
     }
 }
 
