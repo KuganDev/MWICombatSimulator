@@ -1,0 +1,11 @@
+{
+    "/combat_styles/heal": { "hrid": "/combat_styles/heal", "name": "Heal" },
+    "/combat_styles/magic": { "hrid": "/combat_styles/magic", "name": "Magic" },
+    "/combat_styles/ranged": {
+        "hrid": "/combat_styles/ranged",
+        "name": "Ranged"
+    },
+    "/combat_styles/slash": { "hrid": "/combat_styles/slash", "name": "Slash" },
+    "/combat_styles/smash": { "hrid": "/combat_styles/smash", "name": "Smash" },
+    "/combat_styles/stab": { "hrid": "/combat_styles/stab", "name": "Stab" }
+}

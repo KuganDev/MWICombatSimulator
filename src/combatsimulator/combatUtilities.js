@@ -57,27 +57,27 @@ class CombatUtilities {
         let targetEvasionRating = 1;
 
         switch (combatStyle) {
-            case "stab":
+            case "/combat_styles/stab":
                 sourceAccuracyRating = source.combatDetails.stabAccuracyRating;
                 sourceAutoAttackMaxDamage = source.combatDetails.stabMaxDamage;
                 targetEvasionRating = target.combatDetails.stabEvasionRating;
                 break;
-            case "slash":
+            case "/combat_styles/slash":
                 sourceAccuracyRating = source.combatDetails.slashAccuracyRating;
                 sourceAutoAttackMaxDamage = source.combatDetails.slashMaxDamage;
                 targetEvasionRating = target.combatDetails.slashEvasionRating;
                 break;
-            case "smash":
+            case "/combat_styles/smash":
                 sourceAccuracyRating = source.combatDetails.smashAccuracyRating;
                 sourceAutoAttackMaxDamage = source.combatDetails.smashMaxDamage;
                 targetEvasionRating = target.combatDetails.smashEvasionRating;
                 break;
-            case "ranged":
+            case "/combat_styles/ranged":
                 sourceAccuracyRating = source.combatDetails.rangedAccuracyRating;
                 sourceAutoAttackMaxDamage = source.combatDetails.rangedMaxDamage;
                 targetEvasionRating = target.combatDetails.rangedEvasionRating;
                 break;
-            case "magic":
+            case "/combat_styles/magic":
                 sourceAutoAttackMaxDamage = source.combatDetails.magicMaxDamage;
                 break;
             default:
@@ -118,13 +118,13 @@ class CombatUtilities {
         let hitChance = 1;
         let critChance = 0;
 
-        if (combatStyle != "magic") {
+        if (combatStyle != "/combat_styles/magic") {
             hitChance =
                 Math.pow(sourceAccuracyRating, 1.4) /
                 (Math.pow(sourceAccuracyRating, 1.4) + Math.pow(targetEvasionRating, 1.4));
         }
 
-        if (combatStyle == "ranged") {
+        if (combatStyle == "/combat_styles/ranged") {
             critChance = 0.3 * hitChance;
         }
 
@@ -190,20 +190,20 @@ class CombatUtilities {
         };
 
         switch (combatStyle) {
-            case "stab":
+            case "/combat_styles/stab":
                 experienceGained.source.attack = this.calculateAttackExperience(damageDone, combatStyle);
                 break;
-            case "slash":
+            case "/combat_styles/slash":
                 experienceGained.source.attack = this.calculateAttackExperience(damageDone, combatStyle);
                 experienceGained.source.power = this.calculatePowerExperience(damageDone, combatStyle);
                 break;
-            case "smash":
+            case "/combat_styles/smash":
                 experienceGained.source.power = this.calculatePowerExperience(damageDone, combatStyle);
                 break;
-            case "ranged":
+            case "/combat_styles/ranged":
                 experienceGained.source.ranged = this.calculateRangedExperience(damageDone);
                 break;
-            case "magic":
+            case "/combat_styles/magic":
                 experienceGained.source.magic = this.calculateMagicExperience(damageDone);
                 break;
         }
@@ -221,7 +221,7 @@ class CombatUtilities {
     }
 
     static processHeal(source, abilityEffect) {
-        if (abilityEffect.combatStyleHrid != "magic") {
+        if (abilityEffect.combatStyleHrid != "/combat_styles/magic") {
             throw new Error("Heal ability effect not supported for combat style: " + abilityEffect.combatStyleHrid);
         }
 
@@ -257,9 +257,9 @@ class CombatUtilities {
 
     static calculateAttackExperience(damage, combatStyle) {
         switch (combatStyle) {
-            case "stab":
+            case "/combat_styles/stab":
                 return 0.6 + 0.15 * damage;
-            case "slash":
+            case "/combat_styles/slash":
                 return 0.3 + 0.075 * damage;
             default:
                 return 0;
@@ -268,9 +268,9 @@ class CombatUtilities {
 
     static calculatePowerExperience(damage, combatStyle) {
         switch (combatStyle) {
-            case "smash":
+            case "/combat_styles/smash":
                 return 0.6 + 0.15 * damage;
-            case "slash":
+            case "/combat_styles/slash":
                 return 0.3 + 0.075 * damage;
             default:
                 return 0;

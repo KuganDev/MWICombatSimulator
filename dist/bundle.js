@@ -38,7 +38,7 @@ class Ability {
             let abilityEffect = {
                 targetType: effect.targetType,
                 effectType: effect.effectType,
-                combatStyleHrid: effect.combatStyleHrid.slice(effect.combatStyleHrid.lastIndexOf("/") + 1),
+                combatStyleHrid: effect.combatStyleHrid,
                 damageType: effect.damageType,
                 damageFlat: effect.baseDamageFlat + (this.level - 1) * effect.baseDamageFlatLevelBonus,
                 damageRatio: effect.baseDamageRatio + (this.level - 1) * effect.baseDamageRatioLevelBonus,
@@ -197,7 +197,7 @@ class CombatUnit {
         totalNatureResistance: 0.4,
         totalFireResistance: 0.4,
         combatStats: {
-            combatStyleHrid: "smash",
+            combatStyleHrid: "/combat_styles/smash",
             damageType: "/damage_types/physical",
             attackInterval: 3000000000,
             stabAccuracy: 0,
@@ -581,10 +581,7 @@ class Equipment {
     }
 
     getCombatStyle() {
-        let gameCombatStyle = this.gameItem.equipmentDetail.combatStats.combatStyleHrids[0];
-        let combatStyle = gameCombatStyle.slice(gameCombatStyle.lastIndexOf("/") + 1);
-
-        return combatStyle;
+        return this.gameItem.equipmentDetail.combatStats.combatStyleHrids[0];
     }
 
     getDamageType() {
@@ -672,7 +669,7 @@ class Player extends _combatUnit__WEBPACK_IMPORTED_MODULE_1__["default"] {
             this.combatDetails.combatStats.attackInterval =
                 this.equipment["/equipment_types/two_hand"].getCombatStat("attackInterval");
         } else {
-            this.combatDetails.combatStats.combatStyleHrid = "smash";
+            this.combatDetails.combatStats.combatStyleHrid = "/combat_styles/smash";
             this.combatDetails.combatStats.damageType = "/damage_types/physical";
             this.combatDetails.combatStats.attackInterval = 3000000000;
         }
@@ -922,6 +919,16 @@ module.exports = JSON.parse('{"/combat_monsters/alligator":{"hrid":"/combat_mons
 
 /***/ }),
 
+/***/ "./src/combatsimulator/data/combatStyleDetailMap.json":
+/*!************************************************************!*\
+  !*** ./src/combatsimulator/data/combatStyleDetailMap.json ***!
+  \************************************************************/
+/***/ ((module) => {
+
+module.exports = JSON.parse('{"/combat_styles/heal":{"hrid":"/combat_styles/heal","name":"Heal"},"/combat_styles/magic":{"hrid":"/combat_styles/magic","name":"Magic"},"/combat_styles/ranged":{"hrid":"/combat_styles/ranged","name":"Ranged"},"/combat_styles/slash":{"hrid":"/combat_styles/slash","name":"Slash"},"/combat_styles/smash":{"hrid":"/combat_styles/smash","name":"Smash"},"/combat_styles/stab":{"hrid":"/combat_styles/stab","name":"Stab"}}');
+
+/***/ }),
+
 /***/ "./src/combatsimulator/data/combatTriggerComparatorDetailMap.json":
 /*!************************************************************************!*\
   !*** ./src/combatsimulator/data/combatTriggerComparatorDetailMap.json ***!
@@ -1128,6 +1135,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _combatsimulator_data_actionDetailMap_json__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./combatsimulator/data/actionDetailMap.json */ "./src/combatsimulator/data/actionDetailMap.json");
 /* harmony import */ var _combatsimulator_data_combatMonsterDetailMap_json__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./combatsimulator/data/combatMonsterDetailMap.json */ "./src/combatsimulator/data/combatMonsterDetailMap.json");
 /* harmony import */ var _combatsimulator_data_damageTypeDetailMap_json__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./combatsimulator/data/damageTypeDetailMap.json */ "./src/combatsimulator/data/damageTypeDetailMap.json");
+/* harmony import */ var _combatsimulator_data_combatStyleDetailMap_json__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./combatsimulator/data/combatStyleDetailMap.json */ "./src/combatsimulator/data/combatStyleDetailMap.json");
+
 
 
 
@@ -1297,7 +1306,7 @@ function updateCombatStatsUI() {
 
     let combatStyleElement = document.getElementById("combatStat_combatStyleHrid");
     let combatStyle = player.combatDetails.combatStats.combatStyleHrid;
-    combatStyleElement.innerHTML = combatStyle.charAt(0).toUpperCase() + combatStyle.slice(1);
+    combatStyleElement.innerHTML = _combatsimulator_data_combatStyleDetailMap_json__WEBPACK_IMPORTED_MODULE_13__[combatStyle].name;
 
     let damageTypeElement = document.getElementById("combatStat_damageType");
     let damageType = _combatsimulator_data_damageTypeDetailMap_json__WEBPACK_IMPORTED_MODULE_12__[player.combatDetails.combatStats.damageType];

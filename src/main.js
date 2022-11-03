@@ -11,6 +11,7 @@ import abilitySlotsLevelRequirementList from "./combatsimulator/data/abilitySlot
 import actionDetailMap from "./combatsimulator/data/actionDetailMap.json";
 import combatMonsterDetailMap from "./combatsimulator/data/combatMonsterDetailMap.json";
 import damageTypeDetailMap from "./combatsimulator/data/damageTypeDetailMap.json";
+import combatStyleDetailMap from "./combatsimulator/data/combatStyleDetailMap.json"
 
 const ONE_SECOND = 1e9;
 const ONE_HOUR = 60 * 60 * ONE_SECOND;
@@ -167,7 +168,7 @@ function updateCombatStatsUI() {
 
     let combatStyleElement = document.getElementById("combatStat_combatStyleHrid");
     let combatStyle = player.combatDetails.combatStats.combatStyleHrid;
-    combatStyleElement.innerHTML = combatStyle.charAt(0).toUpperCase() + combatStyle.slice(1);
+    combatStyleElement.innerHTML = combatStyleDetailMap[combatStyle].name;
 
     let damageTypeElement = document.getElementById("combatStat_damageType");
     let damageType = damageTypeDetailMap[player.combatDetails.combatStats.damageType];

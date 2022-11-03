@@ -47,7 +47,7 @@ class CombatUnit {
         totalNatureResistance: 0.4,
         totalFireResistance: 0.4,
         combatStats: {
-            combatStyleHrid: "smash",
+            combatStyleHrid: "/combat_styles/smash",
             damageType: "/damage_types/physical",
             attackInterval: 3000000000,
             stabAccuracy: 0,

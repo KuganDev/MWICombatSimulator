@@ -21,7 +21,7 @@ class Ability {
             let abilityEffect = {
                 targetType: effect.targetType,
                 effectType: effect.effectType,
-                combatStyleHrid: effect.combatStyleHrid.slice(effect.combatStyleHrid.lastIndexOf("/") + 1),
+                combatStyleHrid: effect.combatStyleHrid,
                 damageType: effect.damageType,
                 damageFlat: effect.baseDamageFlat + (this.level - 1) * effect.baseDamageFlatLevelBonus,
                 damageRatio: effect.baseDamageRatio + (this.level - 1) * effect.baseDamageRatioLevelBonus,

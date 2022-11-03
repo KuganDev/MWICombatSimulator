@@ -29,10 +29,7 @@ class Equipment {
     }
 
     getCombatStyle() {
-        let gameCombatStyle = this.gameItem.equipmentDetail.combatStats.combatStyleHrids[0];
-        let combatStyle = gameCombatStyle.slice(gameCombatStyle.lastIndexOf("/") + 1);
-
-        return combatStyle;
+        return this.gameItem.equipmentDetail.combatStats.combatStyleHrids[0];
     }
 
     getDamageType() {
