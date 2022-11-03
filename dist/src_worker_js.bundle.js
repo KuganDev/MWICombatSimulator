@@ -2255,8 +2255,7 @@ class Trigger {
                 dependencyValue = this.getDependencyValue(target, currentTime);
                 break;
             default:
-                console.error("Unknown dependencyHrid:", this.dependencyHrid);
-                break;
+                throw new Error("Unknown dependencyHrid in trigger: " + this.dependencyHrid);
         }
 
         return this.compareValue(dependencyValue);
@@ -2275,8 +2274,7 @@ class Trigger {
                 dependency = enemies;
                 break;
             default:
-                console.error("Unknown dependencyHrid:", this.dependencyHrid);
-                break;
+                throw new Error("Unknown dependencyHrid in trigger: " + this.dependencyHrid);
         }
 
         let dependencyValue;
@@ -2299,12 +2297,17 @@ class Trigger {
             case "/combat_trigger_conditions/attack_coffee":
             case "/combat_trigger_conditions/berserk":
             case "/combat_trigger_conditions/defense_coffee":
+            case "/combat_trigger_conditions/elemental_affinity_fire_amplify":
+            case "/combat_trigger_conditions/elemental_affinity_nature_amplify":
+            case "/combat_trigger_conditions/elemental_affinity_water_amplify":
             case "/combat_trigger_conditions/frenzy":
             case "/combat_trigger_conditions/intelligence_coffee_max_mp":
             case "/combat_trigger_conditions/intelligence_coffee_mp_regen":
             case "/combat_trigger_conditions/lucky_coffee":
+            case "/combat_trigger_conditions/magic_coffee":
             case "/combat_trigger_conditions/power_coffee":
             case "/combat_trigger_conditions/precision":
+            case "/combat_trigger_conditions/ranged_coffee":
             case "/combat_trigger_conditions/spike_shell":
             case "/combat_trigger_conditions/stamina_coffee_hp_regen":
             case "/combat_trigger_conditions/stamina_coffee_max_hp":
@@ -2328,8 +2331,7 @@ class Trigger {
                 // immediately after the stun has worn off
                 return source.isStunned || source.stunExpireTime == currentTime;
             default:
-                console.error("Unknown conditionHrid:", this.conditionHrid);
-                break;
+                throw new Error("Unknown conditionHrid in trigger: " + this.conditionHrid);
         }
     }
 
@@ -2344,8 +2346,7 @@ class Trigger {
             case "/combat_trigger_comparators/is_inactive":
                 return !dependencyValue;
             default:
-                console.error("Unknown comparatorHrid");
-                break;
+                throw new Error("Unknown comparatorHrid in trigger: " + this.comparatorHrid);
         }
     }
 }
