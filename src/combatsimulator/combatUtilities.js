@@ -211,7 +211,7 @@ class CombatUtilities {
         let damagePrevented = maxPremitigatedDamage - damageDone;
 
         experienceGained.target.defense = this.calculateDefenseExperience(damagePrevented);
-        experienceGained.target.stamina = this.calculateStaminaExperience(damagePrevented);
+        experienceGained.target.stamina = this.calculateStaminaExperience(damagePrevented, damageDone);
 
         if (mitigatedReflectDamage > 0) {
             target.experienceGained.defense += this.calculateDefenseExperience(mitigatedReflectDamage);
@@ -247,8 +247,8 @@ class CombatUtilities {
         return currentSum - previousSum;
     }
 
-    static calculateStaminaExperience(damagePrevented) {
-        return 0.04 * damagePrevented;
+    static calculateStaminaExperience(damagePrevented, damageTaken) {
+        return 0.04 * damagePrevented + 0.4 * damageTaken;
     }
 
     static calculateIntelligenceExperience(manaUsed) {
