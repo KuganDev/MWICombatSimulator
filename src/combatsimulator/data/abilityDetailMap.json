@@ -206,8 +206,8 @@
                 "damageType": "/damage_types/nature",
                 "baseDamageFlat": 10,
                 "baseDamageFlatLevelBonus": 0.1,
-                "baseDamageRatio": 0.6,
-                "baseDamageRatioLevelBonus": 0.006,
+                "baseDamageRatio": 0.5,
+                "baseDamageRatioLevelBonus": 0.005,
                 "bonusAccuracyRatio": 0,
                 "bonusAccuracyRatioLevelBonus": 0,
                 "bleedRatio": 0,
@@ -225,7 +225,7 @@
                 "value": 1
             }
         ],
-        "sortIndex": 15
+        "sortIndex": 14
     },
     "/abilities/fireball": {
         "hrid": "/abilities/fireball",
@@ -242,8 +242,8 @@
                 "damageType": "/damage_types/fire",
                 "baseDamageFlat": 10,
                 "baseDamageFlatLevelBonus": 0.1,
-                "baseDamageRatio": 0.7,
-                "baseDamageRatioLevelBonus": 0.007,
+                "baseDamageRatio": 0.6,
+                "baseDamageRatioLevelBonus": 0.006,
                 "bonusAccuracyRatio": 0,
                 "bonusAccuracyRatioLevelBonus": 0,
                 "bleedRatio": 0,
@@ -261,7 +261,7 @@
                 "value": 1
             }
         ],
-        "sortIndex": 13
+        "sortIndex": 15
     },
     "/abilities/flame_arrow": {
         "hrid": "/abilities/flame_arrow",
@@ -339,7 +339,7 @@
                 "value": 1
             }
         ],
-        "sortIndex": 16
+        "sortIndex": 18
     },
     "/abilities/frenzy": {
         "hrid": "/abilities/frenzy",
@@ -439,8 +439,8 @@
                 "damageType": "/damage_types/water",
                 "baseDamageFlat": 20,
                 "baseDamageFlatLevelBonus": 0.2,
-                "baseDamageRatio": 1,
-                "baseDamageRatioLevelBonus": 0.01,
+                "baseDamageRatio": 0.9,
+                "baseDamageRatioLevelBonus": 0.009,
                 "bonusAccuracyRatio": 0,
                 "bonusAccuracyRatioLevelBonus": 0,
                 "bleedRatio": 0,
@@ -469,7 +469,7 @@
                 "value": 1
             }
         ],
-        "sortIndex": 17
+        "sortIndex": 16
     },
     "/abilities/maim": {
         "hrid": "/abilities/maim",
@@ -841,8 +841,8 @@
                         "typeHrid": "/buff_types/physical_reflect_power",
                         "ratioBoost": 0,
                         "ratioBoostLevelBonus": 0,
-                        "flatBoost": 0.8,
-                        "flatBoostLevelBonus": 0.008,
+                        "flatBoost": 0.5,
+                        "flatBoostLevelBonus": 0.005,
                         "startTime": "0001-01-01T00:00:00Z",
                         "duration": 15000000000
                     }
@@ -966,8 +966,8 @@
                         "typeHrid": "/buff_types/armor",
                         "ratioBoost": 0,
                         "ratioBoostLevelBonus": 0,
-                        "flatBoost": 30,
-                        "flatBoostLevelBonus": 0.3,
+                        "flatBoost": 40,
+                        "flatBoostLevelBonus": 0.4,
                         "startTime": "0001-01-01T00:00:00Z",
                         "duration": 15000000000
                     }
@@ -999,8 +999,8 @@
                 "damageType": "/damage_types/nature",
                 "baseDamageFlat": 20,
                 "baseDamageFlatLevelBonus": 0.2,
-                "baseDamageRatio": 0.5,
-                "baseDamageRatioLevelBonus": 0.005,
+                "baseDamageRatio": 0.4,
+                "baseDamageRatioLevelBonus": 0.004,
                 "bonusAccuracyRatio": 0,
                 "bonusAccuracyRatioLevelBonus": 0,
                 "bleedRatio": 0,
@@ -1065,7 +1065,7 @@
                 "value": 1
             }
         ],
-        "sortIndex": 18
+        "sortIndex": 17
     },
     "/abilities/vampirism": {
         "hrid": "/abilities/vampirism",
@@ -1129,8 +1129,8 @@
                 "damageType": "/damage_types/water",
                 "baseDamageFlat": 10,
                 "baseDamageFlatLevelBonus": 0.1,
-                "baseDamageRatio": 0.7,
-                "baseDamageRatioLevelBonus": 0.007,
+                "baseDamageRatio": 0.6,
+                "baseDamageRatioLevelBonus": 0.006,
                 "bonusAccuracyRatio": 0,
                 "bonusAccuracyRatioLevelBonus": 0,
                 "bleedRatio": 0,
@@ -1148,6 +1148,6 @@
                 "value": 1
             }
         ],
-        "sortIndex": 14
+        "sortIndex": 13
     }
 }
