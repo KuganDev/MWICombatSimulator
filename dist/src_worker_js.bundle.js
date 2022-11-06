@@ -2383,35 +2383,35 @@ class Zone {
         this.hrid = hrid;
 
         let gameZone = _data_actionDetailMap_json__WEBPACK_IMPORTED_MODULE_0__[this.hrid];
-        this.monsterSpawnRates = gameZone.monsterSpawnRates;
-
-        let totalProbability = this.monsterSpawnRates
-            .map((encounter) => encounter.rate * 100) // Avoid floating point inaccuracies
-            .reduce((prev, cur) => prev + cur, 0);
-        if (totalProbability != 100) {
-            throw new Error("Encounter probabilities do not add up to 1. Zone: " + this.hrid);
-        }
+        this.monsterSpawnInfo = gameZone.monsterSpawnInfo;
     }
 
     getRandomEncounter() {
-        let encounter = null;
-        let cumulativeProbability = 0;
-        let randomNumber = Math.random();
+        let totalWeight = this.monsterSpawnInfo.spawns.reduce((prev, cur) => prev + cur.rate, 0);
 
-        for (let i = 0; i < this.monsterSpawnRates.length; i++) {
-            cumulativeProbability += this.monsterSpawnRates[i].rate;
-            if (cumulativeProbability > randomNumber) {
-                encounter = this.monsterSpawnRates[i];
-                break;
+        let encounterHrids = [];
+        let totalStrength = 0;
+
+        outer: for (let i = 0; i < this.monsterSpawnInfo.maxSpawnCount; i++) {
+            let randomWeight = totalWeight * Math.random();
+            let cumulativeWeight = 0;
+
+            for (const spawn of this.monsterSpawnInfo.spawns) {
+                cumulativeWeight += spawn.rate;
+                if (randomWeight <= cumulativeWeight) {
+                    totalStrength += spawn.strength;
+
+                    if (totalStrength <= this.monsterSpawnInfo.maxTotalStrength) {
+                        encounterHrids.push(spawn.combatMonsterHrid);
+                    } else {
+                        break outer;
+                    }
+                    break;
+                }
             }
         }
 
-        // This could happen very rarely due to floating point inaccuracies
-        if (encounter == null) {
-            encounter = this.monsterSpawnRates[this.monsterSpawnRates.length - 1];
-        }
-
-        return encounter.combatMonsterHrids.map((hrid) => new _monster__WEBPACK_IMPORTED_MODULE_1__["default"](hrid));
+        return encounterHrids.map((hrid) => new _monster__WEBPACK_IMPORTED_MODULE_1__["default"](hrid));
     }
 }
 
