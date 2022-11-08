@@ -153,8 +153,8 @@
                         "typeHrid": "/buff_types/water_amplify",
                         "ratioBoost": 0,
                         "ratioBoostLevelBonus": 0,
-                        "flatBoost": 0.3,
-                        "flatBoostLevelBonus": 0.003,
+                        "flatBoost": 0.45,
+                        "flatBoostLevelBonus": 0.0045,
                         "startTime": "0001-01-01T00:00:00Z",
                         "duration": 15000000000
                     },
@@ -163,8 +163,8 @@
                         "typeHrid": "/buff_types/nature_amplify",
                         "ratioBoost": 0,
                         "ratioBoostLevelBonus": 0,
-                        "flatBoost": 0.3,
-                        "flatBoostLevelBonus": 0.003,
+                        "flatBoost": 0.45,
+                        "flatBoostLevelBonus": 0.0045,
                         "startTime": "0001-01-01T00:00:00Z",
                         "duration": 15000000000
                     },
@@ -173,8 +173,8 @@
                         "typeHrid": "/buff_types/fire_amplify",
                         "ratioBoost": 0,
                         "ratioBoostLevelBonus": 0,
-                        "flatBoost": 0.3,
-                        "flatBoostLevelBonus": 0.003,
+                        "flatBoost": 0.45,
+                        "flatBoostLevelBonus": 0.0045,
                         "startTime": "0001-01-01T00:00:00Z",
                         "duration": 15000000000
                     }
@@ -212,7 +212,7 @@
                 "bonusAccuracyRatioLevelBonus": 0,
                 "bleedRatio": 0,
                 "bleedDuration": 0,
-                "stunChance": 0.5,
+                "stunChance": 0.4,
                 "stunDuration": 3000000000,
                 "buffs": null
             }
@@ -642,8 +642,8 @@
                     {
                         "sourceHrid": "/buff_sources/precision",
                         "typeHrid": "/buff_types/accuracy",
-                        "ratioBoost": 0.3,
-                        "ratioBoostLevelBonus": 0.003,
+                        "ratioBoost": 0.35,
+                        "ratioBoostLevelBonus": 0.0035,
                         "flatBoost": 0,
                         "flatBoostLevelBonus": 0,
                         "startTime": "0001-01-01T00:00:00Z",
