@@ -151,26 +151,46 @@ class CombatUnit {
         this.combatDetails.combatStats.attackInterval =
             this.combatDetails.combatStats.attackInterval * (1 / (1 + attackIntervalRatioBoost));
 
+        let baseArmor = 0.2 * this.combatDetails.defenseLevel + this.combatDetails.combatStats.armor;
+        this.combatDetails.totalArmor = baseArmor;
         let armorBoosts = this.getBuffBoosts("/buff_types/armor");
-        let armorFlatBoost = armorBoosts.map((boost) => boost.flatBoost).reduce((prev, cur) => prev + cur, 0);
-        this.combatDetails.totalArmor =
-            0.2 * this.combatDetails.defenseLevel + this.combatDetails.combatStats.armor + armorFlatBoost;
+        for (const boost of armorBoosts) {
+            this.combatDetails.totalArmor += boost.flatBoost;
+            this.combatDetails.totalArmor += baseArmor * boost.ratioBoost;
+        }
 
-        this.combatDetails.totalWaterResistance =
+        let baseWaterResistance =
             0.1 * this.combatDetails.defenseLevel +
             0.3 * this.combatDetails.magicLevel +
-            this.combatDetails.combatStats.waterResistance +
-            this.getBuffBoost("/buff_types/water_resistance").flatBoost;
-        this.combatDetails.totalNatureResistance =
+            this.combatDetails.combatStats.waterResistance;
+        this.combatDetails.totalWaterResistance = baseWaterResistance;
+        let waterResistanceBoosts = this.getBuffBoosts("/buff_types/water_resistance");
+        for (const boost of waterResistanceBoosts) {
+            this.combatDetails.totalWaterResistance += boost.flatBoost;
+            this.combatDetails.totalWaterResistance += baseWaterResistance * boost.ratioBoost;
+        }
+
+        let baseNatureResistance =
             0.1 * this.combatDetails.defenseLevel +
             0.3 * this.combatDetails.magicLevel +
-            this.combatDetails.combatStats.natureResistance +
-            this.getBuffBoost("/buff_types/nature_resistance").flatBoost;
-        this.combatDetails.totalFireResistance =
+            this.combatDetails.combatStats.natureResistance;
+        this.combatDetails.totalNatureResistance = baseNatureResistance;
+        let natureResistanceBoosts = this.getBuffBoosts("/buff_types/nature_resistance");
+        for (const boost of natureResistanceBoosts) {
+            this.combatDetails.totalNatureResistance += boost.flatBoost;
+            this.combatDetails.totalNatureResistance += baseNatureResistance * boost.ratioBoost;
+        }
+
+        let baseFireResistance =
             0.1 * this.combatDetails.defenseLevel +
             0.3 * this.combatDetails.magicLevel +
-            this.combatDetails.combatStats.fireResistance +
-            this.getBuffBoost("/buff_types/fire_resistance").flatBoost;
+            this.combatDetails.combatStats.fireResistance;
+        this.combatDetails.totalFireResistance = baseFireResistance;
+        let fireResistanceBoosts = this.getBuffBoosts("/buff_types/fire_resistance");
+        for (const boost of fireResistanceBoosts) {
+            this.combatDetails.totalFireResistance += boost.flatBoost;
+            this.combatDetails.totalFireResistance += baseFireResistance * boost.ratioBoost;
+        }
 
         this.combatDetails.combatStats.lifeSteal += this.getBuffBoost("/buff_types/life_steal").flatBoost;
         this.combatDetails.combatStats.HPRegen += this.getBuffBoost("/buff_types/hp_regen").flatBoost;
