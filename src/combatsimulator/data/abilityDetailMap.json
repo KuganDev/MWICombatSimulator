@@ -314,8 +314,8 @@
                 "damageType": "/damage_types/fire",
                 "baseDamageFlat": 20,
                 "baseDamageFlatLevelBonus": 0.2,
-                "baseDamageRatio": 0.7,
-                "baseDamageRatioLevelBonus": 0.007,
+                "baseDamageRatio": 0.65,
+                "baseDamageRatioLevelBonus": 0.0065,
                 "bonusAccuracyRatio": 0,
                 "bonusAccuracyRatioLevelBonus": 0,
                 "bleedRatio": 0,
@@ -439,8 +439,8 @@
                 "damageType": "/damage_types/water",
                 "baseDamageFlat": 20,
                 "baseDamageFlatLevelBonus": 0.2,
-                "baseDamageRatio": 0.9,
-                "baseDamageRatioLevelBonus": 0.009,
+                "baseDamageRatio": 0.95,
+                "baseDamageRatioLevelBonus": 0.0095,
                 "bonusAccuracyRatio": 0,
                 "bonusAccuracyRatioLevelBonus": 0,
                 "bleedRatio": 0,
@@ -841,8 +841,8 @@
                         "typeHrid": "/buff_types/physical_reflect_power",
                         "ratioBoost": 0,
                         "ratioBoostLevelBonus": 0,
-                        "flatBoost": 0.5,
-                        "flatBoostLevelBonus": 0.005,
+                        "flatBoost": 0.25,
+                        "flatBoostLevelBonus": 0.0025,
                         "startTime": "0001-01-01T00:00:00Z",
                         "duration": 15000000000
                     }
@@ -962,12 +962,42 @@
                 "stunDuration": 0,
                 "buffs": [
                     {
-                        "sourceHrid": "/buff_sources/toughness",
+                        "sourceHrid": "/buff_sources/toughness_armor",
                         "typeHrid": "/buff_types/armor",
-                        "ratioBoost": 0,
-                        "ratioBoostLevelBonus": 0,
-                        "flatBoost": 40,
-                        "flatBoostLevelBonus": 0.4,
+                        "ratioBoost": 0.25,
+                        "ratioBoostLevelBonus": 0.0025,
+                        "flatBoost": 25,
+                        "flatBoostLevelBonus": 0.25,
+                        "startTime": "0001-01-01T00:00:00Z",
+                        "duration": 15000000000
+                    },
+                    {
+                        "sourceHrid": "/buff_sources/toughness_water_resistance",
+                        "typeHrid": "/buff_types/water_resistance",
+                        "ratioBoost": 0.25,
+                        "ratioBoostLevelBonus": 0.0025,
+                        "flatBoost": 25,
+                        "flatBoostLevelBonus": 0.25,
+                        "startTime": "0001-01-01T00:00:00Z",
+                        "duration": 15000000000
+                    },
+                    {
+                        "sourceHrid": "/buff_sources/toughness_nature_resistance",
+                        "typeHrid": "/buff_types/nature_resistance",
+                        "ratioBoost": 0.25,
+                        "ratioBoostLevelBonus": 0.0025,
+                        "flatBoost": 25,
+                        "flatBoostLevelBonus": 0.25,
+                        "startTime": "0001-01-01T00:00:00Z",
+                        "duration": 15000000000
+                    },
+                    {
+                        "sourceHrid": "/buff_sources/toughness_fire_resistance",
+                        "typeHrid": "/buff_types/fire_resistance",
+                        "ratioBoost": 0.25,
+                        "ratioBoostLevelBonus": 0.0025,
+                        "flatBoost": 25,
+                        "flatBoostLevelBonus": 0.25,
                         "startTime": "0001-01-01T00:00:00Z",
                         "duration": 15000000000
                     }
@@ -977,7 +1007,7 @@
         "defaultCombatTriggers": [
             {
                 "dependencyHrid": "/combat_trigger_dependencies/self",
-                "conditionHrid": "/combat_trigger_conditions/toughness",
+                "conditionHrid": "/combat_trigger_conditions/toughness_armor",
                 "comparatorHrid": "/combat_trigger_comparators/is_inactive",
                 "value": 0
             }

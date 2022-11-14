@@ -7932,7 +7932,7 @@
     "/items/black_tea_leaf": {
         "hrid": "/items/black_tea_leaf",
         "name": "Black Tea Leaf",
-        "description": "",
+        "description": "Found from monsters in combat",
         "categoryHrid": "/item_categories/resource",
         "sellPrice": 8,
         "isTradable": true,
@@ -11852,7 +11852,7 @@
     "/items/burble_tea_leaf": {
         "hrid": "/items/burble_tea_leaf",
         "name": "Burble Tea Leaf",
-        "description": "",
+        "description": "Found from monsters in combat",
         "categoryHrid": "/item_categories/resource",
         "sellPrice": 12,
         "isTradable": true,
@@ -21630,7 +21630,7 @@
     "/items/emp_tea_leaf": {
         "hrid": "/items/emp_tea_leaf",
         "name": "Emp Tea Leaf",
-        "description": "",
+        "description": "Found from monsters in combat",
         "categoryHrid": "/item_categories/resource",
         "sellPrice": 54,
         "isTradable": true,
@@ -23977,12 +23977,12 @@
         "name": "Giant Pouch",
         "description": "",
         "categoryHrid": "/item_categories/equipment",
-        "sellPrice": 2000000,
+        "sellPrice": 5000000,
         "isTradable": true,
         "itemLevel": 60,
         "enhancementCosts": [
-            { "itemHrid": "/items/beast_leather", "count": 60 },
-            { "itemHrid": "/items/silk_fabric", "count": 60 },
+            { "itemHrid": "/items/beast_leather", "count": 30 },
+            { "itemHrid": "/items/silk_fabric", "count": 30 },
             { "itemHrid": "/items/coin", "count": 320 }
         ],
         "equipmentDetail": {
@@ -27220,7 +27220,7 @@
     "/items/green_tea_leaf": {
         "hrid": "/items/green_tea_leaf",
         "name": "Green Tea Leaf",
-        "description": "",
+        "description": "Found from monsters in combat",
         "categoryHrid": "/item_categories/resource",
         "sellPrice": 4,
         "isTradable": true,
@@ -31393,12 +31393,12 @@
         "name": "Large Pouch",
         "description": "",
         "categoryHrid": "/item_categories/equipment",
-        "sellPrice": 200000,
+        "sellPrice": 500000,
         "isTradable": true,
         "itemLevel": 40,
         "enhancementCosts": [
-            { "itemHrid": "/items/gobo_leather", "count": 20 },
-            { "itemHrid": "/items/bamboo_fabric", "count": 20 },
+            { "itemHrid": "/items/gobo_leather", "count": 12 },
+            { "itemHrid": "/items/bamboo_fabric", "count": 12 },
             { "itemHrid": "/items/coin", "count": 180 }
         ],
         "equipmentDetail": {
@@ -34006,12 +34006,12 @@
         "name": "Medium Pouch",
         "description": "",
         "categoryHrid": "/item_categories/equipment",
-        "sellPrice": 20000,
+        "sellPrice": 50000,
         "isTradable": true,
         "itemLevel": 20,
         "enhancementCosts": [
-            { "itemHrid": "/items/reptile_leather", "count": 6 },
-            { "itemHrid": "/items/linen_fabric", "count": 6 },
+            { "itemHrid": "/items/reptile_leather", "count": 5 },
+            { "itemHrid": "/items/linen_fabric", "count": 5 },
             { "itemHrid": "/items/coin", "count": 80 }
         ],
         "equipmentDetail": {
@@ -34922,7 +34922,7 @@
     "/items/moolong_tea_leaf": {
         "hrid": "/items/moolong_tea_leaf",
         "name": "Moolong Tea Leaf",
-        "description": "",
+        "description": "Found from monsters in combat",
         "categoryHrid": "/item_categories/resource",
         "sellPrice": 18,
         "isTradable": true,
@@ -42341,7 +42341,7 @@
     "/items/red_tea_leaf": {
         "hrid": "/items/red_tea_leaf",
         "name": "Red Tea Leaf",
-        "description": "",
+        "description": "Found from monsters in combat",
         "categoryHrid": "/item_categories/resource",
         "sellPrice": 27,
         "isTradable": true,
@@ -46340,7 +46340,7 @@
         "name": "Small Pouch",
         "description": "",
         "categoryHrid": "/item_categories/equipment",
-        "sellPrice": 2000,
+        "sellPrice": 5000,
         "isTradable": true,
         "itemLevel": 1,
         "enhancementCosts": [
