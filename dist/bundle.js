@@ -835,7 +835,10 @@ class Trigger {
             case "/combat_trigger_conditions/stamina_coffee_hp_regen":
             case "/combat_trigger_conditions/stamina_coffee_max_hp":
             case "/combat_trigger_conditions/swiftness_coffee":
-            case "/combat_trigger_conditions/toughness":
+            case "/combat_trigger_conditions/toughness_armor":
+            case "/combat_trigger_conditions/toughness_fire_resistance":
+            case "/combat_trigger_conditions/toughness_nature_resistance":
+            case "/combat_trigger_conditions/toughness_water_resistance":
             case "/combat_trigger_conditions/vampirism":
             case "/combat_trigger_conditions/wisdom_coffee":
                 let buffHrid = "/buff_sources";
