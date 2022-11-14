@@ -299,6 +299,8 @@ class CombatSimulator extends EventTarget {
         event.target.combatDetails.currentHitpoints -= damage;
         this.simResult.addAttack(event.sourceRef, event.target, "bleed", damage);
 
+        let targetStaminaExperience = CombatUtilities.calculateStaminaExperience(0, damage);
+        this.simResult.addExperienceGain(event.target, "stamina", targetStaminaExperience);
         // console.log(event.target.hrid, "bleed for", damage);
 
         if (event.currentTick < event.totalTicks) {
